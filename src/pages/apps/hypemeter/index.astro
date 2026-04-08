@@ -1,0 +1,11 @@
+---
+import Layout from '@layouts/Layout.astro';
+import AppPage from '@components/AppPage.astro';
+import SpikeDetector from '@components/apps/hypemeter/SpikeDetector.svelte';
+---
+
+<Layout>
+  <AppPage title="hypemeter" tagline="Most viewed Wikipedia articles yesterday">
+    <SpikeDetector client:load />
+  </AppPage>
+</Layout>

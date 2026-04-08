@@ -1,5 +1,5 @@
 import type { Component } from 'svelte';
-import { Globe, Eye, Type } from 'lucide-svelte';
+import { Globe, Eye, Type, TrendingUp } from 'lucide-svelte';
 
 export type AppEntry = {
   slug: string;
@@ -27,6 +27,14 @@ export const appEntries: AppEntry[] = [
     description: 'A Pokémon guessing game — a silhouette appears, type the name before giving up.',
     status: 'ready',
     icon: Eye,
+  },
+  {
+    slug: 'hypemeter',
+    title: 'hypemeter',
+    tagline: 'Most viewed Wikipedia articles yesterday.',
+    description: 'A live ranking of the most read Wikipedia pages from the previous day.',
+    status: 'ready',
+    icon: TrendingUp,
   },
   {
     slug: 'mistaword',

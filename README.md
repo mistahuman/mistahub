@@ -16,6 +16,7 @@ https://mistahuman.github.io/mistahub/
 | ----------- | --------- | ---------------------------------------- | ------- |
 | `mistageo`  | mistageo  | Geography quiz — flags and borders       | ready   |
 | `mistadex`  | mistadex  | Guess the Pokémon from its silhouette    | ready   |
+| `hypemeter` | hypemeter | Most viewed Wikipedia articles yesterday | ready   |
 | `mistaword` | mistaword | Wordle-style game in English and Italian | planned |
 
 ## Stack
