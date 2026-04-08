@@ -12,12 +12,12 @@ https://mistahuman.github.io/mistahub/
 
 ## Apps
 
-| Slug        | What it does                             | Status  |
-| ----------- | ---------------------------------------- | ------- |
-| `mistageo`  | Geography quiz — flags and borders       | ready   |
-| `mistadex`  | Guess the Pokémon from its silhouette    | ready   |
-| `hypemeter` | Most viewed Wikipedia articles yesterday | ready   |
-| `mistaword` | Wordle-style game in English and Italian | planned |
+| Slug        | What it does                             |
+| ----------- | ---------------------------------------- |
+| `mistageo`  | Geography quiz — flags and borders       |
+| `mistadex`  | Guess the Pokémon from its silhouette    |
+| `hypemeter` | Most viewed Wikipedia articles yesterday |
+| `mistaword` | Wordle-style word game                   |
 
 ## Stack
 

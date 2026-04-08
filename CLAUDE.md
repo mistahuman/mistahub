@@ -18,7 +18,8 @@ src/
 │   ├── apps/
 │   │   ├── mistageo/FlagGame.svelte
 │   │   ├── mistadex/PokemonGame.svelte
-│   │   └── hypemeter/SpikeDetector.svelte + SpikeRow.svelte
+│   │   ├── hypemeter/SpikeDetector.svelte + SpikeRow.svelte
+│   │   └── mistaword/WordleGame.svelte
 │   └── generic/                  # Header, Footer, Drawer, Logo, Lightswitch
 ├── data/
 │   └── apps.ts                   # pure data — no UI imports
@@ -28,18 +29,19 @@ src/
 │       ├── [slug].astro          # auto "coming soon" for planned apps
 │       ├── mistageo/index.astro
 │       ├── mistadex/index.astro
-│       └── hypemeter/index.astro
+│       ├── hypemeter/index.astro
+│       └── mistaword/index.astro
 └── styles/
 ```
 
 ## Current app state
 
-| Slug        | Status  | Extra deps                                                     |
-| ----------- | ------- | -------------------------------------------------------------- |
-| `mistageo`  | ready   | `topojson-client`, `@types/topojson-client`                    |
-| `mistadex`  | ready   | none                                                           |
-| `hypemeter` | ready   | none                                                           |
-| `mistaword` | planned | none — source: `../mistaword/src/components/WordleGame.svelte` |
+| Slug        | Status | Extra deps                                  |
+| ----------- | ------ | ------------------------------------------- |
+| `mistageo`  | ready  | `topojson-client`, `@types/topojson-client` |
+| `mistadex`  | ready  | none                                        |
+| `hypemeter` | ready  | none                                        |
+| `mistaword` | ready  | none                                        |
 
 ## Key conventions
 
