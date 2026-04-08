@@ -1,0 +1,23 @@
+---
+import Layout from '@layouts/Layout.astro';
+import { ChevronLeft } from 'lucide-svelte';
+import PokemonGame from '@components/apps/PokemonGame.svelte';
+
+const base = import.meta.env.BASE_URL;
+---
+
+<Layout>
+  <div class="container mx-auto max-w-screen-lg px-4 py-10 md:px-8 xl:px-10">
+    <a href={base} class="btn btn-sm preset-tonal">
+      <ChevronLeft size={16} />
+      mistahub
+    </a>
+
+    <div class="mt-6 mb-8 text-center">
+      <h1 class="h2">mistadex</h1>
+      <p class="text-surface-600-400 text-sm mt-1">Guess the creature from its silhouette</p>
+    </div>
+
+    <PokemonGame client:load />
+  </div>
+</Layout>

@@ -17,7 +17,7 @@ export const appEntries: AppEntry[] = [
     tagline: 'Identify countries from their flag or borders.',
     description:
       'A geography quiz that challenges you to recognize countries by flag or by border shape.',
-    status: 'planned',
+    status: 'ready',
     icon: Globe,
   },
   {
@@ -25,7 +25,7 @@ export const appEntries: AppEntry[] = [
     title: 'mistadex',
     tagline: 'Guess the Pokémon from its silhouette.',
     description: 'A Pokémon guessing game — a silhouette appears, type the name before giving up.',
-    status: 'planned',
+    status: 'ready',
     icon: Eye,
   },
   {

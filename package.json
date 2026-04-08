@@ -25,10 +25,12 @@
     "@skeletonlabs/skeleton": "^4.14.0",
     "@skeletonlabs/skeleton-svelte": "^4.14.0",
     "@tailwindcss/vite": "^4.2.2",
+    "@types/topojson-client": "^3.1.5",
     "astro": "^6.1.2",
     "lucide-svelte": "^0.577.0",
     "svelte": "^5.55.1",
     "tailwindcss": "^4.2.2",
+    "topojson-client": "^3.1.0",
     "typescript": "^5.9.3"
   },
   "devDependencies": {

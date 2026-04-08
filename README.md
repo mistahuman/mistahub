@@ -14,8 +14,8 @@ https://mistahuman.github.io/mistahub/
 
 | Slug        | Title     | What it does                             | Status  |
 | ----------- | --------- | ---------------------------------------- | ------- |
-| `mistageo`  | mistageo  | Geography quiz — flags and borders       | planned |
-| `mistadex`  | mistadex  | Guess the Pokémon from its silhouette    | planned |
+| `mistageo`  | mistageo  | Geography quiz — flags and borders       | ready   |
+| `mistadex`  | mistadex  | Guess the Pokémon from its silhouette    | ready   |
 | `mistaword` | mistaword | Wordle-style game in English and Italian | planned |
 
 ## Stack
