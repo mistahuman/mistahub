@@ -1,0 +1,11 @@
+---
+import Layout from '@layouts/Layout.astro';
+import AppPage from '@components/AppPage.astro';
+import WordleGame from '@components/apps/mistaword/WordleGame.svelte';
+---
+
+<Layout>
+  <AppPage title="mistaword" tagline="Guess the 5-letter word in 6 tries.">
+    <WordleGame client:load />
+  </AppPage>
+</Layout>

@@ -33,8 +33,8 @@ export const appEntries: AppEntry[] = [
     slug: 'mistaword',
     title: 'mistaword',
     tagline: 'Guess the 5-letter word in 6 tries.',
-    description: 'A Wordle-style game available in English and Italian.',
-    status: 'planned',
+    description: 'A Wordle-style game — guess the daily word in six tries.',
+    status: 'ready',
   },
 ];
 
