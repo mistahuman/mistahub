@@ -1,13 +1,9 @@
-import type { Component } from 'svelte';
-import { Globe, Eye, Type, TrendingUp } from 'lucide-svelte';
-
 export type AppEntry = {
   slug: string;
   title: string;
   tagline: string;
   description: string;
   status: 'ready' | 'planned';
-  icon: Component;
 };
 
 export const appEntries: AppEntry[] = [
@@ -18,7 +14,6 @@ export const appEntries: AppEntry[] = [
     description:
       'A geography quiz that challenges you to recognize countries by flag or by border shape.',
     status: 'ready',
-    icon: Globe,
   },
   {
     slug: 'mistadex',
@@ -26,7 +21,6 @@ export const appEntries: AppEntry[] = [
     tagline: 'Guess the Pokémon from its silhouette.',
     description: 'A Pokémon guessing game — a silhouette appears, type the name before giving up.',
     status: 'ready',
-    icon: Eye,
   },
   {
     slug: 'hypemeter',
@@ -34,7 +28,6 @@ export const appEntries: AppEntry[] = [
     tagline: 'Most viewed Wikipedia articles yesterday.',
     description: 'A live ranking of the most read Wikipedia pages from the previous day.',
     status: 'ready',
-    icon: TrendingUp,
   },
   {
     slug: 'mistaword',
@@ -42,7 +35,6 @@ export const appEntries: AppEntry[] = [
     tagline: 'Guess the 5-letter word in 6 tries.',
     description: 'A Wordle-style game available in English and Italian.',
     status: 'planned',
-    icon: Type,
   },
 ];
 
