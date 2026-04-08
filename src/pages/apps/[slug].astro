@@ -1,0 +1,37 @@
+---
+import Layout from '@layouts/Layout.astro';
+import { ChevronLeft } from 'lucide-svelte';
+import { appEntries, getAppBySlug } from '../../data/apps';
+
+export function getStaticPaths() {
+  return appEntries.map((entry) => ({
+    params: { slug: entry.slug },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const base = import.meta.env.BASE_URL;
+const app = getAppBySlug(entry.slug);
+const Icon = app?.icon;
+---
+
+<Layout>
+  <section class="container mx-auto max-w-screen-lg px-4 py-14 md:px-8 xl:px-10">
+    <a href={base} class="btn btn-sm preset-tonal">
+      <ChevronLeft size={16} />
+      mistahub
+    </a>
+
+    <div class="mt-8 space-y-3">
+      {Icon && <Icon size={32} />}
+      <h1 class="text-4xl font-bold">{app?.title}</h1>
+      <p class="text-surface-600-400">{app?.tagline}</p>
+    </div>
+
+    <div class="card mt-10 p-8 space-y-4 border-[1px] border-surface-200-800 text-center">
+      <p class="text-sm opacity-50">coming soon</p>
+      <p class="text-sm text-surface-600-400">{app?.description}</p>
+    </div>
+  </section>
+</Layout>
