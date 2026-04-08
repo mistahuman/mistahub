@@ -1,0 +1,22 @@
+---
+// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
+// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import Layout from '@layouts/Layout.astro';
+
+// Component Imports
+import WelcomeHome from '@components/WelcomeHome.astro';
+---
+
+<Layout>
+  <!-- <div class="bg-radial-[at_50%_75%] from-sky-200 via-blue-400/10 to-indigo-900 to-90%"> -->
+  <div class="gradient-homepage-one">
+    <section class="">
+      <div class="container mx-auto flex justify-center p-10 pt-20 pb-5">
+        <WelcomeHome />
+      </div>
+    </section>
+  </div>
+  <div class="gradient-homepage-two">
+    <section class=""></section>
+  </div>
+</Layout>
