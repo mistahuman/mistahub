@@ -337,9 +337,7 @@
             in:fly={{ y: -70, duration: 340, delay: 190, easing: (t) => t * (2 - t) }}
           >
             <div class="bj-flip-inner">
-              <div class="bj-flip-back">
-                <div class="bj-back-frame">♦</div>
-              </div>
+              <div class="bj-flip-back"></div>
               <div class="bj-flip-front">
                 {@render playingCard(dealerHand[1])}
               </div>
@@ -701,11 +699,8 @@
       0 8px 20px rgba(0, 0, 0, 0.1);
   }
 
-  /* Card back: deep blue with crosshatch pattern + inset frame */
+  /* Card back: deep blue crosshatch + double inset border via box-shadow */
   .bj-flip-back {
-    display: flex;
-    align-items: center;
-    justify-content: center;
     background-color: oklch(27% 0.2 260deg);
     background-image:
       repeating-linear-gradient(
@@ -722,13 +717,14 @@
         transparent 1px,
         transparent 7px
       );
-  }
-
-  .bj-back-frame {
-    width: calc(100% - 10px);
-    height: calc(100% - 10px);
-    border: 1.5px solid rgba(255, 255, 255, 0.28);
-    border-radius: 4px;
+    /* Outer shadow + inset double border: white line, gap, white line */
+    box-shadow:
+      inset 0 0 0 5px rgba(255, 255, 255, 0.18),
+      inset 0 0 0 7px oklch(27% 0.2 260deg),
+      inset 0 0 0 9px rgba(255, 255, 255, 0.09),
+      0 1px 2px rgba(0, 0, 0, 0.08),
+      0 3px 8px rgba(0, 0, 0, 0.18),
+      0 8px 20px rgba(0, 0, 0, 0.1);
   }
 
   /* Card front: custom card fills the container */
