@@ -20,7 +20,8 @@ src/
 │   │   ├── mistadex/PokemonGame.svelte
 │   │   ├── hypemeter/SpikeDetector.svelte + SpikeRow.svelte
 │   │   ├── mistaword/WordleGame.svelte
-│   │   └── mistajack/BlackjackGame.svelte
+│   │   ├── mistajack/BlackjackGame.svelte
+│   │   └── mistamuseum/DailyArtwork.svelte
 │   └── generic/                  # Header, Footer, Drawer, Logo, Lightswitch
 ├── data/
 │   └── apps.ts                   # pure data — no UI imports
@@ -32,19 +33,21 @@ src/
 │       ├── mistadex/index.astro
 │       ├── hypemeter/index.astro
 │       ├── mistaword/index.astro
-│       └── mistajack/index.astro
+│       ├── mistajack/index.astro
+│       └── mistamuseum/index.astro
 └── styles/
 ```
 
 ## Current app state
 
-| Slug        | Status | Extra deps                                  |
-| ----------- | ------ | ------------------------------------------- |
-| `mistageo`  | ready  | `topojson-client`, `@types/topojson-client` |
-| `mistadex`  | ready  | none                                        |
-| `hypemeter` | ready  | none                                        |
-| `mistaword` | ready  | none                                        |
-| `mistajack` | ready  | none (uses Deck of Cards API)               |
+| Slug          | Status | Extra deps                                  |
+| ------------- | ------ | ------------------------------------------- |
+| `mistageo`    | ready  | `topojson-client`, `@types/topojson-client` |
+| `mistadex`    | ready  | none                                        |
+| `hypemeter`   | ready  | none                                        |
+| `mistaword`   | ready  | none                                        |
+| `mistajack`   | ready  | none (uses Deck of Cards API)               |
+| `mistamuseum` | ready  | none (uses AIC public API)                  |
 
 ## Key conventions
 

@@ -1,0 +1,11 @@
+---
+import Layout from '@layouts/Layout.astro';
+import AppPage from '@components/AppPage.astro';
+import DailyArtwork from '@components/apps/mistamuseum/DailyArtwork.svelte';
+---
+
+<Layout>
+  <AppPage title="mistamuseum" tagline="One curated artwork, every day.">
+    <DailyArtwork client:load />
+  </AppPage>
+</Layout>
