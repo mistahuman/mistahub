@@ -246,29 +246,48 @@
     error = '';
   }
 
-  // ── Card display helper ──────────────────────────────────────────────────────
-  function cardLabel(card: Card): string {
-    const v: Record<string, string> = {
-      ACE: 'A',
-      JACK: 'J',
-      QUEEN: 'Q',
-      KING: 'K',
-    };
-    return (v[card.value] ?? card.value) + suitSymbol(card.suit);
+  // ── Card display helpers ─────────────────────────────────────────────────────
+  const FACE_MAP: Record<string, string> = { ACE: 'A', JACK: 'J', QUEEN: 'Q', KING: 'K' };
+  const SUIT_MAP: Record<string, string> = {
+    SPADES: '♠',
+    HEARTS: '♥',
+    DIAMONDS: '♦',
+    CLUBS: '♣',
+  };
+
+  function displayVal(value: string): string {
+    return FACE_MAP[value] ?? value;
   }
 
   function suitSymbol(suit: string): string {
-    const s: Record<string, string> = {
-      SPADES: '♠',
-      HEARTS: '♥',
-      DIAMONDS: '♦',
-      CLUBS: '♣',
-    };
-    return s[suit] ?? suit;
+    return SUIT_MAP[suit] ?? suit;
+  }
+
+  function suitColor(suit: string): 'red' | 'black' {
+    return suit === 'HEARTS' || suit === 'DIAMONDS' ? 'red' : 'black';
+  }
+
+  function cardLabel(card: Card): string {
+    return displayVal(card.value) + suitSymbol(card.suit);
   }
 
   onMount(loadCredits);
 </script>
+
+<!-- ── Card snippet ───────────────────────────────────────────────────────────── -->
+{#snippet playingCard(card: Card)}
+  <div class="bj-card" data-color={suitColor(card.suit)} role="img" aria-label={cardLabel(card)}>
+    <div class="bj-corner bj-corner-tl">
+      <span class="bj-val">{displayVal(card.value)}</span>
+      <span class="bj-sym-sm">{suitSymbol(card.suit)}</span>
+    </div>
+    <span class="bj-sym-lg">{suitSymbol(card.suit)}</span>
+    <div class="bj-corner bj-corner-br">
+      <span class="bj-val">{displayVal(card.value)}</span>
+      <span class="bj-sym-sm">{suitSymbol(card.suit)}</span>
+    </div>
+  </div>
+{/snippet}
 
 <!-- ── Template ──────────────────────────────────────────────────────────────── -->
 <div class="bj">
@@ -302,42 +321,37 @@
     </div>
     <div class="bj-hand">
       {#if dealerHand.length === 0}
-        <!-- Skeleton placeholder cards with shimmer sweep -->
         <div class="bj-placeholder placeholder" style="--shimmer-delay: 0ms"></div>
         <div class="bj-placeholder placeholder" style="--shimmer-delay: 300ms"></div>
       {:else}
-        <!-- First card flies in from above -->
-        <img
-          class="bj-card"
-          src={dealerHand[0].image}
-          alt={cardLabel(dealerHand[0])}
-          in:fly={{ y: -60, duration: 320, easing: (t) => t * (2 - t) }}
-        />
+        <!-- First card -->
+        <div in:fly={{ y: -70, duration: 340, easing: (t) => t * (2 - t) }}>
+          {@render playingCard(dealerHand[0])}
+        </div>
 
-        <!-- Second card: persistent flip container — CSS rotateY when revealed -->
+        <!-- Second card: persistent 3D flip container -->
         {#if dealerHand.length > 1}
           <div
             class="bj-flip"
             class:bj-flip-revealed={dealerRevealed}
-            in:fly={{ y: -60, duration: 320, delay: 180, easing: (t) => t * (2 - t) }}
+            in:fly={{ y: -70, duration: 340, delay: 190, easing: (t) => t * (2 - t) }}
           >
             <div class="bj-flip-inner">
-              <div class="bj-flip-back"><span>🂠</span></div>
+              <div class="bj-flip-back">
+                <div class="bj-back-frame">♦</div>
+              </div>
               <div class="bj-flip-front">
-                <img src={dealerHand[1].image} alt={cardLabel(dealerHand[1])} />
+                {@render playingCard(dealerHand[1])}
               </div>
             </div>
           </div>
         {/if}
 
-        <!-- Extra cards from dealer hits -->
+        <!-- Extra cards when dealer hits -->
         {#each dealerHand.slice(2) as card (card.code)}
-          <img
-            class="bj-card"
-            src={card.image}
-            alt={cardLabel(card)}
-            in:fly={{ y: -60, duration: 320, easing: (t) => t * (2 - t) }}
-          />
+          <div in:fly={{ y: -70, duration: 340, easing: (t) => t * (2 - t) }}>
+            {@render playingCard(card)}
+          </div>
         {/each}
       {/if}
     </div>
@@ -375,17 +389,16 @@
         <div class="bj-placeholder placeholder" style="--shimmer-delay: 900ms"></div>
       {:else}
         {#each playerHand as card, i (card.code)}
-          <img
-            class="bj-card"
-            src={card.image}
-            alt={cardLabel(card)}
+          <div
             in:fly={{
-              y: 60,
-              duration: 320,
-              delay: i < 2 ? i * 180 : 0,
+              y: 70,
+              duration: 340,
+              delay: i < 2 ? i * 190 : 0,
               easing: (t) => t * (2 - t),
             }}
-          />
+          >
+            {@render playingCard(card)}
+          </div>
         {/each}
       {/if}
     </div>
@@ -443,6 +456,11 @@
 </div>
 
 <style>
+  /* ── Card size token ────────────────────────────────────────────────────────── */
+  :root {
+    --card-w: clamp(68px, 14.5vw, 96px);
+  }
+
   .bj {
     display: flex;
     flex-direction: column;
@@ -524,21 +542,20 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 0.5rem;
-    min-height: 120px;
+    gap: 0.6rem;
+    min-height: 130px;
   }
 
-  /* ── Placeholder — Skeleton `placeholder` sets the base color, we add shimmer ── */
+  /* ── Placeholder — Skeleton `placeholder` sets the base color ───────────────── */
   .bj-placeholder {
-    width: clamp(64px, 14vw, 88px);
+    width: var(--card-w);
     aspect-ratio: 2.5 / 3.5;
-    border-radius: 6px;
+    border-radius: 8px;
     overflow: hidden;
     position: relative;
     flex-shrink: 0;
   }
 
-  /* Shimmer sweep via ::after so it layers on top of Skeleton's bg color */
   .bj-placeholder::after {
     content: '';
     position: absolute;
@@ -572,18 +589,76 @@
     }
   }
 
-  /* ── Card ───────────────────────────────────────────────────────────────────── */
+  /* ── Playing card ───────────────────────────────────────────────────────────── */
   .bj-card {
-    width: clamp(64px, 14vw, 88px);
-    border-radius: 6px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
-    display: block;
+    /* Cards are always white — like real playing cards */
+    --card-red: oklch(52% 0.24 27deg);
+    --card-black: oklch(16% 0.015 270deg);
+
+    width: var(--card-w);
+    aspect-ratio: 2.5 / 3.5;
+    background: #fffef8;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.06),
+      0 3px 8px rgba(0, 0, 0, 0.14),
+      0 8px 20px rgba(0, 0, 0, 0.08);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     flex-shrink: 0;
+    color: var(--card-black);
   }
 
-  /* ── 3D flip container for dealer's hidden card ─────────────────────────────── */
+  .bj-card[data-color='red'] {
+    color: var(--card-red);
+  }
+
+  /* Corner pip (top-left and bottom-right rotated) */
+  .bj-corner {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 1;
+    gap: 0;
+  }
+
+  .bj-corner-tl {
+    top: clamp(4px, 1.2vw, 7px);
+    left: clamp(5px, 1.4vw, 8px);
+  }
+
+  .bj-corner-br {
+    bottom: clamp(4px, 1.2vw, 7px);
+    right: clamp(5px, 1.4vw, 8px);
+    transform: rotate(180deg);
+  }
+
+  .bj-val {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: clamp(0.82rem, 2vw, 1.05rem);
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .bj-sym-sm {
+    font-size: clamp(0.42rem, 1vw, 0.55rem);
+    line-height: 1.2;
+  }
+
+  /* Large center suit */
+  .bj-sym-lg {
+    font-size: clamp(1.55rem, 3.8vw, 2.1rem);
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  /* ── 3D flip for dealer's hidden card ───────────────────────────────────────── */
   .bj-flip {
-    width: clamp(64px, 14vw, 88px);
+    width: var(--card-w);
     aspect-ratio: 2.5 / 3.5;
     perspective: 900px;
     flex-shrink: 0;
@@ -607,28 +682,45 @@
     inset: 0;
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
-    border-radius: 6px;
+    border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.08),
+      0 3px 8px rgba(0, 0, 0, 0.18),
+      0 8px 20px rgba(0, 0, 0, 0.1);
   }
 
+  /* Card back: deep blue with an inset frame */
   .bj-flip-back {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: oklch(38% 0.22 260deg);
-    font-size: 3.5rem;
+    background: oklch(27% 0.2 260deg);
   }
 
+  .bj-back-frame {
+    width: calc(100% - 10px);
+    height: calc(100% - 10px);
+    border: 1.5px solid rgba(255, 255, 255, 0.22);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.14);
+    font-size: clamp(1.1rem, 2.8vw, 1.5rem);
+  }
+
+  /* Card front: the custom card fills the container */
   .bj-flip-front {
     transform: rotateY(180deg);
   }
 
-  .bj-flip-front img {
+  .bj-flip-front .bj-card {
     width: 100%;
     height: 100%;
-    object-fit: cover;
-    display: block;
+    border-radius: 0;
+    box-shadow: none;
+    border: none;
   }
 
   /* ── Result ─────────────────────────────────────────────────────────────────── */
