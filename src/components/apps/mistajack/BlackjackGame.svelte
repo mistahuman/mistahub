@@ -357,20 +357,6 @@
     </div>
   </div>
 
-  <!-- Result banner -->
-  {#if message}
-    <div
-      class="bj-result"
-      class:bj-result-win={outcome === 'win' || outcome === 'blackjack'}
-      class:bj-result-lose={outcome === 'lose'}
-      class:bj-result-tie={outcome === 'tie'}
-      in:scale={{ duration: 240, start: 0.7 }}
-      out:fade={{ duration: 150 }}
-    >
-      {message}
-    </div>
-  {/if}
-
   <!-- Player area -->
   <div class="bj-area">
     <div class="bj-area-label">
@@ -404,61 +390,79 @@
     </div>
   </div>
 
-  <!-- Actions -->
-  <div class="bj-actions">
-    {#if phase === 'idle' || phase === 'result'}
-      {#if isBroke}
-        <p class="bj-broke" in:fade={{ duration: 200 }}>Out of credits!</p>
-        <button
-          class="btn preset-filled-error-500"
-          onclick={resetCredits}
-          in:fly={{ y: 10, duration: 200 }}>Reset credits</button
+  <!-- Result + actions — fixed-height slot prevents layout jump -->
+  <div class="bj-bottom">
+    <div class="bj-result-slot">
+      {#if message}
+        <div
+          class="bj-result"
+          class:bj-result-win={outcome === 'win' || outcome === 'blackjack'}
+          class:bj-result-lose={outcome === 'lose'}
+          class:bj-result-tie={outcome === 'tie'}
+          in:scale={{ duration: 240, start: 0.7 }}
+          out:fade={{ duration: 150 }}
         >
-      {:else}
+          {message}
+        </div>
+      {/if}
+    </div>
+
+    <div class="bj-actions">
+      {#if phase === 'idle' || phase === 'result'}
+        {#if isBroke}
+          <p class="bj-broke" in:fade={{ duration: 200 }}>Out of credits!</p>
+          <button
+            class="btn preset-filled-error-500"
+            onclick={resetCredits}
+            in:fly={{ y: 10, duration: 200 }}>Reset credits</button
+          >
+        {:else}
+          <button
+            class="btn preset-filled"
+            onclick={deal}
+            disabled={loading}
+            in:fly={{ y: 10, duration: 200 }}
+          >
+            {phase === 'result' ? 'Next round' : 'Play'}
+          </button>
+          {#if credits !== STARTING_CREDITS}
+            <button
+              class="btn preset-tonal"
+              onclick={resetCredits}
+              disabled={loading}
+              in:fly={{ y: 10, duration: 200, delay: 60 }}
+            >
+              Reset
+            </button>
+          {/if}
+        {/if}
+      {:else if phase === 'player'}
         <button
           class="btn preset-filled"
-          onclick={deal}
-          disabled={loading}
-          in:fly={{ y: 10, duration: 200 }}
+          onclick={hit}
+          disabled={!canAct}
+          in:fly={{ y: 10, duration: 200 }}>Hit</button
         >
-          {phase === 'result' ? 'Next round' : 'Deal'}
-        </button>
-        {#if credits !== STARTING_CREDITS}
-          <button
-            class="btn preset-tonal"
-            onclick={resetCredits}
-            disabled={loading}
-            in:fly={{ y: 10, duration: 200, delay: 60 }}
-          >
-            Reset
-          </button>
-        {/if}
+        <button
+          class="btn preset-tonal"
+          onclick={stand}
+          disabled={!canAct}
+          in:fly={{ y: 10, duration: 200, delay: 60 }}>Stand</button
+        >
+      {:else if phase === 'dealing' || phase === 'dealer'}
+        <div class="bj-waiting" in:fade={{ duration: 150 }}>
+          {phase === 'dealing' ? 'Dealing…' : 'Dealer playing…'}
+        </div>
       {/if}
-    {:else if phase === 'player'}
-      <button
-        class="btn preset-filled"
-        onclick={hit}
-        disabled={!canAct}
-        in:fly={{ y: 10, duration: 200 }}>Hit</button
-      >
-      <button
-        class="btn preset-tonal"
-        onclick={stand}
-        disabled={!canAct}
-        in:fly={{ y: 10, duration: 200, delay: 60 }}>Stand</button
-      >
-    {:else if phase === 'dealing' || phase === 'dealer'}
-      <div class="bj-waiting" in:fade={{ duration: 150 }}>
-        {phase === 'dealing' ? 'Dealing…' : 'Dealer playing…'}
-      </div>
-    {/if}
+    </div>
   </div>
 </div>
 
 <style>
-  /* ── Card size token ────────────────────────────────────────────────────────── */
+  /* ── Card size tokens ───────────────────────────────────────────────────────── */
   :root {
     --card-w: clamp(68px, 14.5vw, 96px);
+    --card-h: calc(var(--card-w) * 1.4); /* 2.5 : 3.5 ratio */
   }
 
   .bj {
@@ -549,7 +553,7 @@
   /* ── Placeholder — Skeleton `placeholder` sets the base color ───────────────── */
   .bj-placeholder {
     width: var(--card-w);
-    aspect-ratio: 2.5 / 3.5;
+    height: var(--card-h);
     border-radius: 8px;
     overflow: hidden;
     position: relative;
@@ -591,12 +595,14 @@
 
   /* ── Playing card ───────────────────────────────────────────────────────────── */
   .bj-card {
-    /* Cards are always white — like real playing cards */
     --card-red: oklch(52% 0.24 27deg);
     --card-black: oklch(16% 0.015 270deg);
 
+    /* Base font-size scales with card width — all inner sizes use em */
+    font-size: calc(var(--card-w) * 0.175);
+
     width: var(--card-w);
-    aspect-ratio: 2.5 / 3.5;
+    height: var(--card-h);
     background: #fffef8;
     border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 8px;
@@ -616,51 +622,54 @@
     color: var(--card-red);
   }
 
-  /* Corner pip (top-left and bottom-right rotated) */
+  /* Corner pip */
   .bj-corner {
     position: absolute;
     display: flex;
     flex-direction: column;
     align-items: center;
     line-height: 1;
-    gap: 0;
+    gap: 0.05em;
   }
 
   .bj-corner-tl {
-    top: clamp(4px, 1.2vw, 7px);
-    left: clamp(5px, 1.4vw, 8px);
+    top: 0.38em;
+    left: 0.44em;
   }
 
   .bj-corner-br {
-    bottom: clamp(4px, 1.2vw, 7px);
-    right: clamp(5px, 1.4vw, 8px);
+    bottom: 0.38em;
+    right: 0.44em;
     transform: rotate(180deg);
   }
 
   .bj-val {
     font-family: Georgia, 'Times New Roman', serif;
-    font-size: clamp(0.82rem, 2vw, 1.05rem);
+    font-size: 1em;
     font-weight: 700;
     line-height: 1;
   }
 
   .bj-sym-sm {
-    font-size: clamp(0.42rem, 1vw, 0.55rem);
-    line-height: 1.2;
+    font-size: 0.68em;
+    line-height: 1.1;
   }
 
   /* Large center suit */
   .bj-sym-lg {
-    font-size: clamp(1.55rem, 3.8vw, 2.1rem);
+    font-size: 2.4em;
     line-height: 1;
     pointer-events: none;
   }
 
   /* ── 3D flip for dealer's hidden card ───────────────────────────────────────── */
   .bj-flip {
+    /* Explicit width+height — avoids mobile Safari height:100% failure
+       when parent height is derived only from aspect-ratio              */
     width: var(--card-w);
-    aspect-ratio: 2.5 / 3.5;
+    height: var(--card-h);
     perspective: 900px;
+    -webkit-perspective: 900px;
     flex-shrink: 0;
   }
 
@@ -669,11 +678,13 @@
     width: 100%;
     height: 100%;
     transform-style: preserve-3d;
+    -webkit-transform-style: preserve-3d;
     transition: transform 0.55s cubic-bezier(0.4, 0.2, 0.2, 1);
   }
 
   .bj-flip.bj-flip-revealed .bj-flip-inner {
     transform: rotateY(180deg);
+    -webkit-transform: rotateY(180deg);
   }
 
   .bj-flip-back,
@@ -690,29 +701,40 @@
       0 8px 20px rgba(0, 0, 0, 0.1);
   }
 
-  /* Card back: deep blue with an inset frame */
+  /* Card back: deep blue with crosshatch pattern + inset frame */
   .bj-flip-back {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: oklch(27% 0.2 260deg);
+    background-color: oklch(27% 0.2 260deg);
+    background-image:
+      repeating-linear-gradient(
+        45deg,
+        oklch(31% 0.2 260deg) 0px,
+        oklch(31% 0.2 260deg) 1px,
+        transparent 1px,
+        transparent 7px
+      ),
+      repeating-linear-gradient(
+        -45deg,
+        oklch(31% 0.2 260deg) 0px,
+        oklch(31% 0.2 260deg) 1px,
+        transparent 1px,
+        transparent 7px
+      );
   }
 
   .bj-back-frame {
     width: calc(100% - 10px);
     height: calc(100% - 10px);
-    border: 1.5px solid rgba(255, 255, 255, 0.22);
+    border: 1.5px solid rgba(255, 255, 255, 0.28);
     border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: rgba(255, 255, 255, 0.14);
-    font-size: clamp(1.1rem, 2.8vw, 1.5rem);
   }
 
-  /* Card front: the custom card fills the container */
+  /* Card front: custom card fills the container */
   .bj-flip-front {
     transform: rotateY(180deg);
+    -webkit-transform: rotateY(180deg);
   }
 
   .bj-flip-front .bj-card {
@@ -723,14 +745,30 @@
     border: none;
   }
 
-  /* ── Result ─────────────────────────────────────────────────────────────────── */
+  /* ── Result + actions zone ──────────────────────────────────────────────────── */
+  .bj-bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  /* Fixed-height slot: always reserves space so nothing jumps */
+  .bj-result-slot {
+    height: 2.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
   .bj-result {
-    font-size: 1.05rem;
+    font-size: 1rem;
     font-weight: 700;
     letter-spacing: 0.04em;
-    padding: 0.4rem 1.2rem;
+    padding: 0.3rem 1.1rem;
     border-radius: 6px;
     background: var(--color-surface-200);
+    white-space: nowrap;
   }
   :global([data-mode='dark']) .bj-result {
     background: var(--color-surface-700);
