@@ -2,7 +2,7 @@
 
 ## What this is
 
-Personal hub that aggregates small Svelte single-page apps under one GitHub Pages deployment. Each app lives in its own Astro route. Source repos are siblings: `../mistageo`, `../mistadex`, `../mistaword`, `../hypemeter`, etc.
+Personal hub that aggregates small Svelte single-page apps under one GitHub Pages deployment. Each app lives in its own Astro route. Everything lives in this single repository.
 
 ## Base URL rule
 
@@ -19,7 +19,8 @@ src/
 │   │   ├── mistageo/FlagGame.svelte
 │   │   ├── mistadex/PokemonGame.svelte
 │   │   ├── hypemeter/SpikeDetector.svelte + SpikeRow.svelte
-│   │   └── mistaword/WordleGame.svelte
+│   │   ├── mistaword/WordleGame.svelte
+│   │   └── mistajack/BlackjackGame.svelte
 │   └── generic/                  # Header, Footer, Drawer, Logo, Lightswitch
 ├── data/
 │   └── apps.ts                   # pure data — no UI imports
@@ -30,7 +31,8 @@ src/
 │       ├── mistageo/index.astro
 │       ├── mistadex/index.astro
 │       ├── hypemeter/index.astro
-│       └── mistaword/index.astro
+│       ├── mistaword/index.astro
+│       └── mistajack/index.astro
 └── styles/
 ```
 
@@ -42,6 +44,7 @@ src/
 | `mistadex`  | ready  | none                                        |
 | `hypemeter` | ready  | none                                        |
 | `mistaword` | ready  | none                                        |
+| `mistajack` | ready  | none (uses Deck of Cards API)               |
 
 ## Key conventions
 

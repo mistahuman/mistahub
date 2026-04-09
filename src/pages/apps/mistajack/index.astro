@@ -1,0 +1,11 @@
+---
+import Layout from '@layouts/Layout.astro';
+import AppPage from '@components/AppPage.astro';
+import BlackjackGame from '@components/apps/mistajack/BlackjackGame.svelte';
+---
+
+<Layout>
+  <AppPage title="mistajack" tagline="Beat the dealer at Blackjack.">
+    <BlackjackGame client:load />
+  </AppPage>
+</Layout>

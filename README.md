@@ -18,6 +18,7 @@ https://mistahuman.github.io/mistahub/
 | `mistadex`  | Guess the Pokémon from its silhouette    |
 | `hypemeter` | Most viewed Wikipedia articles yesterday |
 | `mistaword` | Wordle-style word game                   |
+| `mistajack` | Single-player Blackjack vs CPU dealer    |
 
 ## Stack
 

@@ -36,6 +36,14 @@ export const appEntries: AppEntry[] = [
     description: 'A Wordle-style game — guess the daily word in six tries.',
     status: 'ready',
   },
+  {
+    slug: 'mistajack',
+    title: 'mistajack',
+    tagline: 'Beat the dealer at Blackjack.',
+    description:
+      'A single-player Blackjack game against a CPU dealer with a persistent credit system.',
+    status: 'ready',
+  },
 ];
 
 export function getAppBySlug(slug: string) {
