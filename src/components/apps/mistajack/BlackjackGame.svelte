@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { fly, fade, scale } from 'svelte/transition';
 
   // ── Types ────────────────────────────────────────────────────────────────────
   type Card = {
@@ -284,7 +285,7 @@
   </div>
 
   {#if error}
-    <p class="bj-error">{error}</p>
+    <p class="bj-error" transition:fade={{ duration: 200 }}>{error}</p>
   {/if}
 
   <!-- Dealer area -->
@@ -292,22 +293,51 @@
     <div class="bj-area-label">
       dealer
       {#if dealerRevealed && phase !== 'idle'}
-        <span class="bj-area-score" class:bj-bust={dealerValue > 21}>{dealerValue}</span>
+        <span
+          class="bj-area-score"
+          class:bj-bust={dealerValue > 21}
+          in:scale={{ duration: 200, start: 0.7 }}>{dealerValue}</span
+        >
       {/if}
     </div>
     <div class="bj-hand">
       {#if dealerHand.length === 0}
-        <div class="bj-card bj-card-empty"></div>
-        <div class="bj-card bj-card-empty"></div>
+        <!-- Skeleton placeholder cards with shimmer sweep -->
+        <div class="bj-placeholder placeholder" style="--shimmer-delay: 0ms"></div>
+        <div class="bj-placeholder placeholder" style="--shimmer-delay: 300ms"></div>
       {:else}
-        {#each dealerHand as card, i (card.code)}
-          {#if i === 1 && !dealerRevealed}
-            <div class="bj-card bj-card-back">
-              <span>🂠</span>
+        <!-- First card flies in from above -->
+        <img
+          class="bj-card"
+          src={dealerHand[0].image}
+          alt={cardLabel(dealerHand[0])}
+          in:fly={{ y: -60, duration: 320, easing: (t) => t * (2 - t) }}
+        />
+
+        <!-- Second card: persistent flip container — CSS rotateY when revealed -->
+        {#if dealerHand.length > 1}
+          <div
+            class="bj-flip"
+            class:bj-flip-revealed={dealerRevealed}
+            in:fly={{ y: -60, duration: 320, delay: 180, easing: (t) => t * (2 - t) }}
+          >
+            <div class="bj-flip-inner">
+              <div class="bj-flip-back"><span>🂠</span></div>
+              <div class="bj-flip-front">
+                <img src={dealerHand[1].image} alt={cardLabel(dealerHand[1])} />
+              </div>
             </div>
-          {:else}
-            <img class="bj-card" src={card.image} alt={cardLabel(card)} />
-          {/if}
+          </div>
+        {/if}
+
+        <!-- Extra cards from dealer hits -->
+        {#each dealerHand.slice(2) as card (card.code)}
+          <img
+            class="bj-card"
+            src={card.image}
+            alt={cardLabel(card)}
+            in:fly={{ y: -60, duration: 320, easing: (t) => t * (2 - t) }}
+          />
         {/each}
       {/if}
     </div>
@@ -320,6 +350,8 @@
       class:bj-result-win={outcome === 'win' || outcome === 'blackjack'}
       class:bj-result-lose={outcome === 'lose'}
       class:bj-result-tie={outcome === 'tie'}
+      in:scale={{ duration: 240, start: 0.7 }}
+      out:fade={{ duration: 150 }}
     >
       {message}
     </div>
@@ -330,16 +362,30 @@
     <div class="bj-area-label">
       you
       {#if playerHand.length > 0}
-        <span class="bj-area-score" class:bj-bust={playerValue > 21}>{playerValue}</span>
+        <span
+          class="bj-area-score"
+          class:bj-bust={playerValue > 21}
+          in:scale={{ duration: 200, start: 0.7 }}>{playerValue}</span
+        >
       {/if}
     </div>
     <div class="bj-hand">
       {#if playerHand.length === 0}
-        <div class="bj-card bj-card-empty"></div>
-        <div class="bj-card bj-card-empty"></div>
+        <div class="bj-placeholder placeholder" style="--shimmer-delay: 600ms"></div>
+        <div class="bj-placeholder placeholder" style="--shimmer-delay: 900ms"></div>
       {:else}
-        {#each playerHand as card (card.code)}
-          <img class="bj-card" src={card.image} alt={cardLabel(card)} />
+        {#each playerHand as card, i (card.code)}
+          <img
+            class="bj-card"
+            src={card.image}
+            alt={cardLabel(card)}
+            in:fly={{
+              y: 60,
+              duration: 320,
+              delay: i < 2 ? i * 180 : 0,
+              easing: (t) => t * (2 - t),
+            }}
+          />
         {/each}
       {/if}
     </div>
@@ -349,23 +395,47 @@
   <div class="bj-actions">
     {#if phase === 'idle' || phase === 'result'}
       {#if isBroke}
-        <p class="bj-broke">Out of credits!</p>
-        <button class="btn preset-filled-error-500" onclick={resetCredits}>Reset credits</button>
+        <p class="bj-broke" in:fade={{ duration: 200 }}>Out of credits!</p>
+        <button
+          class="btn preset-filled-error-500"
+          onclick={resetCredits}
+          in:fly={{ y: 10, duration: 200 }}>Reset credits</button
+        >
       {:else}
-        <button class="btn preset-filled" onclick={deal} disabled={loading}>
+        <button
+          class="btn preset-filled"
+          onclick={deal}
+          disabled={loading}
+          in:fly={{ y: 10, duration: 200 }}
+        >
           {phase === 'result' ? 'Next round' : 'Deal'}
         </button>
         {#if credits !== STARTING_CREDITS}
-          <button class="btn preset-tonal" onclick={resetCredits} disabled={loading}>
+          <button
+            class="btn preset-tonal"
+            onclick={resetCredits}
+            disabled={loading}
+            in:fly={{ y: 10, duration: 200, delay: 60 }}
+          >
             Reset
           </button>
         {/if}
       {/if}
     {:else if phase === 'player'}
-      <button class="btn preset-filled" onclick={hit} disabled={!canAct}>Hit</button>
-      <button class="btn preset-tonal" onclick={stand} disabled={!canAct}>Stand</button>
+      <button
+        class="btn preset-filled"
+        onclick={hit}
+        disabled={!canAct}
+        in:fly={{ y: 10, duration: 200 }}>Hit</button
+      >
+      <button
+        class="btn preset-tonal"
+        onclick={stand}
+        disabled={!canAct}
+        in:fly={{ y: 10, duration: 200, delay: 60 }}>Stand</button
+      >
     {:else if phase === 'dealing' || phase === 'dealer'}
-      <div class="bj-waiting">
+      <div class="bj-waiting" in:fade={{ duration: 150 }}>
         {phase === 'dealing' ? 'Dealing…' : 'Dealer playing…'}
       </div>
     {/if}
@@ -458,35 +528,107 @@
     min-height: 120px;
   }
 
+  /* ── Placeholder — Skeleton `placeholder` sets the base color, we add shimmer ── */
+  .bj-placeholder {
+    width: clamp(64px, 14vw, 88px);
+    aspect-ratio: 2.5 / 3.5;
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  /* Shimmer sweep via ::after so it layers on top of Skeleton's bg color */
+  .bj-placeholder::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.22) 50%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
+    animation: card-shimmer 1.8s ease-in-out infinite;
+    animation-delay: var(--shimmer-delay, 0ms);
+  }
+  :global([data-mode='dark']) .bj-placeholder::after {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.07) 50%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
+  }
+
+  @keyframes card-shimmer {
+    0% {
+      background-position: 150% 0;
+    }
+    100% {
+      background-position: -150% 0;
+    }
+  }
+
   /* ── Card ───────────────────────────────────────────────────────────────────── */
   .bj-card {
     width: clamp(64px, 14vw, 88px);
     border-radius: 6px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
     display: block;
+    flex-shrink: 0;
   }
 
-  .bj-card-empty {
-    background: var(--color-surface-200);
-    border: 2px dashed var(--color-surface-300);
-    aspect-ratio: 2.5 / 3.5;
+  /* ── 3D flip container for dealer's hidden card ─────────────────────────────── */
+  .bj-flip {
     width: clamp(64px, 14vw, 88px);
-  }
-  :global([data-mode='dark']) .bj-card-empty {
-    background: var(--color-surface-800);
-    border-color: var(--color-surface-700);
+    aspect-ratio: 2.5 / 3.5;
+    perspective: 900px;
+    flex-shrink: 0;
   }
 
-  .bj-card-back {
-    width: clamp(64px, 14vw, 88px);
-    aspect-ratio: 2.5 / 3.5;
+  .bj-flip-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.55s cubic-bezier(0.4, 0.2, 0.2, 1);
+  }
+
+  .bj-flip.bj-flip-revealed .bj-flip-inner {
+    transform: rotateY(180deg);
+  }
+
+  .bj-flip-back,
+  .bj-flip-front {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  }
+
+  .bj-flip-back {
     display: flex;
     align-items: center;
     justify-content: center;
     background: oklch(38% 0.22 260deg);
-    border-radius: 6px;
     font-size: 3.5rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  }
+
+  .bj-flip-front {
+    transform: rotateY(180deg);
+  }
+
+  .bj-flip-front img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
   }
 
   /* ── Result ─────────────────────────────────────────────────────────────────── */
@@ -497,7 +639,6 @@
     padding: 0.4rem 1.2rem;
     border-radius: 6px;
     background: var(--color-surface-200);
-    animation: result-pop 0.25s ease;
   }
   :global([data-mode='dark']) .bj-result {
     background: var(--color-surface-700);
@@ -516,17 +657,6 @@
     color: #fff;
   }
 
-  @keyframes result-pop {
-    from {
-      transform: scale(0.85);
-      opacity: 0;
-    }
-    to {
-      transform: scale(1);
-      opacity: 1;
-    }
-  }
-
   /* ── Actions ────────────────────────────────────────────────────────────────── */
   .bj-actions {
     display: flex;
@@ -539,10 +669,10 @@
     font-size: 0.85rem;
     color: var(--color-surface-500);
     letter-spacing: 0.06em;
-    animation: pulse 1s ease-in-out infinite alternate;
+    animation: waiting-pulse 1s ease-in-out infinite alternate;
   }
 
-  @keyframes pulse {
+  @keyframes waiting-pulse {
     from {
       opacity: 0.4;
     }
