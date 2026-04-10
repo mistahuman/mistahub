@@ -1,0 +1,11 @@
+---
+import Layout from '@layouts/Layout.astro';
+import AppPage from '@components/AppPage.astro';
+import NewsFeed from '@components/apps/mistanews/NewsFeed.svelte';
+---
+
+<Layout>
+  <AppPage title="mistanews" tagline="Top 10 Hacker News stories, right now.">
+    <NewsFeed client:load />
+  </AppPage>
+</Layout>
