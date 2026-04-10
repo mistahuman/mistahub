@@ -1,0 +1,11 @@
+---
+import Layout from '@layouts/Layout.astro';
+import AppPage from '@components/AppPage.astro';
+import AirQualityProbe from '@components/apps/mistaair/AirQualityProbe.svelte';
+---
+
+<Layout>
+  <AppPage title="mistaair" tagline="Air quality readings from ARPAE Emilia-Romagna.">
+    <AirQualityProbe client:load />
+  </AppPage>
+</Layout>

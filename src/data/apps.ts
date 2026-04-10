@@ -86,6 +86,15 @@ export const appEntries: AppEntry[] = [
     category: 'tool',
     status: 'ready',
   },
+  {
+    slug: 'mistaair',
+    title: 'mistaair',
+    tagline: 'Air quality readings from ARPAE Emilia-Romagna.',
+    description:
+      'A prototype air-quality dashboard using the latest official ARPAE Emilia-Romagna bulletin.',
+    category: 'data',
+    status: 'ready',
+  },
 ];
 
 export function getAppBySlug(slug: string) {
