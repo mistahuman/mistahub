@@ -24,7 +24,8 @@ src/
 │   │   ├── mistamuseum/DailyArtwork.svelte
 │   │   ├── mistanews/NewsFeed.svelte
 │   │   ├── mistagov/MistaGov.svelte
-│   │   └── mistaexchange/ExchangeConverter.svelte
+│   │   ├── mistaexchange/ExchangeConverter.svelte
+│   │   └── mistafuel/FuelFinder.svelte
 │   └── generic/                  # Header, Footer, Drawer, Logo, Lightswitch
 ├── data/
 │   └── apps.ts                   # pure data — no UI imports
@@ -40,7 +41,8 @@ src/
 │       ├── mistamuseum/index.astro
 │       ├── mistanews/index.astro
 │       ├── mistagov/index.astro
-│       └── mistaexchange/index.astro
+│       ├── mistaexchange/index.astro
+│       └── mistafuel/index.astro
 └── styles/
 ```
 
@@ -57,6 +59,7 @@ src/
 | `mistanews`     | ready  | none (uses HN Firebase REST API)                                          |
 | `mistagov`      | ready  | none (uses Camera dei Deputati SPARQL — two queries: deputies + absences) |
 | `mistaexchange` | ready  | none (uses Frankfurter public API — `api.frankfurter.dev/v1/`)            |
+| `mistafuel`     | ready  | none (uses MIMIT open data CSV files)                                     |
 
 ## Key conventions
 

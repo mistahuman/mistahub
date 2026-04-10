@@ -1,0 +1,11 @@
+---
+import Layout from '@layouts/Layout.astro';
+import AppPage from '@components/AppPage.astro';
+import FuelFinder from '@components/apps/mistafuel/FuelFinder.svelte';
+---
+
+<Layout>
+  <AppPage title="mistafuel" tagline="Cheapest fuel prices from Italian open data.">
+    <FuelFinder client:load />
+  </AppPage>
+</Layout>

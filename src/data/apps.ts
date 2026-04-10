@@ -86,6 +86,15 @@ export const appEntries: AppEntry[] = [
     category: 'tool',
     status: 'ready',
   },
+  {
+    slug: 'mistafuel',
+    title: 'mistafuel',
+    tagline: 'Find cheap fuel prices in Italy.',
+    description:
+      'A fuel price finder powered by MIMIT open data — filter by fuel, province, city, brand, and service mode.',
+    category: 'tool',
+    status: 'ready',
+  },
 ];
 
 export function getAppBySlug(slug: string) {

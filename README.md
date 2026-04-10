@@ -23,6 +23,7 @@ https://mistahuman.github.io/mistahub/
 | `mistanews`     | news | Top 10 Hacker News stories                             |
 | `mistagov`      | data | Italian deputies — name, party, dates, absence ranking |
 | `mistaexchange` | tool | Real-time currency converter (Frankfurter API)         |
+| `mistafuel`     | tool | Cheapest Italian fuel prices (MIMIT open data)         |
 
 ## Stack
 
