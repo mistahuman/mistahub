@@ -24,6 +24,7 @@ https://mistahuman.github.io/mistahub/
 | `mistagov`      | data | Italian deputies — name, party, dates, absence ranking |
 | `mistaexchange` | tool | Real-time currency converter (Frankfurter API)         |
 | `mistaair`      | data | Air quality readings from ARPAE Emilia-Romagna         |
+| `mistaweather`  | tool | Simple weather from Open-Meteo                         |
 
 ## Stack
 

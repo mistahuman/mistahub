@@ -1,0 +1,11 @@
+---
+import Layout from '@layouts/Layout.astro';
+import AppPage from '@components/AppPage.astro';
+import WeatherPanel from '@components/apps/mistaweather/WeatherPanel.svelte';
+---
+
+<Layout>
+  <AppPage title="mistaweather" tagline="Simple weather from Open-Meteo.">
+    <WeatherPanel client:load />
+  </AppPage>
+</Layout>

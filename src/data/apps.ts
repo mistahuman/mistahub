@@ -95,6 +95,15 @@ export const appEntries: AppEntry[] = [
     category: 'data',
     status: 'ready',
   },
+  {
+    slug: 'mistaweather',
+    title: 'mistaweather',
+    tagline: 'Simple weather from Open-Meteo.',
+    description:
+      'A lightweight weather panel with saved place search, current conditions, and a short forecast.',
+    category: 'tool',
+    status: 'ready',
+  },
 ];
 
 export function getAppBySlug(slug: string) {

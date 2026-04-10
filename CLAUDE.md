@@ -25,7 +25,8 @@ src/
 │   │   ├── mistanews/NewsFeed.svelte
 │   │   ├── mistagov/MistaGov.svelte
 │   │   ├── mistaexchange/ExchangeConverter.svelte
-│   │   └── mistaair/AirQualityProbe.svelte
+│   │   ├── mistaair/AirQualityProbe.svelte
+│   │   └── mistaweather/WeatherPanel.svelte
 │   └── generic/                  # Header, Footer, Drawer, Logo, Lightswitch
 ├── data/
 │   └── apps.ts                   # pure data — no UI imports
@@ -42,7 +43,8 @@ src/
 │       ├── mistanews/index.astro
 │       ├── mistagov/index.astro
 │       ├── mistaexchange/index.astro
-│       └── mistaair/index.astro
+│       ├── mistaair/index.astro
+│       └── mistaweather/index.astro
 └── styles/
 ```
 
@@ -60,6 +62,7 @@ src/
 | `mistagov`      | ready  | none (uses Camera dei Deputati SPARQL — two queries: deputies + absences) |
 | `mistaexchange` | ready  | none (uses Frankfurter public API — `api.frankfurter.dev/v1/`)            |
 | `mistaair`      | ready  | none (uses ARPAE Emilia-Romagna `REST/bollettini_qa` JSON endpoint)       |
+| `mistaweather`  | ready  | none (uses Open-Meteo forecast + geocoding APIs)                          |
 
 ## Key conventions
 
