@@ -16,7 +16,7 @@ https://mistahuman.github.io/mistahub/
 | --------------- | ---- | ------------------------------------------------------ |
 | `mistageo`      | game | Geography quiz — flags and borders                     |
 | `mistadex`      | game | Guess the Pokémon from its silhouette                  |
-| `hypemeter`     | news | Most viewed Wikipedia articles yesterday               |
+| `mistahypedia`  | news | Most viewed Wikipedia articles yesterday               |
 | `mistaword`     | game | Wordle-style word game                                 |
 | `mistajack`     | game | Single-player Blackjack vs CPU dealer                  |
 | `mistamuseum`   | art  | One curated AIC artwork per day                        |

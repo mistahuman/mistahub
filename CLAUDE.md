@@ -18,7 +18,7 @@ src/
 │   ├── apps/
 │   │   ├── mistageo/FlagGame.svelte
 │   │   ├── mistadex/PokemonGame.svelte
-│   │   ├── hypemeter/SpikeDetector.svelte + SpikeRow.svelte
+│   │   ├── mistahypedia/SpikeDetector.svelte + SpikeRow.svelte
 │   │   ├── mistaword/WordleGame.svelte
 │   │   ├── mistajack/BlackjackGame.svelte
 │   │   ├── mistamuseum/DailyArtwork.svelte
@@ -36,7 +36,7 @@ src/
 │       ├── [slug].astro          # auto "coming soon" for planned apps
 │       ├── mistageo/index.astro
 │       ├── mistadex/index.astro
-│       ├── hypemeter/index.astro
+│       ├── mistahypedia/index.astro
 │       ├── mistaword/index.astro
 │       ├── mistajack/index.astro
 │       ├── mistamuseum/index.astro
@@ -54,7 +54,7 @@ src/
 | --------------- | ------ | ------------------------------------------------------------------------- |
 | `mistageo`      | ready  | `topojson-client`, `@types/topojson-client`                               |
 | `mistadex`      | ready  | none                                                                      |
-| `hypemeter`     | ready  | none                                                                      |
+| `mistahypedia`  | ready  | none                                                                      |
 | `mistaword`     | ready  | none                                                                      |
 | `mistajack`     | ready  | none (uses Deck of Cards API)                                             |
 | `mistamuseum`   | ready  | none (uses AIC public API)                                                |
@@ -81,7 +81,7 @@ type AppEntry = {
 
 **Icons** live only in `AppHub.astro` as a plain `slug → lucide component` map. Do not add icon types to `AppEntry` — it causes TypeScript issues with Svelte component types.
 
-**`AppPage.astro`** handles back button + title + tagline for all app pages. Do not repeat these inside the game component itself. (Note: `hypemeter/SpikeDetector.svelte` had its internal header stripped for this reason.)
+**`AppPage.astro`** handles back button + title + tagline for all app pages. Do not repeat these inside the game component itself. (Note: `mistahypedia/SpikeDetector.svelte` had its internal header stripped for this reason.)
 
 **Static routes** (`pages/apps/<slug>/index.astro`) take priority over `[slug].astro`. The dynamic route only fires for slugs without a dedicated page.
 

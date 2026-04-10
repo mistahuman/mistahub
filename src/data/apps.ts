@@ -26,8 +26,8 @@ export const appEntries: AppEntry[] = [
     status: 'ready',
   },
   {
-    slug: 'hypemeter',
-    title: 'hypemeter',
+    slug: 'mistahypedia',
+    title: 'mistahypedia',
     tagline: 'Most viewed Wikipedia articles yesterday.',
     description: 'A live ranking of the most read Wikipedia pages from the previous day.',
     category: 'news',
