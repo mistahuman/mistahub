@@ -21,6 +21,7 @@ https://mistahuman.github.io/mistahub/
 | `mistajack`   | Single-player Blackjack vs CPU dealer    |
 | `mistamuseum` | One curated AIC artwork per day          |
 | `mistanews`   | Top 10 Hacker News stories               |
+| `mistagov`    | Italian deputies live from Camera SPARQL |
 
 ## Stack
 

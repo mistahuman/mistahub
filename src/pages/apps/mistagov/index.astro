@@ -1,0 +1,11 @@
+---
+import Layout from '@layouts/Layout.astro';
+import AppPage from '@components/AppPage.astro';
+import MistaGov from '@components/apps/mistagov/MistaGov.svelte';
+---
+
+<Layout>
+  <AppPage title="mistagov" tagline="Italian deputies, live from Camera dei Deputati.">
+    <MistaGov client:load />
+  </AppPage>
+</Layout>
