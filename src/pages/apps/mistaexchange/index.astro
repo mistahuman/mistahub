@@ -1,0 +1,11 @@
+---
+import Layout from '@layouts/Layout.astro';
+import AppPage from '@components/AppPage.astro';
+import ExchangeConverter from '@components/apps/mistaexchange/ExchangeConverter.svelte';
+---
+
+<Layout>
+  <AppPage title="mistaexchange" tagline="Real-time currency converter.">
+    <ExchangeConverter client:load />
+  </AppPage>
+</Layout>

@@ -68,6 +68,14 @@ export const appEntries: AppEntry[] = [
       'Live list of current Italian deputies with name and party group, fetched from the Camera SPARQL endpoint.',
     status: 'ready',
   },
+  {
+    slug: 'mistaexchange',
+    title: 'mistaexchange',
+    tagline: 'Real-time currency converter.',
+    description:
+      'A live currency converter powered by the Frankfurter public API — pick any pair, type an amount, get the rate instantly.',
+    status: 'ready',
+  },
 ];
 
 export function getAppBySlug(slug: string) {
