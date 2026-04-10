@@ -20,6 +20,7 @@ https://mistahuman.github.io/mistahub/
 | `mistaword`   | Wordle-style word game                   |
 | `mistajack`   | Single-player Blackjack vs CPU dealer    |
 | `mistamuseum` | One curated AIC artwork per day          |
+| `mistasaur`   | Browse prehistoric life from fossils     |
 
 ## Stack
 

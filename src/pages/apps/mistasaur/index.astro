@@ -1,0 +1,11 @@
+---
+import Layout from '@layouts/Layout.astro';
+import AppPage from '@components/AppPage.astro';
+import MistasaurGame from '@components/apps/mistasaur/MistasaurGame.svelte';
+---
+
+<Layout>
+  <AppPage title="mistasaur" tagline="Browse prehistoric life from the fossil record.">
+    <MistasaurGame client:load />
+  </AppPage>
+</Layout>

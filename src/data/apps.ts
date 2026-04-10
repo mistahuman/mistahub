@@ -52,6 +52,14 @@ export const appEntries: AppEntry[] = [
       'A daily artwork discovery app — one public-domain piece from the Art Institute of Chicago, seeded by date.',
     status: 'ready',
   },
+  {
+    slug: 'mistasaur',
+    title: 'mistasaur',
+    tagline: 'Browse prehistoric life from the fossil record.',
+    description:
+      'An interactive prehistoric explorer — browse and filter fossil taxon data from the Paleobiology Database, enriched with Wikipedia thumbnails.',
+    status: 'ready',
+  },
 ];
 
 export function getAppBySlug(slug: string) {
