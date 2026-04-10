@@ -14,34 +14,49 @@
   let fetchedAt = $state<string | null>(null);
 
   const NOISE_PATTERNS = ['Main_Page', 'Special:', 'Wikipedia:', 'Portal:', 'File:'];
+  const MAX_LOOKBACK_DAYS = 7;
 
   function isNoise(title: string): boolean {
-    return NOISE_PATTERNS.some((p) => title.includes(p));
+    return title.startsWith('.') || NOISE_PATTERNS.some((p) => title.includes(p));
   }
 
-  function getYesterday(): string {
+  function getDatePath(offsetDays: number): string {
     // eslint-disable-next-line svelte/prefer-svelte-reactivity
     const d = new Date();
-    d.setDate(d.getDate() - 1);
+    d.setDate(d.getDate() - offsetDays);
     const yyyy = d.getFullYear();
     const mm = String(d.getMonth() + 1).padStart(2, '0');
     const dd = String(d.getDate()).padStart(2, '0');
     return `${yyyy}/${mm}/${dd}`;
   }
 
+  async function fetchTopArticles(date: string): Promise<{ article: string; views: number }[]> {
+    const url = `https://wikimedia.org/api/rest_v1/metrics/pageviews/top/en.wikipedia/all-access/${date}`;
+    const res = await fetch(url);
+    if (!res.ok) return [];
+
+    const data = await res.json();
+    return data.items?.[0]?.articles ?? [];
+  }
+
   async function load(): Promise<void> {
     loading = true;
     error = null;
     try {
-      const date = getYesterday();
+      let date = '';
+      let articles: { article: string; views: number }[] = [];
+
+      for (let offset = 1; offset <= MAX_LOOKBACK_DAYS; offset += 1) {
+        date = getDatePath(offset);
+        articles = await fetchTopArticles(date);
+        if (articles.length > 0) break;
+      }
+
+      if (articles.length === 0) {
+        throw new Error('No Wikimedia pageview data available yet.');
+      }
+
       fetchedAt = date.replaceAll('/', '-');
-
-      const url = `https://wikimedia.org/api/rest_v1/metrics/pageviews/top/en.wikipedia/all-access/${date}`;
-
-      const res = await fetch(url);
-      const data = await res.json();
-
-      const articles: { article: string; views: number }[] = data.items?.[0]?.articles ?? [];
 
       items = articles
         .filter((a) => !isNoise(a.article))
@@ -72,7 +87,7 @@
         {/if}
       </div>
       <p class="text-sm text-surface-600-400">
-        Most viewed articles from yesterday, filtered for readable pages.
+        Latest available daily ranking, filtered for readable Wikipedia articles.
       </p>
     </div>
     <button class="btn btn-sm preset-tonal" onclick={load} disabled={loading}>
