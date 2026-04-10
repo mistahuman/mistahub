@@ -7,15 +7,17 @@
     party: string;
     groupSince: string | null; // "DD.MM.YYYY"
     groupUntil: string | null; // "DD.MM.YYYY" | null = still current
-    absences: number | null; // null = not yet loaded
+    absences: number | null; // null = batch not yet arrived
+    attendanceRate: number | null; // null = batch not yet arrived
   }
 
   type AppState = 'idle' | 'loading' | 'ready' | 'error';
   type AbsencesState = 'idle' | 'loading' | 'ready' | 'error';
-  type SortKey = 'name' | 'absences';
+  type SortKey = 'name' | 'absences-desc' | 'absences-asc';
 
   const SPARQL = 'https://dati.camera.it/sparql';
   const BATCH_SIZE = 25;
+  const LEG_URI = 'http://dati.camera.it/ocd/legislatura.rdf/repubblica_19';
 
   // Filter to XIX legislature only — URIs end in "_19".
   // Without this the endpoint returns all deputies since 1946 (~10 000 rows).
@@ -31,6 +33,35 @@ SELECT DISTINCT ?persona ?label ?gruppo ?gruppoLabel WHERE {
 }
 ORDER BY ?label
 `.trim();
+
+  // Count of DISTINCT electronic votazioni for the whole legislature.
+  // The store has duplicate triples — COUNT(*) returns 2× the real number;
+  // COUNT(DISTINCT) returns the correct figure (~17 257 for XIX).
+  const TOTAL_VOTAZIONI_QUERY = `
+PREFIX ocd: <http://dati.camera.it/ocd/>
+SELECT (COUNT(DISTINCT ?vot) AS ?n) WHERE {
+  ?vot a ocd:votazione ;
+       ocd:rif_leg <${LEG_URI}> .
+}
+`.trim();
+
+  // Absence batch query — joins through rif_votazione to ocd:votazione to ensure
+  // we count only actual electronic votazioni (not generic acts).
+  // DISTINCT deduplicates the doubled triples in the store.
+  function absencesBatchQuery(uris: string[]): string {
+    const values = uris.map((u) => `<${u}>`).join('\n    ');
+    return `PREFIX ocd: <http://dati.camera.it/ocd/>
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
+SELECT ?persona (COUNT(DISTINCT ?votazione) AS ?absences) WHERE {
+  VALUES ?persona { ${values} }
+  ?voto a ocd:voto ;
+        ocd:rif_deputato ?persona ;
+        ocd:rif_votazione ?votazione ;
+        dc:type "Non ha votato" .
+  ?votazione a ocd:votazione .
+}
+GROUP BY ?persona`;
+  }
 
   // gruppoLabel embeds dates: "MISTO (09.01.2023)" or "AVS (27.10.2022-09.01.2023)"
   const DATE_RE = /^(.+?)\s*\((\d{2}\.\d{2}\.\d{4})(?:-(\d{2}\.\d{2}\.\d{4}))?\)$/;
@@ -62,14 +93,16 @@ ORDER BY ?label
     for (const row of data.results.bindings) {
       const uri = row.persona.value;
       const { party, since, until } = parseGroupLabel(row.gruppoLabel.value);
-
+      // label = "MARIO ROSSI, XIX Legislatura della Repubblica" — strip legislature suffix
+      const name = row.label.value.split(',')[0].trim();
       const candidate: Deputy = {
         id: uri,
-        name: row.label.value,
+        name,
         party,
         groupSince: since,
         groupUntil: until,
         absences: null,
+        attendanceRate: null,
       };
 
       const existing = byId.get(uri);
@@ -97,19 +130,55 @@ ORDER BY ?label
     return res.json();
   }
 
-  async function fetchAbsencesBatch(uris: string[]): Promise<SvelteMap<string, number>> {
-    const values = uris.map((u) => `<${u}>`).join('\n    ');
-    const query = `PREFIX ocd: <http://dati.camera.it/ocd/>
-PREFIX dc: <http://purl.org/dc/elements/1.1/>
-SELECT ?persona (COUNT(?voto) AS ?absences) WHERE {
-  VALUES ?persona { ${values} }
-  ?voto a ocd:voto ;
-        ocd:rif_deputato ?persona ;
-        dc:type "Non ha votato" .
-}
-GROUP BY ?persona`;
+  // ── State ──────────────────────────────────────────────────────────────────
 
-    const json = (await sparqlGet(query)) as {
+  let deputies = $state<Deputy[]>([]);
+  let totalVotazioni = $state<number>(0);
+  let appState = $state<AppState>('idle');
+  let absencesState = $state<AbsencesState>('idle');
+  let errorMessage = $state<string | null>(null);
+  let firstBatchDone = $state(false); // enables the Absences sort button
+
+  let search = $state('');
+  let selectedParty = $state('');
+  let sort = $state<SortKey>('name');
+
+  // ── Derived ────────────────────────────────────────────────────────────────
+
+  const parties = $derived(
+    [...new Set(deputies.map((d) => d.party))].sort((a, b) => a.localeCompare(b)),
+  );
+
+  const displayed = $derived(() => {
+    const q = search.trim().toLowerCase();
+    let list = deputies.filter(
+      (d) =>
+        (!q || d.name.toLowerCase().includes(q)) && (!selectedParty || d.party === selectedParty),
+    );
+    if (sort === 'absences-desc')
+      list = [...list].sort((a, b) => (b.absences ?? -1) - (a.absences ?? -1));
+    if (sort === 'absences-asc')
+      list = [...list].sort((a, b) => (a.absences ?? Infinity) - (b.absences ?? Infinity));
+    return list;
+  });
+
+  const totalAbsencesShown = $derived(displayed().reduce((s, d) => s + (d.absences ?? 0), 0));
+
+  // ── Fetch ──────────────────────────────────────────────────────────────────
+
+  async function fetchTotalVotazioni(): Promise<void> {
+    try {
+      const json = (await sparqlGet(TOTAL_VOTAZIONI_QUERY)) as {
+        results: { bindings: [{ n: { value: string } }] };
+      };
+      totalVotazioni = Number(json.results.bindings[0].n.value);
+    } catch (e) {
+      console.warn('[mistagov] could not fetch total votazioni:', e);
+    }
+  }
+
+  async function fetchAbsencesBatch(uris: string[]): Promise<SvelteMap<string, number>> {
+    const json = (await sparqlGet(absencesBatchQuery(uris))) as {
       results: { bindings: Array<Record<string, { value: string }>> };
     };
     const map = new SvelteMap<string, number>();
@@ -119,18 +188,37 @@ GROUP BY ?persona`;
 
   async function fetchAllAbsences(list: Deputy[]): Promise<void> {
     absencesState = 'loading';
+    firstBatchDone = false;
     try {
       const batches: string[][] = [];
       for (let i = 0; i < list.length; i += BATCH_SIZE) {
         batches.push(list.slice(i, i + BATCH_SIZE).map((d) => d.id));
       }
 
-      const maps = await Promise.all(batches.map((b) => fetchAbsencesBatch(b)));
-      const merged = new SvelteMap<string, number>();
-      for (const m of maps) for (const [k, v] of m) merged.set(k, v);
+      // Fire all batches in parallel; update deputies as each settles
+      const settled = await Promise.allSettled(
+        batches.map(async (batch) => {
+          const map = await fetchAbsencesBatch(batch);
+          // Patch the deputies array in place for this batch
+          deputies = deputies.map((d) => {
+            if (!map.has(d.id)) return d;
+            const absences = map.get(d.id)!;
+            const attendanceRate =
+              totalVotazioni > 0 ? ((totalVotazioni - absences) / totalVotazioni) * 100 : null;
+            return { ...d, absences, attendanceRate };
+          });
+          // Also zero out deputies in this batch that had no absences record
+          deputies = deputies.map((d) => {
+            if (!batch.includes(d.id) || d.absences !== null) return d;
+            const attendanceRate = totalVotazioni > 0 ? 100 : null;
+            return { ...d, absences: 0, attendanceRate };
+          });
+          firstBatchDone = true;
+        }),
+      );
 
-      deputies = deputies.map((d) => ({ ...d, absences: merged.get(d.id) ?? 0 }));
-      console.log('[mistagov] absences ready');
+      const failed = settled.filter((r) => r.status === 'rejected').length;
+      if (failed > 0) console.warn(`[mistagov] ${failed}/${batches.length} absence batches failed`);
       absencesState = 'ready';
     } catch (e) {
       console.error('[mistagov] absences error:', e);
@@ -138,45 +226,18 @@ GROUP BY ?persona`;
     }
   }
 
-  let deputies = $state<Deputy[]>([]);
-  let appState = $state<AppState>('idle');
-  let absencesState = $state<AbsencesState>('idle');
-  let errorMessage = $state<string | null>(null);
-  let search = $state('');
-  let selectedParty = $state('');
-  let sort = $state<SortKey>('name');
-
-  const parties = $derived(
-    [...new Set(deputies.map((d) => d.party))].sort((a, b) => a.localeCompare(b)),
-  );
-
-  const displayed = $derived(() => {
-    const q = search.trim().toLowerCase();
-    let list = deputies.filter((d) => {
-      return (
-        (!q || d.name.toLowerCase().includes(q)) && (!selectedParty || d.party === selectedParty)
-      );
-    });
-    if (sort === 'absences') {
-      list = [...list].sort((a, b) => (b.absences ?? -1) - (a.absences ?? -1));
-    }
-    return list;
-  });
-
-  const totalAbsences = $derived(deputies.reduce((sum, d) => sum + (d.absences ?? 0), 0));
-
   async function load(): Promise<void> {
     appState = 'loading';
     absencesState = 'idle';
     errorMessage = null;
     deputies = [];
+    firstBatchDone = false;
 
     try {
-      const json = await sparqlGet(DEPUTIES_QUERY);
+      const [json] = await Promise.all([sparqlGet(DEPUTIES_QUERY), fetchTotalVotazioni()]);
       deputies = parseDeputies(json);
-      console.log('[mistagov] deputies ready —', deputies.length, $state.snapshot(deputies));
       appState = 'ready';
-      fetchAllAbsences(deputies);
+      fetchAllAbsences(deputies); // fire-and-forget; batches patch state as they arrive
     } catch (e) {
       errorMessage = e instanceof Error ? e.message : String(e);
       console.error('[mistagov] error:', errorMessage);
@@ -188,264 +249,185 @@ GROUP BY ?persona`;
     load();
   });
 
+  function toggleAbsencesSort(): void {
+    sort = sort === 'absences-desc' ? 'absences-asc' : 'absences-desc';
+  }
+
   export function reload(): void {
     load();
   }
 </script>
 
-<div class="mg-wrap">
-  <!-- ── Controls ────────────────────────────────────────────────────────────── -->
+<div class="mx-auto w-full max-w-5xl">
+  <!-- ── Toolbar ────────────────────────────────────────────────────────────── -->
+  <div class="mb-2 flex flex-wrap gap-2">
+    <input
+      class="input min-w-0 flex-1"
+      type="search"
+      placeholder="Search deputy…"
+      bind:value={search}
+      disabled={appState !== 'ready'}
+    />
+    <select
+      class="select min-w-0 basis-72"
+      bind:value={selectedParty}
+      disabled={appState !== 'ready'}
+    >
+      <option value="">All groups ({deputies.length})</option>
+      {#each parties as p (p)}
+        <option value={p}>{p}</option>
+      {/each}
+    </select>
+  </div>
+
   {#if appState === 'ready'}
-    <div class="mg-controls">
-      <input
-        class="input mg-search"
-        type="search"
-        placeholder="Search deputy…"
-        bind:value={search}
-      />
-      <select class="select mg-select" bind:value={selectedParty}>
-        <option value="">All groups ({deputies.length})</option>
-        {#each parties as p (p)}
-          <option value={p}>{p}</option>
-        {/each}
-      </select>
-    </div>
-
-    <div class="mg-toolbar">
-      <span class="mg-count">{displayed().length} / {deputies.length} deputies</span>
-      <div class="mg-sort">
-        <span class="mg-sort-label">Sort:</span>
-        <button
-          class="btn btn-sm {sort === 'name' ? 'preset-tonal-primary' : 'hover:preset-tonal'}"
-          onclick={() => (sort = 'name')}
-        >
-          Name
-        </button>
-        <button
-          class="btn btn-sm {sort === 'absences' ? 'preset-tonal-primary' : 'hover:preset-tonal'}"
-          disabled={absencesState !== 'ready'}
-          onclick={() => (sort = 'absences')}
-          title={absencesState !== 'ready' ? 'Loading absences…' : undefined}
-        >
-          {#if absencesState === 'loading'}
-            <svg
-              class="animate-spin size-3 mr-1"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-            >
-              <circle
-                class="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                stroke-width="4"
-              ></circle>
-              <path
-                class="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-              ></path>
-            </svg>
-          {/if}
-          Absences ↓
-        </button>
-      </div>
-    </div>
-
-    {#if absencesState === 'ready' && sort === 'absences'}
-      <p class="mg-count mg-absences-total">
-        Total absences in dataset: {totalAbsences.toLocaleString('en')}
-      </p>
-    {/if}
+    <p class="mb-2 text-xs opacity-50">
+      {displayed().length} / {deputies.length} deputies
+      {#if sort !== 'name' && absencesState === 'ready'}
+        · {totalAbsencesShown.toLocaleString('en')} absences shown
+      {/if}
+    </p>
   {/if}
 
-  <!-- ── States ──────────────────────────────────────────────────────────────── -->
-  {#if appState === 'idle' || appState === 'loading'}
-    <ul class="mg-list">
-      {#each Array.from({ length: 14 }, (_unused, i) => i) as i (i)}
-        <li class="mg-row card preset-filled-surface-100-900 border-surface-200-800 border-[1px]">
-          <div class="placeholder" style="width:{68 - i}%; height:.875rem;"></div>
-          <div
-            class="placeholder"
-            style="width:{28 - (i % 5)}%; height:1.25rem; border-radius:var(--radius-base);"
-          ></div>
-          <div class="placeholder" style="width:5rem; height:.7rem;"></div>
-        </li>
-      {/each}
-    </ul>
-  {:else if appState === 'error'}
-    <aside class="card preset-tonal-warning mg-error-aside">
+  <!-- ── Error ──────────────────────────────────────────────────────────────── -->
+  {#if appState === 'error'}
+    <aside class="card preset-tonal-warning flex flex-col gap-1 p-5">
       <p class="font-semibold">Could not load deputies</p>
       <p class="text-sm opacity-80">{errorMessage}</p>
       <button class="btn preset-outlined mt-3 text-sm" onclick={reload}>Retry</button>
     </aside>
-  {:else if displayed().length === 0}
-    <p class="mg-empty">No deputies found.</p>
+
+    <!-- ── Table ──────────────────────────────────────────────────────────────── -->
   {:else}
-    <ul class="mg-list">
-      {#each displayed() as dep, i (dep.id)}
-        <li class="mg-row card preset-filled-surface-100-900 border-surface-200-800 border-[1px]">
-          <!-- rank only when sorted by absences -->
-          {#if sort === 'absences'}
-            <span class="mg-rank">#{i + 1}</span>
+    <div class="border-surface-200-800 w-full overflow-x-auto rounded-container border">
+      <table class="w-full border-collapse whitespace-nowrap text-sm">
+        <thead class="sticky top-0 z-10">
+          <tr class="bg-surface-100-900 border-surface-200-800 border-b">
+            <!-- Name — sortable -->
+            <th class="min-w-56 px-3 py-2 text-left">
+              <button
+                class="flex cursor-pointer items-center gap-1 text-xs font-semibold uppercase tracking-wide"
+                onclick={() => (sort = 'name')}
+                aria-sort={sort === 'name' ? 'ascending' : 'none'}
+              >
+                Name / Group
+                <span class={sort === 'name' ? 'opacity-100' : 'opacity-30'}>↑</span>
+              </button>
+            </th>
+            <th class="w-28 px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide"
+              >Since</th
+            >
+            <th class="w-28 px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide"
+              >Until</th
+            >
+
+            <!-- Missed — sortable -->
+            <th class="w-24 px-3 py-2 text-right">
+              <button
+                class="flex w-full cursor-pointer items-center justify-end gap-1 text-xs font-semibold uppercase tracking-wide disabled:cursor-default disabled:opacity-40"
+                onclick={toggleAbsencesSort}
+                disabled={!firstBatchDone}
+                title={!firstBatchDone ? 'Loading absences…' : undefined}
+                aria-sort={sort === 'absences-desc'
+                  ? 'descending'
+                  : sort === 'absences-asc'
+                    ? 'ascending'
+                    : 'none'}
+              >
+                {#if absencesState === 'loading' && !firstBatchDone}
+                  <svg
+                    class="animate-spin size-3"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <circle
+                      class="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      stroke-width="4"
+                    ></circle>
+                    <path
+                      class="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                    ></path>
+                  </svg>
+                {:else}
+                  <span class={sort !== 'name' ? 'opacity-100' : 'opacity-30'}>
+                    {sort === 'absences-asc' ? '↑' : '↓'}
+                  </span>
+                {/if}
+                Missed
+              </button>
+            </th>
+
+            <th class="w-20 px-3 py-2 text-right text-xs font-semibold uppercase tracking-wide"
+              >Att.%</th
+            >
+          </tr>
+        </thead>
+
+        <tbody>
+          <!-- Loading skeleton -->
+          {#if appState === 'idle' || appState === 'loading'}
+            {#each Array.from({ length: 18 }, (_, i) => i) as i (i)}
+              <tr class="border-surface-200-800 border-b last:border-b-0">
+                <td class="px-3 py-2">
+                  <div class="placeholder mb-1.5 h-3" style="width:{58 - i * 2}%"></div>
+                  <div class="placeholder h-4 w-2/3 rounded-base"></div>
+                </td>
+                <td class="px-3 py-2"><div class="placeholder h-2.5 w-20"></div></td>
+                <td class="px-3 py-2"><div class="placeholder h-2.5 w-16"></div></td>
+                <td class="px-3 py-2"><div class="placeholder ml-auto h-2.5 w-10"></div></td>
+                <td class="px-3 py-2"><div class="placeholder ml-auto h-2.5 w-8"></div></td>
+              </tr>
+            {/each}
+
+            <!-- Empty state -->
+          {:else if displayed().length === 0}
+            <tr>
+              <td colspan="5" class="px-3 py-12 text-center text-sm opacity-50"
+                >No deputies found.</td
+              >
+            </tr>
+
+            <!-- Data rows -->
+          {:else}
+            {#each displayed() as dep (dep.id)}
+              <tr
+                class="border-surface-200-800 hover:bg-surface-200-800/30 border-b last:border-b-0"
+              >
+                <td class="px-3 py-2 whitespace-normal">
+                  <p class="font-medium">{dep.name}</p>
+                  <span class="badge preset-tonal-surface mt-1 text-[0.62rem]">{dep.party}</span>
+                </td>
+                <td class="px-3 py-2 text-xs tabular-nums opacity-50">{dep.groupSince ?? '—'}</td>
+                <td class="px-3 py-2 text-xs tabular-nums opacity-50"
+                  >{dep.groupUntil ?? 'present'}</td
+                >
+                <td
+                  class="px-3 py-2 text-right tabular-nums {dep.absences === null
+                    ? 'opacity-20'
+                    : 'opacity-75'}"
+                >
+                  {dep.absences === null ? '·' : dep.absences.toLocaleString('en')}
+                </td>
+                <td
+                  class="px-3 py-2 text-right tabular-nums {dep.attendanceRate === null
+                    ? 'opacity-20'
+                    : 'opacity-75'}"
+                >
+                  {dep.attendanceRate === null ? '·' : dep.attendanceRate.toFixed(1) + '%'}
+                </td>
+              </tr>
+            {/each}
           {/if}
-
-          <span class="mg-name">{dep.name}</span>
-
-          <span class="badge preset-tonal-primary mg-badge" title={dep.party}>{dep.party}</span>
-
-          <!-- date range -->
-          <span class="mg-date">
-            {#if dep.groupSince && dep.groupUntil}
-              {dep.groupSince} – {dep.groupUntil}
-            {:else if dep.groupSince}
-              since {dep.groupSince}
-            {/if}
-          </span>
-
-          <!-- absences -->
-          <span class="mg-abs" class:mg-abs-loading={dep.absences === null}>
-            {#if dep.absences === null}
-              {#if absencesState === 'error'}
-                —
-              {:else}
-                ·
-              {/if}
-            {:else}
-              {dep.absences.toLocaleString('en')} missed
-            {/if}
-          </span>
-        </li>
-      {/each}
-    </ul>
+        </tbody>
+      </table>
+    </div>
   {/if}
 </div>
-
-<style>
-  .mg-wrap {
-    width: 100%;
-    max-width: 56rem;
-    margin-inline: auto;
-  }
-
-  /* ── Controls ────────────────────────────────────────────────────────────── */
-  .mg-controls {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-    margin-bottom: 0.5rem;
-  }
-  .mg-search {
-    flex: 1 1 14rem;
-    min-width: 0;
-  }
-  .mg-select {
-    flex: 0 1 22rem;
-    min-width: 0;
-  }
-
-  .mg-toolbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-bottom: 0.5rem;
-  }
-  .mg-sort {
-    display: flex;
-    align-items: center;
-    gap: 0.375rem;
-  }
-  .mg-sort-label {
-    font-size: 0.75rem;
-    opacity: 0.55;
-  }
-
-  .mg-count {
-    font-size: 0.75rem;
-    opacity: 0.55;
-  }
-  .mg-absences-total {
-    margin-bottom: 0.5rem;
-  }
-
-  /* ── List ────────────────────────────────────────────────────────────────── */
-  .mg-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-    list-style: none;
-    padding: 0;
-  }
-
-  .mg-row {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-    padding: 0.45rem 0.875rem;
-  }
-
-  .mg-rank {
-    font-size: 0.7rem;
-    font-variant-numeric: tabular-nums;
-    opacity: 0.45;
-    width: 2rem;
-    flex-shrink: 0;
-    text-align: right;
-  }
-
-  .mg-name {
-    flex: 1 1 12rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    min-width: 0;
-  }
-
-  .mg-badge {
-    font-size: 0.65rem;
-    white-space: nowrap;
-    max-width: 14rem;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    flex-shrink: 0;
-  }
-
-  .mg-date {
-    font-size: 0.7rem;
-    opacity: 0.5;
-    white-space: nowrap;
-    flex-shrink: 0;
-  }
-
-  .mg-abs {
-    margin-left: auto;
-    font-size: 0.75rem;
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap;
-    flex-shrink: 0;
-    opacity: 0.7;
-  }
-  .mg-abs-loading {
-    opacity: 0.3;
-  }
-
-  /* ── States ──────────────────────────────────────────────────────────────── */
-  .mg-error-aside {
-    padding: 1.25rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-  }
-
-  .mg-empty {
-    font-size: 0.875rem;
-    opacity: 0.6;
-    padding: 2rem 0;
-    text-align: center;
-  }
-</style>
