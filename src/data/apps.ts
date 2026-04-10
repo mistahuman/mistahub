@@ -44,6 +44,14 @@ export const appEntries: AppEntry[] = [
       'A single-player Blackjack game against a CPU dealer with a persistent credit system.',
     status: 'ready',
   },
+  {
+    slug: 'mistamuseum',
+    title: 'mistamuseum',
+    tagline: 'One curated artwork, every day.',
+    description:
+      'A daily artwork discovery app — one public-domain piece from the Art Institute of Chicago, seeded by date.',
+    status: 'ready',
+  },
 ];
 
 export function getAppBySlug(slug: string) {
