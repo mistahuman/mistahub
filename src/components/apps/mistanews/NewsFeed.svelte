@@ -86,10 +86,10 @@
   }
 </script>
 
-<div class="mn-wrap">
+<div class="mx-auto w-full max-w-2xl">
   <!-- ── Feed toggle ─────────────────────────────────────────────────────────── -->
   <div
-    class="card preset-filled-surface-100-900 border-surface-200-800 mb-3 flex flex-wrap gap-1 border-[1px] p-1"
+    class="card preset-filled-surface-100-900 border-surface-200-800 mb-4 flex flex-wrap gap-1 border-[1px] p-1"
   >
     {#each FEEDS as feed (feed.id)}
       <button
@@ -105,9 +105,9 @@
   </div>
 
   <!-- ── Feed slot: always occupies the same vertical space ─────────────────── -->
-  <div class="mn-slot">
+  <div class="min-h-[40rem]">
     {#if appState === 'loading'}
-      <ol class="mn-list">
+      <ol class="flex flex-col gap-2">
         {#each [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] as i (i)}
           <li
             class="card preset-filled-surface-100-900 border-surface-200-800 border-[1px] px-4 py-3"
@@ -134,7 +134,7 @@
         <button class="btn preset-outlined mt-3 text-sm" onclick={reload}>Retry</button>
       </aside>
     {:else}
-      <ol class="mn-list">
+      <ol class="flex flex-col gap-2">
         {#each stories as story (story.id)}
           <li
             class="card preset-filled-surface-100-900 border-surface-200-800 hover:preset-tonal border-[1px] px-4 py-3 transition-colors"
@@ -145,13 +145,13 @@
               rel="noopener noreferrer"
               class="group mb-2 block no-underline"
             >
-              <p class="mn-title group-hover:underline">{story.title}</p>
-              <p class="mn-domain opacity-60">{extractDomain(story.url)}</p>
+              <p class="text-sm font-medium leading-snug group-hover:underline">{story.title}</p>
+              <p class="mt-1 text-xs opacity-60">{extractDomain(story.url)}</p>
             </a>
-            <div class="mn-meta opacity-60">
+            <div class="flex flex-wrap items-center gap-2 opacity-60">
               <span class="badge preset-tonal-surface">▲ {story.score}</span>
               <span class="badge preset-tonal-surface">💬 {story.descendants}</span>
-              <span class="mn-author">by {story.by}</span>
+              <span class="text-xs">by {story.by}</span>
             </div>
           </li>
         {/each}
@@ -160,7 +160,11 @@
   </div>
 
   <!-- ── Reload ─────────────────────────────────────────────────────────────── -->
-  <button class="btn preset-outlined mn-reload" disabled={appState === 'loading'} onclick={reload}>
+  <button
+    class="btn mt-3 min-h-10 w-full preset-outlined"
+    disabled={appState === 'loading'}
+    onclick={reload}
+  >
     {#if appState === 'loading'}
       <svg
         class="animate-spin size-4"
@@ -181,52 +185,6 @@
 </div>
 
 <style>
-  .mn-wrap {
-    width: 100%;
-    max-width: 42rem;
-    margin-inline: auto;
-  }
-
-  .mn-slot {
-    min-height: 40rem;
-  }
-
-  .mn-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  /* ── Story card internals ─────────────────────────────────────────────────── */
-  .mn-title {
-    font-size: 0.9375rem;
-    font-weight: 500;
-    line-height: 1.4;
-    margin-bottom: 0.2rem;
-  }
-
-  .mn-domain {
-    font-size: 0.75rem;
-  }
-
-  .mn-meta {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-  }
-
-  .mn-author {
-    font-size: 0.75rem;
-  }
-
-  /* ── Reload button ────────────────────────────────────────────────────────── */
-  .mn-reload {
-    width: 100%;
-    margin-top: 0.75rem;
-    min-height: 2.5rem;
-  }
-
   /* ── Error aside ─────────────────────────────────────────────────────────── */
   .mn-error-aside {
     padding: 1.5rem;

@@ -68,6 +68,7 @@ type AppEntry = {
   title: string;
   tagline: string;
   description: string;
+  category: 'game' | 'news' | 'tool' | 'data' | 'art';
   status: 'ready' | 'planned';
 };
 ```

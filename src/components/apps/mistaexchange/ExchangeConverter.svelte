@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { ArrowLeftRight } from 'lucide-svelte';
+  import { ArrowLeftRight, Check } from 'lucide-svelte';
   import { Combobox } from '@skeletonlabs/skeleton-svelte';
   import { collection } from '@zag-js/combobox';
 
@@ -115,6 +115,13 @@
     }
 
     debounceTimer = setTimeout(() => {
+      if (fromCurrency === toCurrency) {
+        rate = 1;
+        result = numericAmount;
+        errorMessage = null;
+        appState = 'result';
+        return;
+      }
       fetchConversion(fromCurrency, toCurrency, numericAmount);
     }, DEBOUNCE_MS);
   }
@@ -157,13 +164,25 @@
 
   const fromCollection = $derived(collection({ items: makeItems(fromFilter) }));
   const toCollection = $derived(collection({ items: makeItems(toFilter) }));
+  const fromName = $derived(currencies[fromCurrency] ?? 'Selected currency');
+  const toName = $derived(currencies[toCurrency] ?? 'Selected currency');
+  const currencyCount = $derived(Object.keys(currencies).length);
+
+  function formatNumber(value: number, min = 2, max = 4): string {
+    return value.toLocaleString(undefined, {
+      minimumFractionDigits: min,
+      maximumFractionDigits: max,
+    });
+  }
 </script>
 
 <!-- ── Outer wrapper ─────────────────────────────────────────────────────── -->
-<div class="mx-auto w-full max-w-[420px]">
-  <div class="card preset-filled-surface-100-900 border-surface-200-800 border-[1px] space-y-4 p-5">
+<div class="mx-auto w-full max-w-2xl">
+  <div
+    class="card preset-filled-surface-100-900 border-surface-200-800 space-y-6 border-[1px] p-5 md:p-6"
+  >
     <!-- ── Amount input ─────────────────────────────────────────────────── -->
-    <div class="space-y-1">
+    <div class="space-y-2">
       <label
         class="label text-xs font-semibold uppercase tracking-widest text-surface-400"
         for="me-amount"
@@ -178,116 +197,154 @@
         bind:value={amount}
         oninput={scheduleConversion}
         placeholder="0"
-        class="input w-full"
+        class="input h-14 w-full text-2xl font-semibold tabular-nums"
       />
     </div>
 
-    <!-- ── From combobox ────────────────────────────────────────────────── -->
-    <div class="space-y-1">
-      <p class="label text-xs font-semibold uppercase tracking-widest text-surface-400">From</p>
-      {#key swapKey}
-        <Combobox
-          collection={fromCollection}
-          defaultValue={[fromCurrency]}
-          onInputValueChange={(d) => {
-            fromFilter = d.inputValue;
-          }}
-          onValueChange={(d) => {
-            const picked = d.value[0];
-            if (picked && picked !== fromCurrency) {
-              fromCurrency = picked;
-              savePair(fromCurrency, toCurrency);
-              scheduleConversion();
-            }
-          }}
-          openOnClick
-        >
-          <Combobox.Control>
-            <Combobox.Input class="input w-full" placeholder="Search currency…" />
-          </Combobox.Control>
-          <Combobox.Positioner>
-            <Combobox.Content
-              class="card preset-filled-surface-100-900 border-surface-200-800 z-50 max-h-52 w-full overflow-y-auto border-[1px]"
-            >
-              {#each fromCollection.items as item (item.value)}
-                <Combobox.Item
-                  {item}
-                  class="cursor-pointer px-3 py-2 text-sm hover:preset-tonal data-highlighted:preset-tonal"
-                >
-                  <Combobox.ItemText>
-                    <span class="font-mono font-medium">{item.value}</span>
-                    <span class="ml-2 text-surface-400">{currencies[item.value]}</span>
-                  </Combobox.ItemText>
-                </Combobox.Item>
-              {/each}
-            </Combobox.Content>
-          </Combobox.Positioner>
-        </Combobox>
-      {/key}
-    </div>
+    <div class="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:items-end">
+      <!-- ── From combobox ──────────────────────────────────────────────── -->
+      <div class="space-y-2">
+        <p class="label text-xs font-semibold uppercase tracking-widest text-surface-400">From</p>
+        {#key swapKey}
+          <Combobox
+            collection={fromCollection}
+            defaultValue={[fromCurrency]}
+            defaultInputValue={fromCurrency}
+            onInputValueChange={(d) => {
+              fromFilter = d.inputValue;
+            }}
+            onValueChange={(d) => {
+              const picked = d.value[0];
+              if (picked && picked !== fromCurrency) {
+                fromCurrency = picked;
+                savePair(fromCurrency, toCurrency);
+                scheduleConversion();
+              }
+            }}
+            openOnClick
+          >
+            <Combobox.Control>
+              <Combobox.Input
+                class="input h-12 w-full font-mono font-semibold"
+                placeholder="Search currency..."
+                aria-label={`From currency, selected ${fromCurrency} ${fromName}`}
+              />
+            </Combobox.Control>
+            <Combobox.Positioner>
+              <Combobox.Content
+                class="card preset-filled-surface-100-900 border-surface-200-800 z-50 max-h-56 w-full overflow-y-auto border-[1px]"
+              >
+                {#if currencyCount === 0}
+                  <div class="px-3 py-2 text-sm text-surface-500">Loading currencies...</div>
+                {:else}
+                  {#each fromCollection.items as item (item.value)}
+                    <Combobox.Item
+                      {item}
+                      class="flex cursor-pointer items-center justify-between gap-3 px-3 py-2 text-sm hover:preset-tonal data-highlighted:preset-tonal {item.value ===
+                      fromCurrency
+                        ? 'preset-tonal-primary'
+                        : ''}"
+                    >
+                      <Combobox.ItemText>
+                        <span class="font-mono font-medium">{item.value}</span>
+                        <span class="ml-2 text-surface-400">{currencies[item.value]}</span>
+                      </Combobox.ItemText>
+                      {#if item.value === fromCurrency}
+                        <Check size={14} />
+                      {/if}
+                    </Combobox.Item>
+                  {/each}
+                {/if}
+              </Combobox.Content>
+            </Combobox.Positioner>
+          </Combobox>
+        {/key}
+      </div>
 
-    <!-- ── Swap button ───────────────────────────────────────────────────── -->
-    <div class="flex justify-center">
-      <button
-        type="button"
-        class="btn btn-sm preset-tonal"
-        onclick={swap}
-        aria-label="Swap currencies"
-      >
-        <ArrowLeftRight size={16} />
-      </button>
-    </div>
-
-    <!-- ── To combobox ──────────────────────────────────────────────────── -->
-    <div class="space-y-1">
-      <p class="label text-xs font-semibold uppercase tracking-widest text-surface-400">To</p>
-      {#key swapKey}
-        <Combobox
-          collection={toCollection}
-          defaultValue={[toCurrency]}
-          onInputValueChange={(d) => {
-            toFilter = d.inputValue;
-          }}
-          onValueChange={(d) => {
-            const picked = d.value[0];
-            if (picked && picked !== toCurrency) {
-              toCurrency = picked;
-              savePair(fromCurrency, toCurrency);
-              scheduleConversion();
-            }
-          }}
-          openOnClick
+      <!-- ── Swap button ─────────────────────────────────────────────────── -->
+      <div class="flex justify-center md:pb-0.5">
+        <button
+          type="button"
+          class="btn-icon preset-tonal"
+          onclick={swap}
+          aria-label="Swap currencies"
+          title="Swap currencies"
         >
-          <Combobox.Control>
-            <Combobox.Input class="input w-full" placeholder="Search currency…" />
-          </Combobox.Control>
-          <Combobox.Positioner>
-            <Combobox.Content
-              class="card preset-filled-surface-100-900 border-surface-200-800 z-50 max-h-52 w-full overflow-y-auto border-[1px]"
-            >
-              {#each toCollection.items as item (item.value)}
-                <Combobox.Item
-                  {item}
-                  class="cursor-pointer px-3 py-2 text-sm hover:preset-tonal data-highlighted:preset-tonal"
-                >
-                  <Combobox.ItemText>
-                    <span class="font-mono font-medium">{item.value}</span>
-                    <span class="ml-2 text-surface-400">{currencies[item.value]}</span>
-                  </Combobox.ItemText>
-                </Combobox.Item>
-              {/each}
-            </Combobox.Content>
-          </Combobox.Positioner>
-        </Combobox>
-      {/key}
+          <ArrowLeftRight size={18} />
+        </button>
+      </div>
+
+      <!-- ── To combobox ────────────────────────────────────────────────── -->
+      <div class="space-y-2">
+        <p class="label text-xs font-semibold uppercase tracking-widest text-surface-400">To</p>
+        {#key swapKey}
+          <Combobox
+            collection={toCollection}
+            defaultValue={[toCurrency]}
+            defaultInputValue={toCurrency}
+            onInputValueChange={(d) => {
+              toFilter = d.inputValue;
+            }}
+            onValueChange={(d) => {
+              const picked = d.value[0];
+              if (picked && picked !== toCurrency) {
+                toCurrency = picked;
+                savePair(fromCurrency, toCurrency);
+                scheduleConversion();
+              }
+            }}
+            openOnClick
+          >
+            <Combobox.Control>
+              <Combobox.Input
+                class="input h-12 w-full font-mono font-semibold"
+                placeholder="Search currency..."
+                aria-label={`To currency, selected ${toCurrency} ${toName}`}
+              />
+            </Combobox.Control>
+            <Combobox.Positioner>
+              <Combobox.Content
+                class="card preset-filled-surface-100-900 border-surface-200-800 z-50 max-h-56 w-full overflow-y-auto border-[1px]"
+              >
+                {#if currencyCount === 0}
+                  <div class="px-3 py-2 text-sm text-surface-500">Loading currencies...</div>
+                {:else}
+                  {#each toCollection.items as item (item.value)}
+                    <Combobox.Item
+                      {item}
+                      class="flex cursor-pointer items-center justify-between gap-3 px-3 py-2 text-sm hover:preset-tonal data-highlighted:preset-tonal {item.value ===
+                      toCurrency
+                        ? 'preset-tonal-primary'
+                        : ''}"
+                    >
+                      <Combobox.ItemText>
+                        <span class="font-mono font-medium">{item.value}</span>
+                        <span class="ml-2 text-surface-400">{currencies[item.value]}</span>
+                      </Combobox.ItemText>
+                      {#if item.value === toCurrency}
+                        <Check size={14} />
+                      {/if}
+                    </Combobox.Item>
+                  {/each}
+                {/if}
+              </Combobox.Content>
+            </Combobox.Positioner>
+          </Combobox>
+        {/key}
+      </div>
     </div>
 
     <!-- ── Result slot (always rendered, reserved height) ───────────────── -->
-    <div class="me-result border-t border-surface-200-800 pt-4">
+    <div class="me-result preset-tonal-surface rounded-container p-4">
+      <div class="mb-3 flex flex-wrap items-center gap-2 text-xs">
+        <span class="badge preset-tonal-primary font-mono">{fromCurrency}</span>
+        <ArrowLeftRight size={14} class="text-surface-500" />
+        <span class="badge preset-tonal-primary font-mono">{toCurrency}</span>
+      </div>
       {#if appState === 'idle'}
-        <p class="text-sm text-surface-400">Enter an amount to convert.</p>
+        <p class="text-sm text-surface-500">Enter an amount to convert.</p>
       {:else if appState === 'loading'}
-        <div class="flex items-center gap-2 text-sm text-surface-400">
+        <div class="flex items-center gap-2 text-sm text-surface-500">
           <svg
             class="size-4 animate-spin"
             xmlns="http://www.w3.org/2000/svg"
@@ -306,18 +363,22 @@
           Converting…
         </div>
       {:else if appState === 'result' && result !== null}
-        <p class="text-2xl font-semibold tabular-nums">
-          {result.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 })}
-          <span class="text-base font-normal text-surface-400">{toCurrency}</span>
-        </p>
+        <div class="space-y-1">
+          <p class="text-xs font-semibold uppercase tracking-widest text-surface-500">Result</p>
+          <p class="text-3xl font-bold tabular-nums">
+            {formatNumber(result)}
+            <span class="text-base font-normal text-surface-500">{toCurrency}</span>
+          </p>
+        </div>
         {#if rate !== null}
-          <p class="mt-1 text-xs text-surface-400">
-            1 {fromCurrency} = {rate}
+          <p class="mt-3 text-xs text-surface-500">
+            1 {fromCurrency} = {formatNumber(rate, 0, 6)}
             {toCurrency}
           </p>
         {/if}
       {:else if appState === 'error'}
-        <p class="text-sm text-error-500">{errorMessage}</p>
+        <p class="text-sm font-medium text-error-500">Could not convert this pair.</p>
+        <p class="mt-1 text-xs text-surface-500">{errorMessage}</p>
         <button
           type="button"
           class="btn btn-sm preset-outlined mt-2 text-xs"
@@ -327,11 +388,19 @@
         </button>
       {/if}
     </div>
+
+    <p class="text-center text-xs text-surface-500">
+      {#if currencyCount > 0}
+        {currencyCount} currencies · live rates by Frankfurter
+      {:else}
+        Loading currencies...
+      {/if}
+    </p>
   </div>
 </div>
 
 <style>
   .me-result {
-    min-height: 4.5rem;
+    min-height: 7rem;
   }
 </style>

@@ -12,17 +12,17 @@ https://mistahuman.github.io/mistahub/
 
 ## Apps
 
-| Slug            | What it does                                           |
-| --------------- | ------------------------------------------------------ |
-| `mistageo`      | Geography quiz — flags and borders                     |
-| `mistadex`      | Guess the Pokémon from its silhouette                  |
-| `hypemeter`     | Most viewed Wikipedia articles yesterday               |
-| `mistaword`     | Wordle-style word game                                 |
-| `mistajack`     | Single-player Blackjack vs CPU dealer                  |
-| `mistamuseum`   | One curated AIC artwork per day                        |
-| `mistanews`     | Top 10 Hacker News stories                             |
-| `mistagov`      | Italian deputies — name, party, dates, absence ranking |
-| `mistaexchange` | Real-time currency converter (Frankfurter API)         |
+| Slug            | Type | What it does                                           |
+| --------------- | ---- | ------------------------------------------------------ |
+| `mistageo`      | game | Geography quiz — flags and borders                     |
+| `mistadex`      | game | Guess the Pokémon from its silhouette                  |
+| `hypemeter`     | news | Most viewed Wikipedia articles yesterday               |
+| `mistaword`     | game | Wordle-style word game                                 |
+| `mistajack`     | game | Single-player Blackjack vs CPU dealer                  |
+| `mistamuseum`   | art  | One curated AIC artwork per day                        |
+| `mistanews`     | news | Top 10 Hacker News stories                             |
+| `mistagov`      | data | Italian deputies — name, party, dates, absence ranking |
+| `mistaexchange` | tool | Real-time currency converter (Frankfurter API)         |
 
 ## Stack
 

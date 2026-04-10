@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { Combobox } from '@skeletonlabs/skeleton-svelte';
+  import { collection } from '@zag-js/combobox';
   import { SvelteMap } from 'svelte/reactivity';
 
   interface Deputy {
@@ -18,6 +20,7 @@
   const SPARQL = 'https://dati.camera.it/sparql';
   const BATCH_SIZE = 25;
   const LEG_URI = 'http://dati.camera.it/ocd/legislatura.rdf/repubblica_19';
+  const ALL_GROUPS_VALUE = '__all__';
 
   // Filter to XIX legislature only — URIs end in "_19".
   // Without this the endpoint returns all deputies since 1946 (~10 000 rows).
@@ -141,6 +144,7 @@ GROUP BY ?persona`;
 
   let search = $state('');
   let selectedParty = $state('');
+  let partyFilter = $state('');
   let sort = $state<SortKey>('name');
 
   // ── Derived ────────────────────────────────────────────────────────────────
@@ -148,6 +152,17 @@ GROUP BY ?persona`;
   const parties = $derived(
     [...new Set(deputies.map((d) => d.party))].sort((a, b) => a.localeCompare(b)),
   );
+
+  const partyItems = $derived(() => {
+    const lower = partyFilter.toLowerCase();
+    const items = [
+      { label: `All groups (${deputies.length})`, value: ALL_GROUPS_VALUE },
+      ...parties.map((party) => ({ label: party, value: party })),
+    ];
+    return partyFilter ? items.filter((item) => item.label.toLowerCase().includes(lower)) : items;
+  });
+
+  const partyCollection = $derived(collection({ items: partyItems() }));
 
   const displayed = $derived(() => {
     const q = search.trim().toLowerCase();
@@ -260,34 +275,93 @@ GROUP BY ?persona`;
 
 <div class="mx-auto w-full max-w-5xl">
   <!-- ── Toolbar ────────────────────────────────────────────────────────────── -->
-  <div class="mb-2 flex flex-wrap gap-2">
-    <input
-      class="input min-w-0 flex-1"
-      type="search"
-      placeholder="Search deputy…"
-      bind:value={search}
-      disabled={appState !== 'ready'}
-    />
-    <select
-      class="select min-w-0 basis-72"
-      bind:value={selectedParty}
-      disabled={appState !== 'ready'}
-    >
-      <option value="">All groups ({deputies.length})</option>
-      {#each parties as p (p)}
-        <option value={p}>{p}</option>
-      {/each}
-    </select>
-  </div>
+  <div
+    class="card preset-filled-surface-100-900 border-surface-200-800 mb-4 space-y-4 border-[1px] p-4"
+  >
+    <div class="grid min-w-0 gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(14rem,20rem)]">
+      <label class="min-w-0 space-y-1">
+        <span class="text-xs font-semibold uppercase tracking-widest text-surface-400">Search</span>
+        <input
+          class="input w-full min-w-0"
+          type="search"
+          placeholder="Search deputy..."
+          bind:value={search}
+          disabled={appState !== 'ready'}
+        />
+      </label>
+      <div class="min-w-0 space-y-1">
+        <span class="text-xs font-semibold uppercase tracking-widest text-surface-400">Group</span>
+        {#key `${appState}-${deputies.length}-${selectedParty}`}
+          <Combobox
+            collection={partyCollection}
+            defaultValue={[selectedParty || ALL_GROUPS_VALUE]}
+            defaultInputValue={selectedParty || `All groups (${deputies.length})`}
+            disabled={appState !== 'ready'}
+            onInputValueChange={(d) => {
+              partyFilter = d.inputValue;
+            }}
+            onValueChange={(d) => {
+              const picked = d.value[0] ?? ALL_GROUPS_VALUE;
+              selectedParty = picked === ALL_GROUPS_VALUE ? '' : picked;
+              partyFilter = '';
+            }}
+            openOnClick
+          >
+            <Combobox.Control>
+              <Combobox.Input class="input w-full min-w-0 truncate" placeholder="All groups" />
+            </Combobox.Control>
+            <Combobox.Positioner>
+              <Combobox.Content
+                class="card preset-filled-surface-100-900 border-surface-200-800 z-50 max-h-64 w-full overflow-y-auto border-[1px]"
+              >
+                {#each partyCollection.items as item (item.value)}
+                  <Combobox.Item
+                    {item}
+                    class="cursor-pointer px-3 py-2 text-sm hover:preset-tonal data-highlighted:preset-tonal {item.value ===
+                    (selectedParty || ALL_GROUPS_VALUE)
+                      ? 'preset-tonal-primary'
+                      : ''}"
+                  >
+                    <Combobox.ItemText>{item.label}</Combobox.ItemText>
+                  </Combobox.Item>
+                {/each}
+              </Combobox.Content>
+            </Combobox.Positioner>
+          </Combobox>
+        {/key}
+      </div>
+    </div>
 
-  {#if appState === 'ready'}
-    <p class="mb-2 text-xs opacity-50">
-      {displayed().length} / {deputies.length} deputies
-      {#if sort !== 'name' && absencesState === 'ready'}
-        · {totalAbsencesShown.toLocaleString('en')} absences shown
+    <div class="flex flex-wrap gap-2 text-xs">
+      {#if appState === 'ready'}
+        <span class="badge preset-tonal-surface">
+          {displayed().length} / {deputies.length} deputies
+        </span>
+        <span class="badge preset-tonal-surface">
+          {parties.length} groups
+        </span>
+        {#if totalVotazioni > 0}
+          <span class="badge preset-tonal-surface">
+            {totalVotazioni.toLocaleString('en')} votes
+          </span>
+        {/if}
+        {#if absencesState === 'loading'}
+          <span class="badge preset-tonal-warning">loading absences</span>
+        {:else if absencesState === 'ready'}
+          <span class="badge preset-tonal-success">absences ready</span>
+        {:else if absencesState === 'error'}
+          <span class="badge preset-tonal-error">absences partial</span>
+        {/if}
+        {#if sort !== 'name' && absencesState === 'ready'}
+          <span class="badge preset-tonal-surface">
+            {totalAbsencesShown.toLocaleString('en')} absences shown
+          </span>
+        {/if}
+      {:else}
+        <span class="badge preset-tonal-surface">loading deputies</span>
       {/if}
-    </p>
-  {/if}
+    </div>
+  </div>
 
   <!-- ── Error ──────────────────────────────────────────────────────────────── -->
   {#if appState === 'error'}
@@ -299,7 +373,9 @@ GROUP BY ?persona`;
 
     <!-- ── Table ──────────────────────────────────────────────────────────────── -->
   {:else}
-    <div class="border-surface-200-800 w-full overflow-x-auto rounded-container border">
+    <div
+      class="card preset-filled-surface-100-900 border-surface-200-800 w-full overflow-x-auto border-[1px]"
+    >
       <table class="w-full border-collapse whitespace-nowrap text-sm">
         <thead class="sticky top-0 z-10">
           <tr class="bg-surface-100-900 border-surface-200-800 border-b">

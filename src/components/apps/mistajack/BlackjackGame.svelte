@@ -31,6 +31,7 @@
   let message = $state('');
   let loading = $state(false);
   let error = $state('');
+  let resetConfirm = $state(false);
 
   // ── Derived ──────────────────────────────────────────────────────────────────
   const playerValue = $derived(handValue(playerHand));
@@ -107,6 +108,7 @@
     error = '';
     outcome = null;
     message = '';
+    resetConfirm = false;
     dealerRevealed = false;
     playerHand = [];
     dealerHand = [];
@@ -236,6 +238,10 @@
   }
 
   function resetCredits() {
+    if (credits !== STARTING_CREDITS && !resetConfirm) {
+      resetConfirm = true;
+      return;
+    }
     credits = STARTING_CREDITS;
     saveCredits();
     phase = 'idle';
@@ -244,6 +250,7 @@
     outcome = null;
     message = '';
     error = '';
+    resetConfirm = false;
   }
 
   // ── Card display helpers ─────────────────────────────────────────────────────
@@ -292,19 +299,21 @@
 <!-- ── Template ──────────────────────────────────────────────────────────────── -->
 <div class="bj">
   <!-- HUD -->
-  <div class="bj-hud">
-    <div class="bj-badge">
-      <span class="bj-badge-label">credits</span>
-      <span class="bj-badge-value">{credits}</span>
-    </div>
-    <div class="bj-badge">
-      <span class="bj-badge-label">bet</span>
-      <span class="bj-badge-value">{BET}</span>
-    </div>
+  <div
+    class="card preset-filled-surface-100-900 border-surface-200-800 flex items-center gap-2 border-[1px] px-4 py-3"
+  >
+    <span class="badge preset-tonal-primary">
+      credits <strong>{credits}</strong>
+    </span>
+    <span class="badge preset-tonal-surface">
+      bet <strong>{BET}</strong>
+    </span>
   </div>
 
   {#if error}
-    <p class="bj-error" transition:fade={{ duration: 200 }}>{error}</p>
+    <aside class="card preset-tonal-error px-4 py-3 text-sm" transition:fade={{ duration: 200 }}>
+      {error}
+    </aside>
   {/if}
 
   <!-- Dealer area -->
@@ -425,12 +434,12 @@
           </button>
           {#if credits !== STARTING_CREDITS}
             <button
-              class="btn preset-tonal"
+              class="btn {resetConfirm ? 'preset-filled-warning-500' : 'preset-tonal'}"
               onclick={resetCredits}
               disabled={loading}
               in:fly={{ y: 10, duration: 200, delay: 60 }}
             >
-              Reset
+              {resetConfirm ? 'Confirm reset' : 'Reset'}
             </button>
           {/if}
         {/if}
@@ -471,37 +480,6 @@
     padding: 0.5rem 0.5rem 2.5rem;
     user-select: none;
     -webkit-user-select: none;
-  }
-
-  /* ── HUD ────────────────────────────────────────────────────────────────────── */
-  .bj-hud {
-    display: flex;
-    gap: 1rem;
-  }
-
-  .bj-badge {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    background: var(--color-surface-100);
-    border: 1px solid var(--color-surface-200-800);
-    border-radius: 9999px;
-    padding: 0.25rem 0.85rem;
-    font-size: 0.82rem;
-  }
-  :global([data-mode='dark']) .bj-badge {
-    background: var(--color-surface-800);
-  }
-
-  .bj-badge-label {
-    color: var(--color-surface-500);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    font-size: 0.7rem;
-  }
-
-  .bj-badge-value {
-    font-weight: 700;
   }
 
   /* ── Area ───────────────────────────────────────────────────────────────────── */
@@ -808,11 +786,6 @@
   }
 
   /* ── Misc ───────────────────────────────────────────────────────────────────── */
-  .bj-error {
-    font-size: 0.8rem;
-    color: var(--color-error-500);
-  }
-
   .bj-broke {
     font-size: 0.9rem;
     color: var(--color-error-500);

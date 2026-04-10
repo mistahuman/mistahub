@@ -9,6 +9,11 @@
     imageUrl: string;
   };
 
+  type CachedArtwork = {
+    date: string;
+    artwork: Artwork;
+  };
+
   type State =
     | { status: 'loading' }
     | { status: 'success'; artwork: Artwork }
@@ -17,12 +22,14 @@
   // ── Constants ────────────────────────────────────────────────────────────────
   const AIC_LIST = 'https://api.artic.edu/api/v1/artworks';
   const IIIF_BASE = 'https://www.artic.edu/iiif/2';
+  const STORAGE_KEY = 'mistamuseum-daily-artwork';
   const MAX_ATTEMPTS = 3;
   // ~1316 pages at limit=100 (131k artworks). Stay in lower half for safety.
   const PAGE_RANGE = 600;
 
   // ── State ────────────────────────────────────────────────────────────────────
   let state = $state<State>({ status: 'loading' });
+  let todayLabel = $state('');
   // Separate from `state` — tracks whether the <img> `load` event has fired.
   // Shimmer stays until this is true, regardless of API state.
   let imageLoaded = $state(false);
@@ -34,6 +41,42 @@
     const m = String(now.getMonth() + 1).padStart(2, '0');
     const d = String(now.getDate()).padStart(2, '0');
     return `${y}-${m}-${d}`;
+  }
+
+  function formatDate(date: string): string {
+    const [year, month, day] = date.split('-').map(Number);
+    return new Date(year, month - 1, day).toLocaleDateString(undefined, {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    });
+  }
+
+  function loadCachedArtwork(date: string): Artwork | null {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return null;
+      const cached = JSON.parse(raw) as CachedArtwork;
+      if (
+        cached.date === date &&
+        typeof cached.artwork?.title === 'string' &&
+        typeof cached.artwork?.artist_display === 'string' &&
+        typeof cached.artwork?.imageUrl === 'string'
+      ) {
+        return cached.artwork;
+      }
+    } catch {
+      // ignore malformed storage
+    }
+    return null;
+  }
+
+  function saveCachedArtwork(date: string, artwork: Artwork): void {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ date, artwork }));
+    } catch {
+      // ignore storage errors
+    }
   }
 
   /** djb2-style hash → non-negative integer */
@@ -70,7 +113,15 @@
 
   // ── Resolution ───────────────────────────────────────────────────────────────
   async function resolve(): Promise<void> {
-    const seed = hashString(dateString());
+    const today = dateString();
+    todayLabel = formatDate(today);
+    const cached = loadCachedArtwork(today);
+    if (cached) {
+      state = { status: 'success', artwork: cached };
+      return;
+    }
+
+    const seed = hashString(today);
 
     for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
       try {
@@ -80,14 +131,13 @@
         if (works.length === 0) continue;
 
         const pick = works[(seed + attempt) % works.length];
-        state = {
-          status: 'success',
-          artwork: {
-            title: pick.title,
-            artist_display: pick.artist_display,
-            imageUrl: `${IIIF_BASE}/${pick.image_id}/full/843,/0/default.jpg`,
-          },
+        const artwork = {
+          title: pick.title,
+          artist_display: pick.artist_display,
+          imageUrl: `${IIIF_BASE}/${pick.image_id}/full/843,/0/default.jpg`,
         };
+        saveCachedArtwork(today, artwork);
+        state = { status: 'success', artwork };
         return;
       } catch {
         // silent — try next offset
@@ -100,75 +150,66 @@
   onMount(resolve);
 </script>
 
-<div class="mm-wrap">
-  <!-- Image frame: 4:3 during loading (shimmer needs height), natural size after -->
-  <div class="mm-frame" class:mm-frame-loading={!imageLoaded && state.status !== 'error'}>
-    <!--
-      Shimmer: shown during API fetch AND while the image hasn't loaded yet.
-      out:fade keeps it visible while the image CSS-transitions in — no blank gap.
-    -->
-    {#if state.status === 'loading' || (state.status === 'success' && !imageLoaded)}
-      <div class="mm-shimmer placeholder" out:fade={{ duration: 400 }}></div>
-    {/if}
+<div class="mx-auto w-full max-w-2xl">
+  <article
+    class="card preset-filled-surface-100-900 border-surface-200-800 overflow-hidden border-[1px]"
+  >
+    <header class="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
+      <span class="badge preset-tonal-primary">daily artwork</span>
+      {#if todayLabel}
+        <span class="text-xs text-surface-500">{todayLabel}</span>
+      {:else}
+        <span class="placeholder h-4 w-28"></span>
+      {/if}
+    </header>
 
-    <!-- Error fills the same slot -->
-    {#if state.status === 'error'}
-      <div class="mm-error placeholder" in:fade={{ duration: 300 }}>
-        <p>{state.message}</p>
-      </div>
-    {/if}
+    <!-- Image frame: 4:3 during loading (shimmer needs height), natural size after -->
+    <div
+      class="mm-frame bg-surface-200-800"
+      class:mm-frame-loading={!imageLoaded && state.status !== 'error'}
+    >
+      {#if state.status === 'loading' || (state.status === 'success' && !imageLoaded)}
+        <div class="mm-shimmer placeholder" out:fade={{ duration: 400 }}></div>
+      {/if}
 
-    <!--
-      Image is inserted into the DOM as soon as we have a URL (opacity 0),
-      so the browser starts fetching it immediately. The CSS transition fires
-      when mm-img-loaded is set on the load event.
-    -->
-    {#if state.status === 'success'}
-      <!--
-        In normal flow (not absolute) so the frame adopts the image's natural
-        height once loaded. Opacity starts at 0 so dimensions are reserved
-        before the image is visible — shimmer sits on top via absolute.
-      -->
-      <img
-        src={state.artwork.imageUrl}
-        alt={`${state.artwork.title} — ${state.artwork.artist_display}`}
-        class="mm-img"
-        class:mm-img-loaded={imageLoaded}
-        onload={() => (imageLoaded = true)}
-      />
-    {/if}
-  </div>
+      {#if state.status === 'error'}
+        <div class="mm-error placeholder" in:fade={{ duration: 300 }}>
+          <p>{state.message}</p>
+        </div>
+      {/if}
 
-  <!--
-    Metadata area: fixed height via min-height + absolute children so
-    neither the placeholder→text swap nor the fade-in shifts the page.
-  -->
-  <div class="mm-meta">
-    {#if state.status === 'loading' || (state.status === 'success' && !imageLoaded)}
-      <div class="mm-meta-content">
-        <div class="placeholder mm-line-title"></div>
-        <div class="placeholder mm-line-artist"></div>
-      </div>
-    {/if}
+      {#if state.status === 'success'}
+        <img
+          src={state.artwork.imageUrl}
+          alt={`${state.artwork.title} — ${state.artwork.artist_display}`}
+          class="mm-img"
+          class:mm-img-loaded={imageLoaded}
+          onload={() => (imageLoaded = true)}
+        />
+      {/if}
+    </div>
 
-    {#if imageLoaded && state.status === 'success'}
-      <!-- delay: 100ms → starts after image fade has had a moment to reveal -->
-      <div class="mm-meta-content" in:fade={{ delay: 100, duration: 300 }}>
-        <p class="mm-title">{state.artwork.title}</p>
-        <p class="mm-artist">{state.artwork.artist_display}</p>
-      </div>
-    {/if}
-  </div>
+    <footer class="border-surface-200-800 min-h-28 border-t px-5 py-4">
+      {#if state.status === 'loading' || (state.status === 'success' && !imageLoaded)}
+        <div class="space-y-3">
+          <div class="placeholder h-6 w-3/4"></div>
+          <div class="placeholder h-4 w-1/2"></div>
+        </div>
+      {/if}
+
+      {#if imageLoaded && state.status === 'success'}
+        <div in:fade={{ delay: 100, duration: 300 }}>
+          <p class="text-xl font-semibold leading-snug">{state.artwork.title}</p>
+          <p class="mt-2 text-sm leading-relaxed text-surface-500">
+            {state.artwork.artist_display}
+          </p>
+        </div>
+      {/if}
+    </footer>
+  </article>
 </div>
 
 <style>
-  /* ── Wrapper ─────────────────────────────────────────────────────────────── */
-  .mm-wrap {
-    width: 100%;
-    max-width: 640px;
-    margin-inline: auto;
-  }
-
   /* ── Image frame ─────────────────────────────────────────────────────────── */
   .mm-frame {
     position: relative;
@@ -250,49 +291,5 @@
   .mm-error p {
     font-size: 0.85rem;
     color: var(--color-surface-500);
-  }
-
-  /* ── Metadata area — fixed height prevents layout shift during swap ───────── */
-  .mm-meta {
-    position: relative;
-    /* Enough for title (~1.625rem) + gap (0.5rem) + artist (~1.3rem) + breathing room */
-    min-height: 4.5rem;
-    margin-top: 1.25rem;
-    padding-inline: 0.25rem;
-  }
-
-  /* Both placeholder block and real text are absolutely stacked — zero shift */
-  .mm-meta-content {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  /* ── Text ────────────────────────────────────────────────────────────────── */
-  .mm-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    line-height: 1.3;
-  }
-
-  .mm-artist {
-    font-size: 0.875rem;
-    color: var(--color-surface-500);
-    line-height: 1.5;
-  }
-
-  /* ── Placeholder lines ───────────────────────────────────────────────────── */
-  .mm-line-title {
-    height: 1.5rem;
-    width: 70%;
-  }
-
-  .mm-line-artist {
-    height: 1rem;
-    width: 45%;
   }
 </style>

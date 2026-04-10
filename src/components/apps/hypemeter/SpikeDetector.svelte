@@ -29,7 +29,9 @@
     return `${yyyy}/${mm}/${dd}`;
   }
 
-  onMount(async () => {
+  async function load(): Promise<void> {
+    loading = true;
+    error = null;
     try {
       const date = getYesterday();
       fetchedAt = date.replaceAll('/', '-');
@@ -51,15 +53,32 @@
     } finally {
       loading = false;
     }
-  });
+  }
+
+  onMount(load);
 
   const maxViews = $derived(items[0]?.views ?? 1);
 </script>
 
 <div class="mx-auto w-full max-w-2xl">
-  {#if fetchedAt}
-    <p class="text-surface-400-600 mb-4 text-center text-xs">{fetchedAt}</p>
-  {/if}
+  <div
+    class="card preset-filled-surface-100-900 border-surface-200-800 mb-4 flex flex-col gap-3 border-[1px] p-4 sm:flex-row sm:items-center sm:justify-between"
+  >
+    <div class="space-y-1">
+      <div class="flex flex-wrap gap-2">
+        <span class="badge preset-tonal-primary">en.wikipedia.org</span>
+        {#if fetchedAt}
+          <span class="badge preset-tonal-surface">{fetchedAt}</span>
+        {/if}
+      </div>
+      <p class="text-sm text-surface-600-400">
+        Most viewed articles from yesterday, filtered for readable pages.
+      </p>
+    </div>
+    <button class="btn btn-sm preset-tonal" onclick={load} disabled={loading}>
+      {loading ? 'Loading...' : 'Reload'}
+    </button>
+  </div>
 
   {#if loading}
     <div class="space-y-2">
@@ -79,9 +98,10 @@
       {/each}
     </div>
   {:else if error}
-    <div class="card preset-filled-error-500 p-6 text-center">
+    <div class="card preset-tonal-error p-6 text-center">
       <p class="font-semibold">Failed to load data</p>
       <p class="mt-1 text-sm opacity-80">{error}</p>
+      <button class="btn preset-outlined mt-4 text-sm" onclick={load}>Retry</button>
     </div>
   {:else}
     <div class="space-y-1.5">
@@ -89,8 +109,6 @@
         <SpikeRow rank={item.rank} title={item.title} views={item.views} {maxViews} />
       {/each}
     </div>
-    <p class="text-surface-400-600 mt-4 text-center text-xs">
-      en.wikipedia.org · Refresh to update
-    </p>
+    <p class="text-surface-400-600 mt-4 text-center text-xs">{items.length} articles shown</p>
   {/if}
 </div>

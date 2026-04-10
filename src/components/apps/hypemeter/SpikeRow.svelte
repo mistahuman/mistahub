@@ -19,24 +19,28 @@
   const pct = $derived(Math.round((views / maxViews) * 100));
 </script>
 
-<div class="card preset-filled-surface-100-900 border-surface-200-800 border-[1px] px-4 py-3">
+<div
+  class="card preset-filled-surface-100-900 border-surface-200-800 hover:preset-tonal border-[1px] px-4 py-3 transition-colors"
+>
   <div class="flex items-center gap-3">
     <!-- Rank -->
-    <span class="text-surface-400-600 w-5 shrink-0 text-right font-mono text-xs">{rank}</span>
+    <span class="badge preset-tonal-surface w-9 shrink-0 justify-center font-mono text-xs"
+      >#{rank}</span
+    >
 
     <!-- Title -->
     <a
       href={wikiUrl}
       target="_blank"
       rel="noopener noreferrer"
-      class="text-primary-500 hover:text-primary-400 min-w-0 flex-1 truncate text-sm transition-colors"
+      class="min-w-0 flex-1 truncate text-sm font-medium text-primary-500 transition-colors hover:text-primary-400 hover:underline"
       title={displayTitle}
     >
       {displayTitle}
     </a>
 
     <!-- Views -->
-    <span class="text-surface-600-400 shrink-0 font-mono text-xs">{formatViews(views)}</span>
+    <span class="badge preset-tonal-surface shrink-0 font-mono text-xs">{formatViews(views)}</span>
   </div>
 
   <!-- Relative bar -->

@@ -37,6 +37,7 @@
   let streak = $state(0);
   let bestStreak = $state(0);
   let wrongFeedback = $state(false);
+  let giveUpConfirm = $state(false);
   let wrongTimer: ReturnType<typeof setTimeout> | null = null;
   let roundKey = $state(0);
 
@@ -214,6 +215,7 @@
     selectedValue = '';
     filterText = '';
     wrongFeedback = false;
+    giveUpConfirm = false;
     roundKey++;
     if (wrongTimer) clearTimeout(wrongTimer);
   }
@@ -237,6 +239,7 @@
       : null;
 
     if (guess === common || (ita !== null && guess === ita)) {
+      giveUpConfirm = false;
       streak++;
       if (streak > bestStreak) {
         bestStreak = streak;
@@ -246,6 +249,7 @@
       lastResult = 'correct';
     } else {
       streak = 0;
+      giveUpConfirm = false;
       if (wrongTimer) clearTimeout(wrongTimer);
       wrongFeedback = true;
       wrongTimer = setTimeout(() => {
@@ -256,7 +260,12 @@
 
   function giveUp(): void {
     if (status !== 'playing') return;
+    if (!giveUpConfirm) {
+      giveUpConfirm = true;
+      return;
+    }
     streak = 0;
+    giveUpConfirm = false;
     status = 'revealed';
     lastResult = 'surrendered';
   }
@@ -267,31 +276,35 @@
   });
 </script>
 
-<div class="flex flex-col gap-3 w-full max-w-lg mx-auto">
-  <!-- Mode switcher -->
+<div class="mx-auto flex w-full max-w-lg flex-col gap-4">
+  <!-- Status + mode controls -->
   <div
-    class="card preset-filled-surface-100-900 border-[1px] border-surface-200-800 flex gap-1 p-1"
+    class="card preset-filled-surface-100-900 border-surface-200-800 flex flex-col gap-4 border-[1px] px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
   >
-    <button
-      class="btn flex-1 text-sm {mode === 'flag' ? 'preset-tonal-primary' : 'hover:preset-tonal'}"
-      onclick={() => switchMode('flag')}
-    >
-      Flag
-    </button>
-    <button
-      class="btn flex-1 text-sm {mode === 'border' ? 'preset-tonal-primary' : 'hover:preset-tonal'}"
-      onclick={() => switchMode('border')}
-    >
-      Border
-    </button>
-  </div>
+    <div class="flex flex-wrap gap-3 text-sm">
+      <span>Streak <strong class="text-primary-500">{streak}</strong></span>
+      <span>Best <strong class="text-secondary-500">{bestStreak}</strong></span>
+    </div>
 
-  <!-- Streak card -->
-  <div
-    class="card preset-filled-surface-100-900 border-[1px] border-surface-200-800 flex justify-between px-5 py-3 text-sm"
-  >
-    <span>Streak: <strong class="text-primary-500">{streak}</strong></span>
-    <span>Best: <strong class="text-secondary-500">{bestStreak}</strong></span>
+    <div class="space-y-2">
+      <p class="text-xs font-semibold uppercase tracking-widest text-surface-400">Mode</p>
+      <div class="btn-group preset-outlined-surface-200-800" aria-label="Game mode">
+        <button
+          class="btn btn-sm min-w-24 text-sm {mode === 'flag' ? 'preset-filled' : ''}"
+          onclick={() => switchMode('flag')}
+          aria-pressed={mode === 'flag'}
+        >
+          Flag
+        </button>
+        <button
+          class="btn btn-sm min-w-24 text-sm {mode === 'border' ? 'preset-filled' : ''}"
+          onclick={() => switchMode('border')}
+          aria-pressed={mode === 'border'}
+        >
+          Border
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- Visual card (flag or border) -->
@@ -336,31 +349,40 @@
     </div>
   </div>
 
-  <!-- Hints card -->
+  <!-- Hints -->
   {#if current && status !== 'loading'}
     <div
-      class="card preset-filled-surface-100-900 border-[1px] border-surface-200-800 px-5 py-4 text-sm space-y-1 min-h-[6rem]"
+      class="card preset-filled-surface-100-900 border-surface-200-800 space-y-3 border-[1px] px-5 py-4 text-sm"
     >
-      {#if phase === 0 && status === 'playing'}
-        <p class="opacity-40">No hints revealed yet.</p>
-      {/if}
-      {#if phase >= 1 || status === 'revealed'}
-        <p><span class="opacity-50">Population:</span> {formatPopulation(current.population)}</p>
-      {/if}
-      {#if phase >= 2 || status === 'revealed'}
-        <p><span class="opacity-50">Continent:</span> {current.continents[0]}</p>
-      {/if}
-      {#if phase >= 3 || status === 'revealed'}
-        <p><span class="opacity-50">Capital:</span> {current.capital[0]}</p>
-      {/if}
+      <div class="flex min-h-8 flex-wrap items-center gap-2">
+        {#if phase === 0 && status === 'playing'}
+          <span class="text-surface-500">No hints revealed yet.</span>
+        {/if}
+        {#if phase >= 1 || status === 'revealed'}
+          <span class="badge preset-tonal-surface"
+            >Population {formatPopulation(current.population)}</span
+          >
+        {/if}
+        {#if phase >= 2 || status === 'revealed'}
+          <span class="badge preset-tonal-surface">Continent {current.continents[0]}</span>
+        {/if}
+        {#if phase >= 3 || status === 'revealed'}
+          <span class="badge preset-tonal-surface">Capital {current.capital[0]}</span>
+        {/if}
+      </div>
       {#if status === 'revealed' && lastResult !== null}
-        <p class="font-semibold pt-1">
+        <div
+          class="rounded-container p-3 {lastResult === 'correct'
+            ? 'preset-tonal-success'
+            : 'preset-tonal-warning'}"
+        >
           {#if lastResult === 'correct'}
-            <span class="text-success-500">Correct! {current.name.common}</span>
+            <p class="font-semibold">Correct</p>
           {:else}
-            <span class="text-error-500">It was {current.name.common}</span>
+            <p class="font-semibold">Answer revealed</p>
           {/if}
-        </p>
+          <p class="mt-1 text-lg font-bold">{current.name.common}</p>
+        </div>
       {/if}
     </div>
   {/if}
@@ -368,7 +390,7 @@
   <!-- Controls card -->
   {#if !loadError}
     <div
-      class="card preset-filled-surface-100-900 border-[1px] border-surface-200-800 px-5 py-4 space-y-3"
+      class="card preset-filled-surface-100-900 border-[1px] border-surface-200-800 space-y-3 px-5 py-4"
     >
       {#if status === 'playing'}
         {#key roundKey}
@@ -383,8 +405,8 @@
             allowCustomValue
             openOnClick
           >
-            <Combobox.Control class="flex gap-2">
-              <Combobox.Input class="input flex-1" placeholder="Search a country…" />
+            <Combobox.Control class="flex flex-col gap-2 sm:flex-row">
+              <Combobox.Input class="input min-w-0 flex-1" placeholder="Search a country…" />
               <button class="btn preset-tonal-primary" onclick={submit}>Submit</button>
             </Combobox.Control>
             <Combobox.Positioner>
@@ -406,9 +428,9 @@
             <p class="text-sm text-error-500">Wrong guess — streak reset.</p>
           {/if}
         </div>
-        <div class="flex gap-2">
+        <div class="flex flex-col gap-2 sm:flex-row">
           <button
-            class="btn preset-tonal flex-1 text-sm"
+            class="btn flex-1 text-sm preset-tonal"
             onclick={revealHint}
             disabled={phase >= 3}
           >
@@ -422,7 +444,19 @@
               No more hints
             {/if}
           </button>
-          <button class="btn preset-tonal-error text-sm" onclick={giveUp}>Give Up</button>
+        </div>
+        <div class="flex flex-col items-end gap-2 border-t border-surface-200-800 pt-3">
+          {#if giveUpConfirm}
+            <p class="text-right text-xs text-warning-600-400">
+              This ends the round and resets the streak.
+            </p>
+          {/if}
+          <button
+            class="btn btn-sm {giveUpConfirm ? 'preset-filled-warning-500' : 'preset-ghost'}"
+            onclick={giveUp}
+          >
+            {giveUpConfirm ? 'Confirm give up' : 'Give up'}
+          </button>
         </div>
       {:else if status === 'revealed'}
         <button class="btn preset-tonal-primary w-full" onclick={startRound}>Next Round</button>

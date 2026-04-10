@@ -35,6 +35,7 @@
   let bounceRow = $state(-1);
   let poppedCell = $state('');
   let keyStates = $state<Partial<Record<string, TileState>>>({});
+  let newGameConfirm = $state(false);
 
   const kbRows = [
     ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
@@ -149,12 +150,14 @@
     if (won) {
       gameWon = true;
       gameOver = true;
+      newGameConfirm = false;
       bounceRow = row;
       const msgs = ['Genius!', 'Magnificent!', 'Impressive!', 'Splendid!', 'Great!', 'Phew!'];
       showMsg(msgs[row] ?? 'You got it!', 0);
       setTimeout(() => (bounceRow = -1), 1200);
     } else if (row >= MAX_GUESSES - 1) {
       gameOver = true;
+      newGameConfirm = false;
       showMsg(targetWord, 0);
     } else {
       currentRow++;
@@ -204,6 +207,11 @@
   }
 
   async function newGame() {
+    const hasProgress = currentRow > 0 || currentCol > 0;
+    if (!gameOver && hasProgress && !newGameConfirm) {
+      newGameConfirm = true;
+      return;
+    }
     if (msgTimer) clearTimeout(msgTimer);
     letters = Array.from({ length: MAX_GUESSES }, () => Array(WORD_LENGTH).fill(''));
     tileStates = Array.from({ length: MAX_GUESSES }, () =>
@@ -217,6 +225,7 @@
     gameOver = false;
     gameWon = false;
     submitting = false;
+    newGameConfirm = false;
     keyStates = {};
     message = '';
     bounceRow = -1;
@@ -291,13 +300,28 @@
 
     <!-- controls -->
     <div class="wg-controls">
-      <button class="btn preset-tonal-primary" onclick={newGame} disabled={loading || submitting}>
-        New game
+      <button
+        class="btn {newGameConfirm ? 'preset-filled-warning-500' : 'preset-tonal-primary'}"
+        onclick={newGame}
+        disabled={loading || submitting}
+      >
+        {newGameConfirm ? 'Confirm new game' : 'New game'}
       </button>
     </div>
 
-    {#if gameOver && !gameWon}
-      <p class="wg-answer">The word was <strong>{targetWord}</strong></p>
+    {#if newGameConfirm}
+      <p class="text-xs text-warning-600-400">This clears the current board.</p>
+    {/if}
+
+    {#if gameOver}
+      <div
+        class="card px-4 py-3 text-center {gameWon
+          ? 'preset-tonal-success'
+          : 'preset-tonal-warning'}"
+      >
+        <p class="text-sm font-semibold">{gameWon ? 'Solved' : 'Answer'}</p>
+        <p class="mt-1 font-mono text-lg font-bold tracking-widest">{targetWord}</p>
+      </div>
     {/if}
   {/if}
 </div>
@@ -602,16 +626,5 @@
     display: flex;
     gap: 10px;
     margin-top: 2px;
-  }
-
-  /* ── answer ───────────────────────────────────────────────────────────────── */
-  .wg-answer {
-    font-size: 0.85rem;
-    color: var(--color-surface-500);
-    letter-spacing: 0.02em;
-  }
-  .wg-answer strong {
-    color: var(--color-error-500);
-    letter-spacing: 0.12em;
   }
 </style>

@@ -1,8 +1,8 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
   import { Flame } from 'lucide-svelte';
   import { Combobox } from '@skeletonlabs/skeleton-svelte';
   import { collection } from '@zag-js/combobox';
-  import { SvelteSet } from 'svelte/reactivity';
 
   interface Pokemon {
     name: string;
@@ -27,7 +27,7 @@
   // Phase: 'loading' | 'playing' | 'correct' | 'revealed' | 'error'
   let pokemon = $state<Pokemon | null>(null);
   let phase = $state<'loading' | 'playing' | 'correct' | 'revealed' | 'error'>('loading');
-  let selectedGens = new SvelteSet([1, 2, 3]);
+  let selectedGens = $state<number[]>([1, 2, 3]);
   let allNames = $state<{ id: number; name: string }[]>([]);
 
   // Streak
@@ -38,12 +38,13 @@
   let selectedValue = $state('');
   let filterText = $state('');
   let wrongFeedback = $state(false);
+  let revealConfirm = $state(false);
   let wrongTimer: ReturnType<typeof setTimeout> | null = null;
   let roundKey = $state(0);
 
   const activeNames = $derived(
     allNames.filter(({ id }) =>
-      GEN_RANGES.some((r) => selectedGens.has(r.gen) && id >= r.min && id <= r.max),
+      GEN_RANGES.some((r) => selectedGens.includes(r.gen) && id >= r.min && id <= r.max),
     ),
   );
 
@@ -57,7 +58,7 @@
 
   const comboCollection = $derived(collection({ items: filteredItems }));
 
-  $effect(() => {
+  onMount(() => {
     bestStreak = Number(localStorage.getItem('mistadex-best-streak') ?? 0);
     loadNames();
     fetchPokemon();
@@ -76,17 +77,18 @@
     }
   }
 
-  function toggleGen(gen: number): void {
-    if (selectedGens.has(gen)) {
-      if (selectedGens.size === 1) return;
-      selectedGens.delete(gen);
+  async function toggleGen(gen: number): Promise<void> {
+    if (selectedGens.includes(gen)) {
+      if (selectedGens.length === 1) return;
+      selectedGens = selectedGens.filter((g) => g !== gen);
     } else {
-      selectedGens.add(gen);
+      selectedGens = [...selectedGens, gen];
     }
+    await fetchPokemon();
   }
 
   function randomId(): number {
-    const active = GEN_RANGES.filter((r) => selectedGens.has(r.gen));
+    const active = GEN_RANGES.filter((r) => selectedGens.includes(r.gen));
     const range = active[Math.floor(Math.random() * active.length)];
     return Math.floor(Math.random() * (range.max - range.min + 1)) + range.min;
   }
@@ -96,6 +98,7 @@
     selectedValue = '';
     filterText = '';
     wrongFeedback = false;
+    revealConfirm = false;
     pokemon = null;
     if (wrongTimer) clearTimeout(wrongTimer);
 
@@ -137,6 +140,7 @@
     if (!val || phase !== 'playing' || !pokemon) return;
 
     if (normalize(val) === normalize(pokemon.name)) {
+      revealConfirm = false;
       streak++;
       if (streak > bestStreak) {
         bestStreak = streak;
@@ -144,6 +148,7 @@
       }
       phase = 'correct';
     } else {
+      revealConfirm = false;
       if (wrongTimer) clearTimeout(wrongTimer);
       wrongFeedback = true;
       wrongTimer = setTimeout(() => {
@@ -153,40 +158,57 @@
   }
 
   function reveal(): void {
+    if (!revealConfirm) {
+      revealConfirm = true;
+      return;
+    }
     streak = 0;
+    revealConfirm = false;
     phase = 'revealed';
   }
 
   const isDone = () => phase === 'correct' || phase === 'revealed';
 </script>
 
-<div class="flex flex-col gap-3 w-full max-w-lg mx-auto">
-  <!-- Streak card -->
+<div class="mx-auto flex w-full max-w-lg flex-col gap-4">
+  <!-- Status + generation controls -->
   <div
-    class="card preset-filled-surface-100-900 border-[1px] border-surface-200-800 flex justify-between items-center px-5 py-3 text-sm"
+    class="card preset-filled-surface-100-900 border-surface-200-800 space-y-4 border-[1px] px-5 py-4"
   >
-    <span class="flex items-center gap-1.5">
-      <Flame size={15} class="text-warning-500" />
-      Streak: <strong class="text-primary-500">{streak}</strong>
-    </span>
-    <span>Best: <strong class="text-secondary-500">{bestStreak}</strong></span>
-  </div>
+    <div class="flex flex-wrap items-center justify-between gap-3 text-sm">
+      <span class="flex items-center gap-1.5">
+        <Flame size={15} class="text-warning-500" />
+        Streak <strong class="text-primary-500">{streak}</strong>
+      </span>
+      <span>Best <strong class="text-secondary-500">{bestStreak}</strong></span>
+    </div>
 
-  <!-- Generation filter card -->
-  <div class="card preset-filled-surface-100-900 border-[1px] border-surface-200-800 px-5 py-4">
-    <p class="text-xs font-semibold text-surface-400 uppercase tracking-widest mb-3">Generations</p>
-    <div class="flex flex-wrap gap-2">
-      {#each GEN_RANGES as { gen, label } (gen)}
-        <button
-          class="btn btn-sm text-xs px-3 py-1"
-          class:preset-filled-primary={selectedGens.has(gen)}
-          class:preset-outlined={!selectedGens.has(gen)}
-          onclick={() => toggleGen(gen)}
-          aria-pressed={selectedGens.has(gen)}
-        >
-          {label}
-        </button>
-      {/each}
+    <div class="space-y-2">
+      <p class="text-xs font-semibold uppercase tracking-widest text-surface-400">Generations</p>
+      <div class="flex flex-wrap gap-2" aria-label="Generations">
+        {#each GEN_RANGES as { gen, label } (gen)}
+          {@const selected = selectedGens.includes(gen)}
+          {#if selected}
+            <button
+              class="chip preset-filled-primary-500"
+              onclick={() => toggleGen(gen)}
+              aria-pressed="true"
+              title={`Generation ${label} active`}
+            >
+              Gen {label}
+            </button>
+          {:else}
+            <button
+              class="chip preset-tonal-surface opacity-70"
+              onclick={() => toggleGen(gen)}
+              aria-pressed="false"
+              title={`Generation ${label} inactive`}
+            >
+              Gen {label}
+            </button>
+          {/if}
+        {/each}
+      </div>
     </div>
   </div>
 
@@ -194,10 +216,7 @@
   <div
     class="card preset-filled-surface-100-900 border-[1px] border-surface-200-800 overflow-hidden"
   >
-    <div
-      class="w-full bg-surface-200-800 flex items-center justify-center"
-      style="aspect-ratio: 1/1; max-height: 280px;"
-    >
+    <div class="bg-surface-200-800 flex aspect-square w-full items-center justify-center">
       {#if phase === 'loading'}
         <p class="text-surface-400 text-sm animate-pulse">Loading…</p>
       {:else if phase === 'error'}
@@ -216,34 +235,39 @@
   <!-- Hints card -->
   {#if pokemon && !['loading', 'error'].includes(phase)}
     <div
-      class="card preset-filled-surface-100-900 border-[1px] border-surface-200-800 px-5 py-4 text-sm"
+      class="card preset-filled-surface-100-900 border-surface-200-800 space-y-4 border-[1px] px-5 py-4 text-sm"
     >
       <div class="grid grid-cols-3 gap-3 text-center">
         <div class="flex flex-col items-center gap-1">
           <span class="text-xs text-surface-400">Type</span>
           {#each pokemon.types as type (type)}
-            <span class="px-2 py-0.5 rounded-sm text-xs font-medium preset-tonal capitalize"
+            <span class="rounded-base px-2 py-0.5 text-xs font-medium preset-tonal capitalize"
               >{type}</span
             >
           {/each}
         </div>
         <div>
           <span class="text-xs text-surface-400">Height</span>
-          <p class="font-semibold mt-1">{pokemon.height} m</p>
+          <p class="mt-1 font-semibold">{pokemon.height} m</p>
         </div>
         <div>
           <span class="text-xs text-surface-400">Weight</span>
-          <p class="font-semibold mt-1">{pokemon.weight} kg</p>
+          <p class="mt-1 font-semibold">{pokemon.weight} kg</p>
         </div>
       </div>
       {#if isDone()}
-        <p class="font-semibold pt-3 text-center">
+        <div
+          class="rounded-container p-3 text-center {phase === 'correct'
+            ? 'preset-tonal-success'
+            : 'preset-tonal-warning'}"
+        >
           {#if phase === 'correct'}
-            <span class="text-success-500">Correct! {pokemon.name}</span>
+            <p class="font-semibold">Correct</p>
           {:else}
-            <span class="text-error-500">It was {pokemon.name}</span>
+            <p class="font-semibold">Answer revealed</p>
           {/if}
-        </p>
+          <p class="mt-1 text-lg font-bold capitalize">{pokemon.name}</p>
+        </div>
       {/if}
     </div>
   {/if}
@@ -251,7 +275,7 @@
   <!-- Controls card -->
   {#if phase !== 'error'}
     <div
-      class="card preset-filled-surface-100-900 border-[1px] border-surface-200-800 px-5 py-4 space-y-3"
+      class="card preset-filled-surface-100-900 border-[1px] border-surface-200-800 space-y-3 px-5 py-4"
     >
       {#if phase === 'playing'}
         {#key roundKey}
@@ -266,8 +290,8 @@
             allowCustomValue
             openOnClick
           >
-            <Combobox.Control class="flex gap-2">
-              <Combobox.Input class="input flex-1" placeholder="Search a Pokémon…" />
+            <Combobox.Control class="flex flex-col gap-2 sm:flex-row">
+              <Combobox.Input class="input min-w-0 flex-1" placeholder="Search a Pokémon…" />
               <button class="btn preset-tonal-primary" onclick={submit}>Submit</button>
             </Combobox.Control>
             <Combobox.Positioner>
@@ -293,7 +317,19 @@
           {/if}
         </div>
 
-        <button class="btn preset-outlined w-full text-sm" onclick={reveal}>Reveal</button>
+        <div class="flex flex-col items-end gap-2 border-t border-surface-200-800 pt-3">
+          {#if revealConfirm}
+            <p class="text-right text-xs text-warning-600-400">
+              This ends the round and resets the streak.
+            </p>
+          {/if}
+          <button
+            class="btn btn-sm {revealConfirm ? 'preset-filled-warning-500' : 'preset-ghost'}"
+            onclick={reveal}
+          >
+            {revealConfirm ? 'Confirm reveal' : 'Reveal answer'}
+          </button>
+        </div>
       {:else if isDone()}
         <button class="btn preset-tonal-primary w-full" onclick={fetchPokemon}>Next Round</button>
       {:else if phase === 'error'}
