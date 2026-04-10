@@ -76,7 +76,6 @@
 
   const API_URL = 'https://apps.arpae.it/REST/bollettini_qa/?t=json&max_results=1&sort=-_id';
   const STORAGE_KEY = 'mistaair-selected-city';
-  const ALL_CITIES_VALUE = '__all__';
   const PROVINCES = ['pc', 'pr', 're', 'mo', 'bo', 'fe', 'ra', 'fc', 'rn'] as const;
 
   const QUALITY_META: Record<QualityLevel, { label: string; preset: string; description: string }> =
@@ -128,10 +127,7 @@
 
   const cityItems = $derived(() => {
     const lower = cityFilter.toLowerCase();
-    const items = [
-      { label: `All cities (${cities.length})`, value: ALL_CITIES_VALUE },
-      ...cities.map((city) => ({ label: city, value: city })),
-    ];
+    const items = cities.map((city) => ({ label: city, value: city }));
     return cityFilter ? items.filter((item) => item.label.toLowerCase().includes(lower)) : items;
   });
 
@@ -267,6 +263,10 @@
     }
   }
 
+  function resetCityFilter(): void {
+    cityFilter = '';
+  }
+
   async function load(): Promise<void> {
     loadState = 'loading';
     errorMessage = '';
@@ -333,22 +333,29 @@
         {#key `${loadState}-${rows.length}-${selectedCity}`}
           <Combobox
             collection={cityCollection}
-            defaultValue={[selectedCity || ALL_CITIES_VALUE]}
-            defaultInputValue={selectedCity || `All cities (${cities.length})`}
+            defaultValue={selectedCity ? [selectedCity] : []}
+            defaultInputValue={selectedCity}
             disabled={loadState !== 'ready'}
             onInputValueChange={(d) => {
               cityFilter = d.inputValue;
             }}
             onValueChange={(d) => {
-              const picked = d.value[0] ?? ALL_CITIES_VALUE;
-              selectedCity = picked === ALL_CITIES_VALUE ? (cities[0] ?? '') : picked;
+              const picked = d.value[0] ?? cities[0] ?? '';
+              selectedCity = picked;
               cityFilter = '';
               saveCity(selectedCity);
+            }}
+            onOpenChange={(d) => {
+              if (d.open) resetCityFilter();
             }}
             openOnClick
           >
             <Combobox.Control>
-              <Combobox.Input class="input w-full min-w-0 truncate" placeholder="Select city" />
+              <Combobox.Input
+                class="input w-full min-w-0 truncate"
+                placeholder="Select city"
+                onclick={resetCityFilter}
+              />
             </Combobox.Control>
             <Combobox.Positioner>
               <Combobox.Content
@@ -358,7 +365,7 @@
                   <Combobox.Item
                     {item}
                     class="cursor-pointer px-3 py-2 text-sm hover:preset-tonal data-highlighted:preset-tonal {item.value ===
-                    (selectedCity || ALL_CITIES_VALUE)
+                    selectedCity
                       ? 'preset-tonal-primary'
                       : ''}"
                   >
@@ -388,7 +395,7 @@
       <p class="mt-2 text-sm">{errorMessage}</p>
     </aside>
   {:else if !quality()}
-    <div class="card preset-tonal-warning p-5">No air-quality readings for this city.</div>
+    <div class="card preset-tonal-surface-500 p-5">No air-quality readings for this city.</div>
   {:else}
     <section class="grid gap-4 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
       <article class="card {quality()?.preset} p-5">
@@ -426,13 +433,13 @@
           <article
             class="card {pollutant.level
               ? QUALITY_META[pollutant.level].preset
-              : 'preset-tonal-surface'} p-4"
+              : 'preset-tonal-surface-500'} p-4"
           >
             <div class="flex items-start justify-between gap-3">
               <div>
                 <p class="text-sm font-semibold">{pollutant.label}</p>
                 <p class="mt-1 text-xs opacity-75">
-                  {pollutant.level ? QUALITY_META[pollutant.level].label : 'No data'}
+                  {pollutant.level ? QUALITY_META[pollutant.level].label : 'No data reported'}
                 </p>
               </div>
               <p class="text-2xl font-bold tabular-nums">
