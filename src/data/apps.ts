@@ -60,6 +60,14 @@ export const appEntries: AppEntry[] = [
       'A Hacker News link aggregator — fetches the top 10 stories and opens them externally.',
     status: 'ready',
   },
+  {
+    slug: 'mistagov',
+    title: 'mistagov',
+    tagline: 'Italian deputies, live from Camera dei Deputati.',
+    description:
+      'Live list of current Italian deputies with name and party group, fetched from the Camera SPARQL endpoint.',
+    status: 'ready',
+  },
 ];
 
 export function getAppBySlug(slug: string) {

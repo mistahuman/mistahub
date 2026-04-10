@@ -12,15 +12,16 @@ https://mistahuman.github.io/mistahub/
 
 ## Apps
 
-| Slug          | What it does                             |
-| ------------- | ---------------------------------------- |
-| `mistageo`    | Geography quiz — flags and borders       |
-| `mistadex`    | Guess the Pokémon from its silhouette    |
-| `hypemeter`   | Most viewed Wikipedia articles yesterday |
-| `mistaword`   | Wordle-style word game                   |
-| `mistajack`   | Single-player Blackjack vs CPU dealer    |
-| `mistamuseum` | One curated AIC artwork per day          |
-| `mistanews`   | Top 10 Hacker News stories               |
+| Slug          | What it does                                           |
+| ------------- | ------------------------------------------------------ |
+| `mistageo`    | Geography quiz — flags and borders                     |
+| `mistadex`    | Guess the Pokémon from its silhouette                  |
+| `hypemeter`   | Most viewed Wikipedia articles yesterday               |
+| `mistaword`   | Wordle-style word game                                 |
+| `mistajack`   | Single-player Blackjack vs CPU dealer                  |
+| `mistamuseum` | One curated AIC artwork per day                        |
+| `mistanews`   | Top 10 Hacker News stories                             |
+| `mistagov`    | Italian deputies — name, party, dates, absence ranking |
 
 ## Stack
 

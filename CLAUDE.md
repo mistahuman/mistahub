@@ -22,7 +22,8 @@ src/
 │   │   ├── mistaword/WordleGame.svelte
 │   │   ├── mistajack/BlackjackGame.svelte
 │   │   ├── mistamuseum/DailyArtwork.svelte
-│   │   └── mistanews/NewsFeed.svelte
+│   │   ├── mistanews/NewsFeed.svelte
+│   │   └── mistagov/MistaGov.svelte
 │   └── generic/                  # Header, Footer, Drawer, Logo, Lightswitch
 ├── data/
 │   └── apps.ts                   # pure data — no UI imports
@@ -36,21 +37,23 @@ src/
 │       ├── mistaword/index.astro
 │       ├── mistajack/index.astro
 │       ├── mistamuseum/index.astro
-│       └── mistanews/index.astro
+│       ├── mistanews/index.astro
+│       └── mistagov/index.astro
 └── styles/
 ```
 
 ## Current app state
 
-| Slug          | Status | Extra deps                                  |
-| ------------- | ------ | ------------------------------------------- |
-| `mistageo`    | ready  | `topojson-client`, `@types/topojson-client` |
-| `mistadex`    | ready  | none                                        |
-| `hypemeter`   | ready  | none                                        |
-| `mistaword`   | ready  | none                                        |
-| `mistajack`   | ready  | none (uses Deck of Cards API)               |
-| `mistamuseum` | ready  | none (uses AIC public API)                  |
-| `mistanews`   | ready  | none (uses HN Firebase REST API)            |
+| Slug          | Status | Extra deps                                                                |
+| ------------- | ------ | ------------------------------------------------------------------------- |
+| `mistageo`    | ready  | `topojson-client`, `@types/topojson-client`                               |
+| `mistadex`    | ready  | none                                                                      |
+| `hypemeter`   | ready  | none                                                                      |
+| `mistaword`   | ready  | none                                                                      |
+| `mistajack`   | ready  | none (uses Deck of Cards API)                                             |
+| `mistamuseum` | ready  | none (uses AIC public API)                                                |
+| `mistanews`   | ready  | none (uses HN Firebase REST API)                                          |
+| `mistagov`    | ready  | none (uses Camera dei Deputati SPARQL — two queries: deputies + absences) |
 
 ## Key conventions
 
@@ -95,6 +98,34 @@ import MyGame from '@components/apps/<slug>/MyGame.svelte';
 ```
 
 6. Set `status: 'ready'` in `apps.ts` and update the README apps table.
+
+## mistagov — data layer notes
+
+**Endpoint:** `https://dati.camera.it/sparql` (GET, `format=json`).
+
+**Two-phase fetch in `MistaGov.svelte`:**
+
+1. **Deputies query** — fetches name, current group, and date range for all XIX-legislature deputies.
+   - Filter: `FILTER(STRENDS(STR(?persona), "_19"))` — without this the endpoint returns all deputies since 1946 (~10 000 rows).
+   - A deputy appears multiple times (party switches); deduplication keeps the entry with the latest `groupSince` date.
+   - Group label embeds dates: `"MISTO (09.01.2023)"` or `"AVS (27.10.2022-09.01.2023)"` — parsed by regex into `groupSince` / `groupUntil`.
+
+2. **Total votazioni query** — one COUNT(DISTINCT) query at mount for the whole XIX legislature (`~17 257`). Used as the denominator for attendance rate.
+   - **The store has duplicate triples** (data stored in two named graphs). `COUNT(*)` returns 2× the real number. Always use `COUNT(DISTINCT ?var)`.
+
+3. **Absences batch query** — counts `dc:type "Non ha votato"` on `ocd:voto`, joined through `ocd:rif_votazione` to `ocd:votazione` to ensure only actual electronic votes are counted.
+   - A single GROUP BY across all deputies times out (>60 s) on the endpoint.
+   - Solution: batch the deputy URIs in groups of 25 using `VALUES ?persona { ... }`, fire all batches in parallel with `Promise.all`. Each batch resolves in ~0.5–1 s.
+   - Batches patch the `deputies` array progressively as they settle (`Promise.allSettled`). First batch done → enables the Absences sort button.
+   - Deputies not in any absences result get `absences: 0` (never missed a vote).
+   - `attendanceRate = ((totalVotazioni - absences) / totalVotazioni) * 100`.
+
+**Useful predicates discovered:**
+
+- `ocd:aderisce` → blank node with `startDate`, `endDate`, `rif_gruppoParlamentare`
+- `ocd:votazione` → `dc:type` values (vote topic type): `"Articolo"`, `"Emendamento"`, `"Finale atto Camera"`, `"Ordine del Giorno"`, etc.; also `ocd:votazioneSegreta` (`0`/`1`)
+- `ocd:voto` → per-deputy record; `dc:type` values: `"Favorevole"`, `"Contrario"`, `"Astensione"`, `"Non ha votato"`, `"Ha votato"`; links to its `ocd:votazione` via `ocd:rif_votazione`
+- `foaf:depiction` → photo URL on deputy (not yet used)
 
 ## After each session
 
