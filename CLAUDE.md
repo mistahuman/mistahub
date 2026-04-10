@@ -21,7 +21,8 @@ src/
 │   │   ├── hypemeter/SpikeDetector.svelte + SpikeRow.svelte
 │   │   ├── mistaword/WordleGame.svelte
 │   │   ├── mistajack/BlackjackGame.svelte
-│   │   └── mistamuseum/DailyArtwork.svelte
+│   │   ├── mistamuseum/DailyArtwork.svelte
+│   │   └── mistanews/NewsFeed.svelte
 │   └── generic/                  # Header, Footer, Drawer, Logo, Lightswitch
 ├── data/
 │   └── apps.ts                   # pure data — no UI imports
@@ -34,7 +35,8 @@ src/
 │       ├── hypemeter/index.astro
 │       ├── mistaword/index.astro
 │       ├── mistajack/index.astro
-│       └── mistamuseum/index.astro
+│       ├── mistamuseum/index.astro
+│       └── mistanews/index.astro
 └── styles/
 ```
 
@@ -48,6 +50,7 @@ src/
 | `mistaword`   | ready  | none                                        |
 | `mistajack`   | ready  | none (uses Deck of Cards API)               |
 | `mistamuseum` | ready  | none (uses AIC public API)                  |
+| `mistanews`   | ready  | none (uses HN Firebase REST API)            |
 
 ## Key conventions
 
