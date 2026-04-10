@@ -52,6 +52,14 @@ export const appEntries: AppEntry[] = [
       'A daily artwork discovery app — one public-domain piece from the Art Institute of Chicago, seeded by date.',
     status: 'ready',
   },
+  {
+    slug: 'mistanews',
+    title: 'mistanews',
+    tagline: 'Top 10 Hacker News stories, right now.',
+    description:
+      'A Hacker News link aggregator — fetches the top 10 stories and opens them externally.',
+    status: 'ready',
+  },
 ];
 
 export function getAppBySlug(slug: string) {
