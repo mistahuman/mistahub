@@ -179,7 +179,7 @@
 <!-- ── Outer wrapper ─────────────────────────────────────────────────────── -->
 <div class="mx-auto w-full max-w-2xl">
   <div
-    class="card preset-filled-surface-100-900 border-surface-200-800 space-y-6 border-[1px] p-5 md:p-6"
+    class="card preset-filled-surface-100-900 border-surface-200-800 space-y-6 border p-5 md:p-6"
   >
     <!-- ── Amount input ─────────────────────────────────────────────────── -->
     <div class="space-y-2">
@@ -232,7 +232,7 @@
             </Combobox.Control>
             <Combobox.Positioner>
               <Combobox.Content
-                class="card preset-filled-surface-100-900 border-surface-200-800 z-50 max-h-56 w-full overflow-y-auto border-[1px]"
+                class="card preset-filled-surface-100-900 border-surface-200-800 z-50 max-h-56 w-full overflow-y-auto border"
               >
                 {#if currencyCount === 0}
                   <div class="px-3 py-2 text-sm text-surface-500">Loading currencies...</div>
@@ -304,7 +304,7 @@
             </Combobox.Control>
             <Combobox.Positioner>
               <Combobox.Content
-                class="card preset-filled-surface-100-900 border-surface-200-800 z-50 max-h-56 w-full overflow-y-auto border-[1px]"
+                class="card preset-filled-surface-100-900 border-surface-200-800 z-50 max-h-56 w-full overflow-y-auto border"
               >
                 {#if currencyCount === 0}
                   <div class="px-3 py-2 text-sm text-surface-500">Loading currencies...</div>

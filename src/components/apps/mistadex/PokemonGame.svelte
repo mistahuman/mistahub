@@ -172,9 +172,7 @@
 
 <div class="mx-auto flex w-full max-w-lg flex-col gap-4">
   <!-- Status + generation controls -->
-  <div
-    class="card preset-filled-surface-100-900 border-surface-200-800 space-y-4 border-[1px] px-5 py-4"
-  >
+  <div class="card preset-filled-surface-100-900 border-surface-200-800 space-y-4 border px-5 py-4">
     <div class="flex flex-wrap items-center justify-between gap-3 text-sm">
       <span class="flex items-center gap-1.5">
         <Flame size={15} class="text-warning-500" />
@@ -213,9 +211,7 @@
   </div>
 
   <!-- Image card -->
-  <div
-    class="card preset-filled-surface-100-900 border-[1px] border-surface-200-800 overflow-hidden"
-  >
+  <div class="card preset-filled-surface-100-900 border border-surface-200-800 overflow-hidden">
     <div class="bg-surface-200-800 flex aspect-square w-full items-center justify-center">
       {#if phase === 'loading'}
         <p class="text-surface-400 text-sm animate-pulse">Loading…</p>
@@ -235,7 +231,7 @@
   <!-- Hints card -->
   {#if pokemon && !['loading', 'error'].includes(phase)}
     <div
-      class="card preset-filled-surface-100-900 border-surface-200-800 space-y-4 border-[1px] px-5 py-4 text-sm"
+      class="card preset-filled-surface-100-900 border-surface-200-800 space-y-4 border px-5 py-4 text-sm"
     >
       <div class="grid grid-cols-3 gap-3 text-center">
         <div class="flex flex-col items-center gap-1">
@@ -275,7 +271,7 @@
   <!-- Controls card -->
   {#if phase !== 'error'}
     <div
-      class="card preset-filled-surface-100-900 border-[1px] border-surface-200-800 space-y-3 px-5 py-4"
+      class="card preset-filled-surface-100-900 border border-surface-200-800 space-y-3 px-5 py-4"
     >
       {#if phase === 'playing'}
         {#key roundKey}
@@ -292,11 +288,11 @@
           >
             <Combobox.Control class="flex flex-col gap-2 sm:flex-row">
               <Combobox.Input class="input min-w-0 flex-1" placeholder="Search a Pokémon…" />
-              <button class="btn preset-tonal-primary" onclick={submit}>Submit</button>
+              <button class="btn preset-filled-primary-500" onclick={submit}>Submit</button>
             </Combobox.Control>
             <Combobox.Positioner>
               <Combobox.Content
-                class="card preset-filled-surface-100-900 border-[1px] border-surface-200-800 max-h-60 overflow-y-auto z-50 w-full"
+                class="card preset-filled-surface-100-900 border border-surface-200-800 max-h-60 overflow-y-auto z-50 w-full"
               >
                 {#each filteredItems as item (item.value)}
                   <Combobox.Item
@@ -331,7 +327,9 @@
           </button>
         </div>
       {:else if isDone()}
-        <button class="btn preset-tonal-primary w-full" onclick={fetchPokemon}>Next Round</button>
+        <button class="btn preset-filled-primary-500 w-full" onclick={fetchPokemon}
+          >Next Round</button
+        >
       {:else if phase === 'error'}
         <button class="btn preset-outlined w-full" onclick={fetchPokemon}>Retry</button>
       {/if}

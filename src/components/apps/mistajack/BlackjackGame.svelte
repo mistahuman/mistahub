@@ -300,7 +300,7 @@
 <div class="bj">
   <!-- HUD -->
   <div
-    class="card preset-filled-surface-100-900 border-surface-200-800 flex items-center gap-2 border-[1px] px-4 py-3"
+    class="card preset-filled-surface-100-900 border-surface-200-800 flex items-center gap-2 border px-4 py-3"
   >
     <span class="badge preset-tonal-primary">
       credits <strong>{credits}</strong>

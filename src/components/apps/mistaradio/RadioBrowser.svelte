@@ -486,7 +486,7 @@
     <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
       {#each [0, 1, 2, 3, 4, 5] as item (item)}
         <div
-          class="card preset-filled-surface-100-900 border-surface-200-800 animate-pulse space-y-3 border-[1px] p-4"
+          class="card preset-filled-surface-100-900 border-surface-200-800 animate-pulse space-y-3 border p-4"
         >
           <div class="bg-surface-300-700 h-10 w-10 rounded-base"></div>
           <div class="bg-surface-300-700 h-5 w-3/4 rounded"></div>
@@ -502,13 +502,11 @@
       <button class="btn preset-outlined mt-4" onclick={loadStations}>Retry</button>
     </aside>
   {:else if visibleStations.length === 0}
-    <div class="card preset-tonal-surface-500 p-5">
+    <div class="card preset-tonal-surface p-5">
       No stations found. Try clearing one filter or searching a broader name.
     </div>
   {:else}
-    <section
-      class="card preset-filled-surface-100-900 border-surface-200-800 space-y-4 border-[1px] p-4"
-    >
+    <section class="card preset-filled-surface-100-900 border-surface-200-800 space-y-4 border p-4">
       <div class="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(12rem,16rem)_auto] lg:items-end">
         <div class="space-y-1">
           <label

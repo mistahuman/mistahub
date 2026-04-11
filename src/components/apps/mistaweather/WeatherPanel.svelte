@@ -246,9 +246,7 @@
 </script>
 
 <div class="mx-auto w-full max-w-5xl space-y-4">
-  <section
-    class="card preset-filled-surface-100-900 border-surface-200-800 space-y-4 border-[1px] p-4"
-  >
+  <section class="card preset-filled-surface-100-900 border-surface-200-800 space-y-4 border p-4">
     <div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
       <div class="space-y-2">
         <p class="max-w-2xl text-sm text-surface-600-400">
@@ -294,7 +292,7 @@
             </Combobox.Control>
             <Combobox.Positioner>
               <Combobox.Content
-                class="card preset-filled-surface-100-900 border-surface-200-800 z-50 max-h-72 w-full overflow-y-auto border-[1px]"
+                class="card preset-filled-surface-100-900 border-surface-200-800 z-50 max-h-72 w-full overflow-y-auto border"
               >
                 {#each placeCollection.items as item (item.value)}
                   <Combobox.Item
@@ -319,8 +317,8 @@
       </div>
 
       <div class="flex flex-wrap gap-2 text-xs">
-        <span class="badge preset-tonal-surface">{selectedPlace.latitude.toFixed(2)} lat</span>
-        <span class="badge preset-tonal-surface">{selectedPlace.longitude.toFixed(2)} lon</span>
+        <span class="badge preset-outlined">{selectedPlace.latitude.toFixed(2)} lat</span>
+        <span class="badge preset-outlined">{selectedPlace.longitude.toFixed(2)} lon</span>
       </div>
     </div>
   </section>
@@ -334,16 +332,15 @@
     </aside>
   {:else if weather}
     <section class="space-y-4">
-      <article class="card preset-filled-surface-100-900 border-surface-200-800 border-[1px] p-5">
+      <article class="card preset-filled-surface-100-900 border-surface-200-800 border p-5">
         <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div class="flex items-start gap-4">
-            <div class="card {weatherPreset(weather.current.weather_code)} p-3">
-              <svelte:component
-                this={weatherIcon(weather.current.weather_code)}
-                size={42}
-                strokeWidth={1.8}
-              />
-            </div>
+            {#if true}
+              {@const CurrentIcon = weatherIcon(weather.current.weather_code)}
+              <div class="card {weatherPreset(weather.current.weather_code)} p-3">
+                <CurrentIcon size={42} strokeWidth={1.8} />
+              </div>
+            {/if}
             <div>
               <p class="text-sm uppercase tracking-wide text-surface-500">{selectedLabel}</p>
               <div class="mt-2 flex flex-wrap items-end gap-3">
@@ -352,10 +349,10 @@
                 </h2>
                 {#if todayForecast}
                   <div class="mb-1 flex flex-wrap gap-2">
-                    <span class="badge preset-tonal-surface">
+                    <span class="badge preset-outlined">
                       min {Math.round(todayForecast.min)}°
                     </span>
-                    <span class="badge preset-tonal-surface">
+                    <span class="badge preset-outlined">
                       max {Math.round(todayForecast.max)}°
                     </span>
                   </div>
@@ -364,44 +361,45 @@
               <p class="mt-2 text-lg font-semibold">{weatherLabel(weather.current.weather_code)}</p>
             </div>
           </div>
-          <span class="badge preset-tonal-surface w-fit">
+          <span class="badge preset-outlined w-fit">
             feels {Math.round(weather.current.apparent_temperature)}°C
           </span>
         </div>
 
         <div class="mt-5 grid gap-3 sm:grid-cols-3">
-          <div class="card preset-tonal-surface border-surface-200-800 border-[1px] p-3">
+          <div class="card preset-tonal-surface border-surface-200-800 border p-3">
             <p class="text-xs uppercase tracking-wide text-surface-500">Humidity</p>
             <p class="mt-1 text-lg font-semibold">{weather.current.relative_humidity_2m}%</p>
           </div>
-          <div class="card preset-tonal-surface border-surface-200-800 border-[1px] p-3">
+          <div class="card preset-tonal-surface border-surface-200-800 border p-3">
             <p class="text-xs uppercase tracking-wide text-surface-500">Rain</p>
             <p class="mt-1 text-lg font-semibold">{weather.current.precipitation} mm</p>
           </div>
-          <div class="card preset-tonal-surface border-surface-200-800 border-[1px] p-3">
+          <div class="card preset-tonal-surface border-surface-200-800 border p-3">
             <p class="text-xs uppercase tracking-wide text-surface-500">Wind</p>
             <p class="mt-1 text-lg font-semibold">{weather.current.wind_speed_10m} km/h</p>
           </div>
         </div>
       </article>
 
-      <section class="card preset-filled-surface-100-900 border-surface-200-800 border-[1px] p-4">
+      <section class="card preset-filled-surface-100-900 border-surface-200-800 border p-4">
         <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
           <h2 class="font-semibold">Forecast</h2>
-          <span class="badge preset-tonal-surface">{dailyRows.length} days</span>
+          <span class="badge preset-outlined">{dailyRows.length} days</span>
         </div>
 
         {#if dailyRows.length === 0}
-          <div class="card preset-tonal-surface-500 p-4">No forecast data reported.</div>
+          <div class="card preset-tonal-surface p-4">No forecast data reported.</div>
         {:else}
           <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             {#each dailyRows as day (day.date)}
+              {@const DayIcon = weatherIcon(day.code)}
               <article
-                class="card preset-tonal-surface border-surface-200-800 flex items-center justify-between gap-4 border-[1px] p-4"
+                class="card preset-tonal-surface border-surface-200-800 flex items-center justify-between gap-4 border p-4"
               >
                 <div class="flex min-w-0 items-center gap-3">
                   <div class="card {weatherPreset(day.code)} shrink-0 p-2">
-                    <svelte:component this={weatherIcon(day.code)} size={24} strokeWidth={1.8} />
+                    <DayIcon size={24} strokeWidth={1.8} />
                   </div>
                   <div class="min-w-0">
                     <p class="font-semibold">{formatDate(day.date)}</p>

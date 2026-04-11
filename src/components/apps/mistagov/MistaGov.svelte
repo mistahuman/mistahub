@@ -275,9 +275,7 @@ GROUP BY ?persona`;
 
 <div class="mx-auto w-full max-w-5xl">
   <!-- ── Toolbar ────────────────────────────────────────────────────────────── -->
-  <div
-    class="card preset-filled-surface-100-900 border-surface-200-800 mb-4 space-y-4 border-[1px] p-4"
-  >
+  <div class="card preset-filled-surface-100-900 border-surface-200-800 mb-4 space-y-4 border p-4">
     <div class="grid min-w-0 gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(14rem,20rem)]">
       <label class="min-w-0 space-y-1">
         <span class="text-xs font-semibold uppercase tracking-widest text-surface-400">Search</span>
@@ -312,7 +310,7 @@ GROUP BY ?persona`;
             </Combobox.Control>
             <Combobox.Positioner>
               <Combobox.Content
-                class="card preset-filled-surface-100-900 border-surface-200-800 z-50 max-h-64 w-full overflow-y-auto border-[1px]"
+                class="card preset-filled-surface-100-900 border-surface-200-800 z-50 max-h-64 w-full overflow-y-auto border"
               >
                 {#each partyCollection.items as item (item.value)}
                   <Combobox.Item
@@ -334,14 +332,14 @@ GROUP BY ?persona`;
 
     <div class="flex flex-wrap gap-2 text-xs">
       {#if appState === 'ready'}
-        <span class="badge preset-tonal-surface">
+        <span class="badge preset-outlined">
           {displayed().length} / {deputies.length} deputies
         </span>
-        <span class="badge preset-tonal-surface">
+        <span class="badge preset-outlined">
           {parties.length} groups
         </span>
         {#if totalVotazioni > 0}
-          <span class="badge preset-tonal-surface">
+          <span class="badge preset-outlined">
             {totalVotazioni.toLocaleString('en')} votes
           </span>
         {/if}
@@ -353,19 +351,19 @@ GROUP BY ?persona`;
           <span class="badge preset-tonal-error">absences partial</span>
         {/if}
         {#if sort !== 'name' && absencesState === 'ready'}
-          <span class="badge preset-tonal-surface">
+          <span class="badge preset-outlined">
             {totalAbsencesShown.toLocaleString('en')} absences shown
           </span>
         {/if}
       {:else}
-        <span class="badge preset-tonal-surface">loading deputies</span>
+        <span class="badge preset-outlined">loading deputies</span>
       {/if}
     </div>
   </div>
 
   <!-- ── Error ──────────────────────────────────────────────────────────────── -->
   {#if appState === 'error'}
-    <aside class="card preset-tonal-warning flex flex-col gap-1 p-5">
+    <aside class="card preset-tonal-error flex flex-col gap-1 p-5">
       <p class="font-semibold">Could not load deputies</p>
       <p class="text-sm opacity-80">{errorMessage}</p>
       <button class="btn preset-outlined mt-3 text-sm" onclick={reload}>Retry</button>
@@ -374,7 +372,7 @@ GROUP BY ?persona`;
     <!-- ── Table ──────────────────────────────────────────────────────────────── -->
   {:else}
     <div
-      class="card preset-filled-surface-100-900 border-surface-200-800 w-full overflow-x-auto border-[1px]"
+      class="card preset-filled-surface-100-900 border-surface-200-800 w-full overflow-x-auto border"
     >
       <table class="w-full border-collapse whitespace-nowrap text-sm">
         <thead class="sticky top-0 z-10">

@@ -305,9 +305,7 @@
 </script>
 
 <div class="mx-auto w-full max-w-6xl space-y-4">
-  <section
-    class="card preset-filled-surface-100-900 border-surface-200-800 space-y-4 border-[1px] p-4"
-  >
+  <section class="card preset-filled-surface-100-900 border-surface-200-800 space-y-4 border p-4">
     <div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
       <div class="space-y-2">
         {#if latest}
@@ -355,7 +353,7 @@
             </Combobox.Control>
             <Combobox.Positioner>
               <Combobox.Content
-                class="card preset-filled-surface-100-900 border-surface-200-800 z-50 max-h-72 w-full overflow-y-auto border-[1px]"
+                class="card preset-filled-surface-100-900 border-surface-200-800 z-50 max-h-72 w-full overflow-y-auto border"
               >
                 {#each cityCollection.items as item (item.value)}
                   <Combobox.Item
@@ -376,8 +374,8 @@
 
       {#if loadState === 'ready'}
         <div class="flex flex-wrap gap-2 text-xs">
-          <span class="badge preset-tonal-surface">{rows.length} readings</span>
-          <span class="badge preset-tonal-surface">{cities.length} cities</span>
+          <span class="badge preset-outlined">{rows.length} readings</span>
+          <span class="badge preset-outlined">{cities.length} cities</span>
         </div>
       {/if}
     </div>
@@ -391,7 +389,7 @@
       <p class="mt-2 text-sm">{errorMessage}</p>
     </aside>
   {:else if !quality()}
-    <div class="card preset-tonal-surface-500 p-5">No air-quality readings for this city.</div>
+    <div class="card preset-tonal-surface p-5">No air-quality readings for this city.</div>
   {:else}
     <section class="grid gap-4 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
       <article class="card {quality()?.preset} p-5">
@@ -429,7 +427,7 @@
           <article
             class="card {pollutant.level
               ? QUALITY_META[pollutant.level].preset
-              : 'preset-tonal-surface-500'} p-4"
+              : 'preset-tonal-surface'} p-4"
           >
             <div class="flex items-start justify-between gap-3">
               <div>
@@ -450,12 +448,10 @@
       </section>
     </section>
 
-    <section class="card preset-filled-surface-100-900 border-surface-200-800 border-[1px] p-4">
+    <section class="card preset-filled-surface-100-900 border-surface-200-800 border p-4">
       <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
         <h2 class="font-semibold">Stations in {selectedCity}</h2>
-        <span class="badge preset-tonal-surface"
-          >updated {selectedRows()[0]?.provinceTimestamp}</span
-        >
+        <span class="badge preset-outlined">updated {selectedRows()[0]?.provinceTimestamp}</span>
       </div>
 
       <div class="overflow-x-auto">

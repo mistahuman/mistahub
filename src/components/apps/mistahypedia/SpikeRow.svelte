@@ -20,13 +20,11 @@
 </script>
 
 <div
-  class="card preset-filled-surface-100-900 border-surface-200-800 hover:preset-tonal border-[1px] px-4 py-3 transition-colors"
+  class="card preset-filled-surface-100-900 border-surface-200-800 hover:preset-tonal border px-4 py-3 transition-colors"
 >
   <div class="flex items-center gap-3">
     <!-- Rank -->
-    <span class="badge preset-tonal-surface w-9 shrink-0 justify-center font-mono text-xs"
-      >#{rank}</span
-    >
+    <span class="badge preset-outlined w-9 shrink-0 justify-center font-mono text-xs">#{rank}</span>
 
     <!-- Title -->
     <a
@@ -40,7 +38,7 @@
     </a>
 
     <!-- Views -->
-    <span class="badge preset-tonal-surface shrink-0 font-mono text-xs">{formatViews(views)}</span>
+    <span class="badge preset-outlined shrink-0 font-mono text-xs">{formatViews(views)}</span>
   </div>
 
   <!-- Relative bar -->

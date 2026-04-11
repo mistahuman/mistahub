@@ -151,9 +151,7 @@
 </script>
 
 <div class="mx-auto w-full max-w-2xl">
-  <article
-    class="card preset-filled-surface-100-900 border-surface-200-800 overflow-hidden border-[1px]"
-  >
+  <article class="card preset-filled-surface-100-900 border-surface-200-800 overflow-hidden border">
     <header class="flex flex-wrap items-center justify-end gap-3 px-5 py-4">
       {#if todayLabel}
         <span class="text-xs text-surface-500">{todayLabel}</span>
