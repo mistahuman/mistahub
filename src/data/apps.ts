@@ -113,6 +113,15 @@ export const appEntries: AppEntry[] = [
     category: 'data',
     status: 'ready',
   },
+  {
+    slug: 'mistaradio',
+    title: 'mistaradio',
+    tagline: 'World radio streams from Radio Browser.',
+    description:
+      'A lightweight radio browser with country, language, and tag filters powered by Radio Browser.',
+    category: 'tool',
+    status: 'ready',
+  },
 ];
 
 export function getAppBySlug(slug: string) {

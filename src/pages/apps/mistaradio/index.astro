@@ -1,0 +1,16 @@
+---
+import Layout from '@layouts/Layout.astro';
+import AppPage from '@components/AppPage.astro';
+import RadioBrowser from '@components/apps/mistaradio/RadioBrowser.svelte';
+---
+
+<Layout>
+  <AppPage
+    title="mistaradio"
+    tagline="Browse and play public radio streams from around the world."
+    sourceUrl="https://api.radio-browser.info/"
+    sourceLabel="Radio Browser API"
+  >
+    <RadioBrowser client:load />
+  </AppPage>
+</Layout>
