@@ -14,6 +14,7 @@ import {
   CalendarDays,
   Radio,
   Boxes,
+  Star,
   Plus,
 } from 'lucide-svelte';
 import { appEntries } from '../data/apps';
@@ -119,6 +120,10 @@ const icons = {
                         <p class="text-sm leading-relaxed text-surface-600-400">
                           {entry.description}
                         </p>
+                      </div>
+                      <div class="mt-auto flex items-center gap-1 text-sm text-surface-500">
+                        <Star size={14} />
+                        <span>{entry.stars}</span>
                       </div>
                     </div>
                   </a>

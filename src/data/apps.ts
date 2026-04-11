@@ -5,6 +5,7 @@ export type AppEntry = {
   description: string;
   category: 'game' | 'news' | 'tool' | 'data' | 'art';
   status: 'ready' | 'planned';
+  stars: number;
 };
 
 export const appEntries: AppEntry[] = [
@@ -16,6 +17,7 @@ export const appEntries: AppEntry[] = [
       'A geography quiz that challenges you to recognize countries by flag or by border shape.',
     category: 'game',
     status: 'ready',
+    stars: 0,
   },
   {
     slug: 'mistadex',
@@ -24,6 +26,7 @@ export const appEntries: AppEntry[] = [
     description: 'A Pokémon guessing game — a silhouette appears, type the name before giving up.',
     category: 'game',
     status: 'ready',
+    stars: 0,
   },
   {
     slug: 'mistahypedia',
@@ -32,6 +35,7 @@ export const appEntries: AppEntry[] = [
     description: 'A live ranking of the most read Wikipedia pages from the previous day.',
     category: 'news',
     status: 'ready',
+    stars: 0,
   },
   {
     slug: 'mistaword',
@@ -40,6 +44,7 @@ export const appEntries: AppEntry[] = [
     description: 'A Wordle-style game — guess the daily word in six tries.',
     category: 'game',
     status: 'ready',
+    stars: 0,
   },
   {
     slug: 'mistajack',
@@ -49,6 +54,7 @@ export const appEntries: AppEntry[] = [
       'A single-player Blackjack game against a CPU dealer with a persistent credit system.',
     category: 'game',
     status: 'ready',
+    stars: 0,
   },
   {
     slug: 'mistamuseum',
@@ -58,6 +64,7 @@ export const appEntries: AppEntry[] = [
       'A daily artwork discovery app — one public-domain piece from the Art Institute of Chicago, seeded by date.',
     category: 'art',
     status: 'ready',
+    stars: 0,
   },
   {
     slug: 'mistanews',
@@ -67,6 +74,7 @@ export const appEntries: AppEntry[] = [
       'A Hacker News link aggregator — fetches the top 10 stories and opens them externally.',
     category: 'news',
     status: 'ready',
+    stars: 0,
   },
   {
     slug: 'mistagov',
@@ -76,6 +84,7 @@ export const appEntries: AppEntry[] = [
       'Live list of current Italian deputies with name and party group, fetched from the Camera SPARQL endpoint.',
     category: 'data',
     status: 'ready',
+    stars: 0,
   },
   {
     slug: 'mistaexchange',
@@ -85,6 +94,7 @@ export const appEntries: AppEntry[] = [
       'A live currency converter powered by the Frankfurter public API — pick any pair, type an amount, get the rate instantly.',
     category: 'tool',
     status: 'ready',
+    stars: 0,
   },
   {
     slug: 'mistaair',
@@ -94,6 +104,7 @@ export const appEntries: AppEntry[] = [
       'A prototype air-quality dashboard using the latest official ARPAE Emilia-Romagna bulletin.',
     category: 'data',
     status: 'ready',
+    stars: 0,
   },
   {
     slug: 'mistaweather',
@@ -103,6 +114,7 @@ export const appEntries: AppEntry[] = [
       'A lightweight weather panel with saved place search, current conditions, and a short forecast.',
     category: 'tool',
     status: 'ready',
+    stars: 0,
   },
   {
     slug: 'mistabolo',
@@ -112,6 +124,7 @@ export const appEntries: AppEntry[] = [
       'A Bologna events board using the official Comune di Bologna Agenda Cultura open dataset.',
     category: 'data',
     status: 'ready',
+    stars: 0,
   },
   {
     slug: 'mistaradio',
@@ -121,6 +134,7 @@ export const appEntries: AppEntry[] = [
       'A lightweight radio browser with country, language, and tag filters powered by Radio Browser.',
     category: 'tool',
     status: 'ready',
+    stars: 0,
   },
   {
     slug: 'mistaoss',
@@ -130,6 +144,7 @@ export const appEntries: AppEntry[] = [
       'A curated daily OSS explorer that surfaces three promising repositories by category, momentum, and recency.',
     category: 'news',
     status: 'ready',
+    stars: 0,
   },
 ];
 
