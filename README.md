@@ -26,6 +26,7 @@ https://mistahuman.github.io/mistahub/
 | `mistaair`      | data | Air quality readings from ARPAE Emilia-Romagna         |
 | `mistaweather`  | tool | Simple weather from Open-Meteo                         |
 | `mistabolo`     | data | Bologna culture events from Comune open data           |
+| `mistaradio`    | tool | World radio stream browser (Radio Browser API)         |
 
 ## Stack
 
