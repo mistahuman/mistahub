@@ -9,7 +9,8 @@
     party: string;
     groupSince: string | null; // "DD.MM.YYYY"
     groupUntil: string | null; // "DD.MM.YYYY" | null = still current
-    absences: number | null; // null = batch not yet arrived
+    absences: number | null; // "Non ha votato" — null = batch not yet arrived
+    missions: number | null; // "In missione" — excluded from denominator
     attendanceRate: number | null; // null = batch not yet arrived
   }
 
@@ -48,9 +49,10 @@ SELECT (COUNT(DISTINCT ?vot) AS ?n) WHERE {
 }
 `.trim();
 
-  // Absence batch query — joins through rif_votazione to ocd:votazione to ensure
-  // we count only actual electronic votazioni (not generic acts).
-  // DISTINCT deduplicates the doubled triples in the store.
+  // Two separate batch queries — same proven pattern as the original absence query.
+  // The combined VALUES ?tipo approach caused server errors on the Camera endpoint
+  // (responded without CORS headers, reported as CORS by the browser).
+  // Both queries run in parallel per batch so total time is similar.
   function absencesBatchQuery(uris: string[]): string {
     const values = uris.map((u) => `<${u}>`).join('\n    ');
     return `PREFIX ocd: <http://dati.camera.it/ocd/>
@@ -61,6 +63,21 @@ SELECT ?persona (COUNT(DISTINCT ?votazione) AS ?absences) WHERE {
         ocd:rif_deputato ?persona ;
         ocd:rif_votazione ?votazione ;
         dc:type "Non ha votato" .
+  ?votazione a ocd:votazione .
+}
+GROUP BY ?persona`;
+  }
+
+  function missionsBatchQuery(uris: string[]): string {
+    const values = uris.map((u) => `<${u}>`).join('\n    ');
+    return `PREFIX ocd: <http://dati.camera.it/ocd/>
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
+SELECT ?persona (COUNT(DISTINCT ?votazione) AS ?missions) WHERE {
+  VALUES ?persona { ${values} }
+  ?voto a ocd:voto ;
+        ocd:rif_deputato ?persona ;
+        ocd:rif_votazione ?votazione ;
+        dc:type "In missione" .
   ?votazione a ocd:votazione .
 }
 GROUP BY ?persona`;
@@ -105,6 +122,7 @@ GROUP BY ?persona`;
         groupSince: since,
         groupUntil: until,
         absences: null,
+        missions: null,
         attendanceRate: null,
       };
 
@@ -201,39 +219,74 @@ GROUP BY ?persona`;
     return map;
   }
 
+  async function fetchMissionsBatch(uris: string[]): Promise<SvelteMap<string, number>> {
+    const json = (await sparqlGet(missionsBatchQuery(uris))) as {
+      results: { bindings: Array<Record<string, { value: string }>> };
+    };
+    const map = new SvelteMap<string, number>();
+    for (const row of json.results.bindings) map.set(row.persona.value, Number(row.missions.value));
+    return map;
+  }
+
   async function fetchAllAbsences(list: Deputy[]): Promise<void> {
     absencesState = 'loading';
     firstBatchDone = false;
-    try {
-      const batches: string[][] = [];
-      for (let i = 0; i < list.length; i += BATCH_SIZE) {
-        batches.push(list.slice(i, i + BATCH_SIZE).map((d) => d.id));
-      }
 
-      // Fire all batches in parallel; update deputies as each settles
-      const settled = await Promise.allSettled(
+    const batches: string[][] = [];
+    for (let i = 0; i < list.length; i += BATCH_SIZE) {
+      batches.push(list.slice(i, i + BATCH_SIZE).map((d) => d.id));
+    }
+
+    try {
+      // ── Phase 1: absences (~25 concurrent, same as original) ──────────────
+      // Updates the table progressively; attendance rate uses missions=0 initially.
+      const absSettled = await Promise.allSettled(
         batches.map(async (batch) => {
           const map = await fetchAbsencesBatch(batch);
-          // Patch the deputies array in place for this batch
           deputies = deputies.map((d) => {
             if (!map.has(d.id)) return d;
             const absences = map.get(d.id)!;
             const attendanceRate =
               totalVotazioni > 0 ? ((totalVotazioni - absences) / totalVotazioni) * 100 : null;
-            return { ...d, absences, attendanceRate };
+            return { ...d, absences, missions: 0, attendanceRate };
           });
-          // Also zero out deputies in this batch that had no absences record
           deputies = deputies.map((d) => {
             if (!batch.includes(d.id) || d.absences !== null) return d;
-            const attendanceRate = totalVotazioni > 0 ? 100 : null;
-            return { ...d, absences: 0, attendanceRate };
+            return {
+              ...d,
+              absences: 0,
+              missions: 0,
+              attendanceRate: totalVotazioni > 0 ? 100 : null,
+            };
           });
           firstBatchDone = true;
         }),
       );
 
-      const failed = settled.filter((r) => r.status === 'rejected').length;
-      if (failed > 0) console.warn(`[mistagov] ${failed}/${batches.length} absence batches failed`);
+      const absFailed = absSettled.filter((r) => r.status === 'rejected').length;
+      if (absFailed > 0)
+        console.warn(`[mistagov] ${absFailed}/${batches.length} absence batches failed`);
+
+      // ── Phase 2: missions (~25 concurrent, sequential after phase 1) ──────
+      // Recalculates attendance rate with the corrected denominator.
+      const misSettled = await Promise.allSettled(
+        batches.map(async (batch) => {
+          const map = await fetchMissionsBatch(batch);
+          deputies = deputies.map((d) => {
+            if (!map.has(d.id) || d.absences === null) return d;
+            const missions = map.get(d.id)!;
+            const effectiveTotal = totalVotazioni - missions;
+            const attendanceRate =
+              effectiveTotal > 0 ? ((effectiveTotal - d.absences) / effectiveTotal) * 100 : null;
+            return { ...d, missions, attendanceRate };
+          });
+        }),
+      );
+
+      const misFailed = misSettled.filter((r) => r.status === 'rejected').length;
+      if (misFailed > 0)
+        console.warn(`[mistagov] ${misFailed}/${batches.length} mission batches failed`);
+
       absencesState = 'ready';
     } catch (e) {
       console.error('[mistagov] absences error:', e);
@@ -435,7 +488,7 @@ GROUP BY ?persona`;
                     {sort === 'absences-asc' ? '↑' : '↓'}
                   </span>
                 {/if}
-                Missed
+                Absent
               </button>
             </th>
 

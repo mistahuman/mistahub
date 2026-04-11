@@ -275,12 +275,14 @@ A `Combobox` that only appears after an initial conditional (e.g. `{#if status !
 2. **Total votazioni query** — one COUNT(DISTINCT) query at mount for the whole XIX legislature (`~17 257`). Used as the denominator for attendance rate.
    - **The store has duplicate triples** (data stored in two named graphs). `COUNT(*)` returns 2× the real number. Always use `COUNT(DISTINCT ?var)`.
 
-3. **Absences batch query** — counts `dc:type "Non ha votato"` on `ocd:voto`, joined through `ocd:rif_votazione` to `ocd:votazione` to ensure only actual electronic votes are counted.
+3. **Absences batch query** — two separate queries per batch (absences + missions), fired in parallel with `Promise.all`. Each uses the proven single-literal `dc:type "..."` pattern.
+   - **Do NOT use** `VALUES ?tipo { "Non ha votato" "In missione" }` with `dc:type ?tipo` — this causes a server error on the Camera endpoint that responds without CORS headers (reported as CORS by the browser).
    - A single GROUP BY across all deputies times out (>60 s) on the endpoint.
-   - Solution: batch the deputy URIs in groups of 25 using `VALUES ?persona { ... }`, fire all batches in parallel with `Promise.all`. Each batch resolves in ~0.5–1 s.
-   - Batches patch the `deputies` array progressively as they settle (`Promise.allSettled`). First batch done → enables the Absences sort button.
-   - Deputies not in any absences result get `absences: 0` (never missed a vote).
-   - `attendanceRate = ((totalVotazioni - absences) / totalVotazioni) * 100`.
+   - Solution: batch the deputy URIs in groups of 25 using `VALUES ?persona { ... }`, fire all batches in parallel with `Promise.allSettled`. Each batch resolves in ~0.5–1 s.
+   - Deputies not in any result get `absences: 0, missions: 0`.
+   - `"In missione"` is excluded from both numerator and denominator — a deputy on official mission was not expected to vote.
+   - `effectiveTotal = totalVotazioni - missions`
+   - `attendanceRate = ((effectiveTotal - absences) / effectiveTotal) * 100`.
 
 **Useful predicates discovered:**
 
