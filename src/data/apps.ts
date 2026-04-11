@@ -122,6 +122,15 @@ export const appEntries: AppEntry[] = [
     category: 'tool',
     status: 'ready',
   },
+  {
+    slug: 'mistaoss',
+    title: 'mistaoss',
+    tagline: 'Daily open source picks from GitHub.',
+    description:
+      'A curated daily OSS explorer that surfaces three promising repositories by category, momentum, and recency.',
+    category: 'news',
+    status: 'ready',
+  },
 ];
 
 export function getAppBySlug(slug: string) {
