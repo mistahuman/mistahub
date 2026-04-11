@@ -27,7 +27,7 @@ https://mistahuman.github.io/mistahub/
 | `mistaweather`  | tool | Simple weather from Open-Meteo                         |
 | `mistabolo`     | data | Bologna culture events from Comune open data           |
 | `mistaradio`    | tool | World radio stream browser (Radio Browser API)         |
-| `mistaoss`      | tool | Daily open source picks from GitHub                    |
+| `mistaoss`      | news | Daily open source picks from GitHub                    |
 
 ## Stack
 

@@ -301,7 +301,7 @@
     <!-- controls -->
     <div class="wg-controls">
       <button
-        class="btn {newGameConfirm ? 'preset-filled-warning-500' : 'preset-tonal-primary'}"
+        class="btn {newGameConfirm ? 'preset-filled-warning-500' : 'preset-filled-primary-500'}"
         onclick={newGame}
         disabled={loading || submitting}
       >

@@ -2,6 +2,7 @@
   import { ArrowLeftRight, Check } from 'lucide-svelte';
   import { Combobox } from '@skeletonlabs/skeleton-svelte';
   import { collection } from '@zag-js/combobox';
+  import { onMount } from 'svelte';
 
   // ── Types ───────────────────────────────────────────────────────────────────
 
@@ -45,11 +46,9 @@
 
   // ── State ────────────────────────────────────────────────────────────────────
 
-  const saved = loadPair();
-
   let currencies = $state<Record<string, string>>({});
-  let fromCurrency = $state<string>(saved.from);
-  let toCurrency = $state<string>(saved.to);
+  let fromCurrency = $state<string>(DEFAULT_FROM);
+  let toCurrency = $state<string>(DEFAULT_TO);
   let amount = $state<string>('');
   let result = $state<number | null>(null);
   let rate = $state<number | null>(null);
@@ -61,6 +60,8 @@
   let toFilter = $state('');
   // Incremented on swap so {#key} re-mounts both comboboxes with updated defaults
   let swapKey = $state(0);
+  // Guard: prevent $effect from saving/converting before onMount restores the stored pair
+  let pairRestored = $state(false);
 
   // ── Currency list fetch ──────────────────────────────────────────────────────
 
@@ -137,6 +138,16 @@
     scheduleConversion();
   }
 
+  // ── Lifecycle ─────────────────────────────────────────────────────────────────
+
+  onMount(() => {
+    const saved = loadPair();
+    fromCurrency = saved.from;
+    toCurrency = saved.to;
+    pairRestored = true;
+    swapKey++; // remount comboboxes with correct defaultValue
+  });
+
   // ── Reactive effects ─────────────────────────────────────────────────────────
 
   $effect(() => {
@@ -144,6 +155,7 @@
   });
 
   $effect(() => {
+    if (!pairRestored) return;
     const _from = fromCurrency;
     const _to = toCurrency;
     savePair(_from, _to);
@@ -179,7 +191,7 @@
 <!-- ── Outer wrapper ─────────────────────────────────────────────────────── -->
 <div class="mx-auto w-full max-w-2xl">
   <div
-    class="card preset-filled-surface-100-900 border-surface-200-800 space-y-6 border-[1px] p-5 md:p-6"
+    class="card preset-filled-surface-100-900 border-surface-200-800 space-y-6 border p-5 md:p-6"
   >
     <!-- ── Amount input ─────────────────────────────────────────────────── -->
     <div class="space-y-2">
@@ -232,7 +244,7 @@
             </Combobox.Control>
             <Combobox.Positioner>
               <Combobox.Content
-                class="card preset-filled-surface-100-900 border-surface-200-800 z-50 max-h-56 w-full overflow-y-auto border-[1px]"
+                class="card preset-filled-surface-100-900 border-surface-200-800 z-50 max-h-56 w-full overflow-y-auto border"
               >
                 {#if currencyCount === 0}
                   <div class="px-3 py-2 text-sm text-surface-500">Loading currencies...</div>
@@ -304,7 +316,7 @@
             </Combobox.Control>
             <Combobox.Positioner>
               <Combobox.Content
-                class="card preset-filled-surface-100-900 border-surface-200-800 z-50 max-h-56 w-full overflow-y-auto border-[1px]"
+                class="card preset-filled-surface-100-900 border-surface-200-800 z-50 max-h-56 w-full overflow-y-auto border"
               >
                 {#if currencyCount === 0}
                   <div class="px-3 py-2 text-sm text-surface-500">Loading currencies...</div>

@@ -157,6 +157,11 @@
     return new Intl.DateTimeFormat('en-US', { dateStyle: 'long' }).format(new Date(iso));
   }
 
+  function shortDescription(text: string | null): string {
+    if (!text) return '';
+    return text.length > 140 ? `${text.slice(0, 137)}…` : text;
+  }
+
   async function load(): Promise<void> {
     loadState = 'loading';
     errorMessage = '';
@@ -184,30 +189,36 @@
   onMount(load);
 </script>
 
-<div class="mx-auto w-full max-w-5xl space-y-6">
-  <!-- header -->
-  <div class="flex flex-wrap items-start justify-between gap-4">
-    <div class="space-y-1">
-      <div class="flex flex-wrap gap-2">
+<div class="mx-auto w-full max-w-5xl space-y-4">
+  <!-- header card -->
+  <section class="card preset-filled-surface-100-900 border-surface-200-800 space-y-3 border p-4">
+    <div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+      <div class="space-y-2">
         <span class="badge preset-tonal-primary">Daily picks</span>
+        <p class="max-w-2xl text-sm text-surface-600-400">
+          Surfacing active GitHub repositories with good momentum and metadata — refreshed daily.
+        </p>
+      </div>
+      <button
+        class="btn btn-sm preset-tonal shrink-0"
+        onclick={load}
+        disabled={loadState === 'loading'}
+      >
+        <RefreshCw size={16} class={loadState === 'loading' ? 'animate-spin' : ''} />
+        {loadState === 'loading' ? 'Loading…' : 'Refresh'}
+      </button>
+    </div>
+    {#if todayLabel || poolSize > 0}
+      <div class="flex flex-wrap gap-2 text-xs">
         {#if todayLabel}
-          <span class="badge preset-tonal-surface">{todayLabel}</span>
+          <span class="badge preset-outlined">{todayLabel}</span>
         {/if}
         {#if poolSize > 0}
-          <span class="badge preset-tonal-surface">{poolSize} repos scanned</span>
+          <span class="badge preset-outlined">{poolSize} repos scanned</span>
         {/if}
       </div>
-      <h2 class="text-2xl font-bold">Three open source picks for today</h2>
-      <p class="text-sm text-surface-600-400">
-        Surfacing active GitHub repositories with good momentum and metadata — refreshed daily.
-      </p>
-    </div>
-
-    <button class="btn preset-tonal shrink-0" onclick={load} disabled={loadState === 'loading'}>
-      <RefreshCw size={16} class={loadState === 'loading' ? 'animate-spin' : ''} />
-      {loadState === 'loading' ? 'Loading…' : 'Refresh'}
-    </button>
-  </div>
+    {/if}
+  </section>
 
   <!-- skeleton -->
   {#if loadState === 'loading'}
@@ -265,29 +276,31 @@
           </div>
 
           <!-- description -->
-          <p class="text-sm leading-relaxed text-surface-600-400">{pick.repo.description}</p>
+          <p class="text-sm leading-relaxed text-surface-600-400">
+            {shortDescription(pick.repo.description)}
+          </p>
 
           <!-- stats -->
           <div class="flex flex-wrap gap-2 text-xs">
             {#if pick.repo.language}
               <span class="badge preset-tonal-secondary">{pick.repo.language}</span>
             {/if}
-            <span class="badge preset-tonal-surface">
+            <span class="badge preset-outlined">
               <Star size={11} />
               {formatCount(pick.repo.stargazers_count)}
             </span>
-            <span class="badge preset-tonal-surface">
+            <span class="badge preset-outlined">
               <GitFork size={11} />
               {formatCount(pick.repo.forks_count)}
             </span>
-            <span class="badge preset-tonal-surface">{pick.freshnessDays}d ago</span>
+            <span class="badge preset-outlined">{pick.freshnessDays}d ago</span>
           </div>
 
           <!-- topics -->
           {#if pick.repo.topics && pick.repo.topics.length > 0}
             <div class="flex flex-wrap gap-1.5 text-xs">
               {#each pick.repo.topics.slice(0, 4) as topic (topic)}
-                <span class="badge preset-tonal-surface">{topic}</span>
+                <span class="badge preset-outlined">{topic}</span>
               {/each}
             </div>
           {/if}
@@ -324,7 +337,7 @@
           <!-- link -->
           <div class="mt-auto pt-2">
             <a
-              class="btn btn-sm preset-tonal w-full"
+              class="btn btn-sm preset-tonal-primary w-full"
               href={pick.repo.html_url}
               target="_blank"
               rel="noopener noreferrer"

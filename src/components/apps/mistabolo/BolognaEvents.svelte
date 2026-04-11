@@ -253,9 +253,7 @@
 </script>
 
 <div class="mx-auto w-full max-w-6xl space-y-4">
-  <section
-    class="card preset-filled-surface-100-900 border-surface-200-800 space-y-4 border-[1px] p-4"
-  >
+  <section class="card preset-filled-surface-100-900 border-surface-200-800 space-y-4 border p-4">
     <div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
       <p class="max-w-3xl text-sm text-surface-600-400">
         Browse official public events in Bologna by name, category, district, and date.
@@ -336,9 +334,9 @@
 
     {#if loadState === 'ready'}
       <div class="flex flex-wrap gap-2 text-xs">
-        <span class="badge preset-tonal-surface">{filteredEvents.length} shown</span>
-        <span class="badge preset-tonal-surface">{events.length} loaded</span>
-        <span class="badge preset-tonal-surface">{totalCount} available</span>
+        <span class="badge preset-outlined">{filteredEvents.length} shown</span>
+        <span class="badge preset-outlined">{events.length} loaded</span>
+        <span class="badge preset-outlined">{totalCount} available</span>
       </div>
     {/if}
   </section>
@@ -347,7 +345,7 @@
     <div class="grid gap-3 md:grid-cols-2">
       {#each [0, 1, 2, 3] as item (item)}
         <div
-          class="card preset-filled-surface-100-900 border-surface-200-800 animate-pulse space-y-3 border-[1px] p-4"
+          class="card preset-filled-surface-100-900 border-surface-200-800 animate-pulse space-y-3 border p-4"
         >
           <div class="bg-surface-300-700 h-4 w-24 rounded"></div>
           <div class="bg-surface-300-700 h-6 w-3/4 rounded"></div>
@@ -363,14 +361,14 @@
       <button class="btn preset-outlined mt-4" onclick={load}>Retry</button>
     </aside>
   {:else if filteredEvents.length === 0}
-    <div class="card preset-tonal-surface-500 p-5">
+    <div class="card preset-tonal-surface p-5">
       No events found with these filters. Try widening period, category, or district.
     </div>
   {:else}
     <section class="grid gap-4 md:grid-cols-2">
       {#each filteredEvents.slice(0, 60) as event (event.id)}
         <article
-          class="card preset-filled-surface-100-900 border-surface-200-800 flex min-h-full flex-col gap-4 border-[1px] p-4"
+          class="card preset-filled-surface-100-900 border-surface-200-800 flex min-h-full flex-col gap-4 border p-4"
         >
           <div class="flex items-start justify-between gap-3">
             <div class="flex min-w-0 items-start gap-3">
@@ -391,12 +389,12 @@
 
           <div class="mt-auto space-y-3">
             <div class="flex flex-wrap gap-2 text-xs">
-              <span class="badge preset-tonal-surface">
+              <span class="badge preset-outlined">
                 <Ticket size={14} />
                 {eventSpan(event)}
               </span>
               {#if event.quartiere}
-                <span class="badge preset-tonal-surface">{event.quartiere}</span>
+                <span class="badge preset-outlined">{event.quartiere}</span>
               {/if}
               {#if event.online === 'SI'}
                 <span class="badge preset-tonal-secondary">online</span>

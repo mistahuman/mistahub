@@ -77,12 +77,12 @@
 
 <div class="mx-auto w-full max-w-2xl">
   <div
-    class="card preset-filled-surface-100-900 border-surface-200-800 mb-4 flex flex-col gap-3 border-[1px] p-4 sm:flex-row sm:items-center sm:justify-between"
+    class="card preset-filled-surface-100-900 border-surface-200-800 mb-4 flex flex-col gap-3 border p-4 sm:flex-row sm:items-center sm:justify-between"
   >
     <div class="space-y-1">
       <div class="flex flex-wrap gap-2">
         {#if fetchedAt}
-          <span class="badge preset-tonal-surface">{fetchedAt}</span>
+          <span class="badge preset-outlined">{fetchedAt}</span>
         {/if}
       </div>
       <p class="text-sm text-surface-600-400">
@@ -98,7 +98,7 @@
     <div class="space-y-2">
       {#each [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] as i (i)}
         <div
-          class="card preset-filled-surface-100-900 border-surface-200-800 animate-pulse border-[1px] px-4 py-3"
+          class="card preset-filled-surface-100-900 border-surface-200-800 animate-pulse border px-4 py-3"
         >
           <div class="flex items-center gap-3">
             <div class="bg-surface-300-700 h-3 w-5 rounded"></div>
