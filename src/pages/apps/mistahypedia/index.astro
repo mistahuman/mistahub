@@ -5,7 +5,12 @@ import SpikeDetector from '@components/apps/mistahypedia/SpikeDetector.svelte';
 ---
 
 <Layout>
-  <AppPage title="mistahypedia" tagline="Most viewed Wikipedia articles yesterday">
+  <AppPage
+    title="mistahypedia"
+    tagline="Most viewed Wikipedia articles from the latest available daily ranking."
+    sourceUrl="https://wikitech.wikimedia.org/wiki/Analytics/AQS/Pageviews"
+    sourceLabel="Wikimedia Pageviews API"
+  >
     <SpikeDetector client:load />
   </AppPage>
 </Layout>

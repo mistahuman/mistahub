@@ -1,0 +1,16 @@
+---
+import Layout from '@layouts/Layout.astro';
+import AppPage from '@components/AppPage.astro';
+import BolognaEvents from '@components/apps/mistabolo/BolognaEvents.svelte';
+---
+
+<Layout>
+  <AppPage
+    title="mistabolo"
+    tagline="Cultural events in Bologna from the city's public open data."
+    sourceUrl="https://opendata.comune.bologna.it/explore/dataset/eventi-bologna-agenda-cultura/api/"
+    sourceLabel="Bologna Agenda Cultura API"
+  >
+    <BolognaEvents client:load />
+  </AppPage>
+</Layout>

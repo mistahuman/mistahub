@@ -5,7 +5,12 @@ import NewsFeed from '@components/apps/mistanews/NewsFeed.svelte';
 ---
 
 <Layout>
-  <AppPage title="mistanews" tagline="Top 10 Hacker News stories, right now.">
+  <AppPage
+    title="mistanews"
+    tagline="Top 10 Hacker News stories, right now."
+    sourceUrl="https://github.com/HackerNews/API"
+    sourceLabel="Hacker News Firebase API"
+  >
     <NewsFeed client:load />
   </AppPage>
 </Layout>

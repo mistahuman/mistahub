@@ -25,6 +25,7 @@ https://mistahuman.github.io/mistahub/
 | `mistaexchange` | tool | Real-time currency converter (Frankfurter API)         |
 | `mistaair`      | data | Air quality readings from ARPAE Emilia-Romagna         |
 | `mistaweather`  | tool | Simple weather from Open-Meteo                         |
+| `mistabolo`     | data | Bologna culture events from Comune open data           |
 
 ## Stack
 

@@ -4,9 +4,11 @@ import { ChevronLeft } from 'lucide-svelte';
 interface Props {
   title: string;
   tagline: string;
+  sourceUrl?: string;
+  sourceLabel?: string;
 }
 
-const { title, tagline } = Astro.props;
+const { title, tagline, sourceUrl, sourceLabel = 'Data source' } = Astro.props;
 const base = import.meta.env.BASE_URL;
 ---
 
@@ -21,6 +23,18 @@ const base = import.meta.env.BASE_URL;
       <div class="space-y-2">
         <h1 class="h2">{title}</h1>
         <p class="max-w-2xl text-sm leading-relaxed text-surface-600-400 md:text-base">{tagline}</p>
+        {
+          sourceUrl && (
+            <a
+              href={sourceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex w-fit text-sm font-semibold text-primary-600-400 hover:underline"
+            >
+              {sourceLabel}
+            </a>
+          )
+        }
       </div>
     </div>
   </div>

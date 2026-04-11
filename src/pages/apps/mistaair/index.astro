@@ -5,7 +5,12 @@ import AirQualityProbe from '@components/apps/mistaair/AirQualityProbe.svelte';
 ---
 
 <Layout>
-  <AppPage title="mistaair" tagline="Air quality readings from ARPAE Emilia-Romagna.">
+  <AppPage
+    title="mistaair"
+    tagline="Air quality readings from ARPAE Emilia-Romagna."
+    sourceUrl="https://apps.arpae.it/REST/bollettini_qa/?t=json&max_results=1&sort=-_id"
+    sourceLabel="ARPAE JSON endpoint"
+  >
     <AirQualityProbe client:load />
   </AppPage>
 </Layout>

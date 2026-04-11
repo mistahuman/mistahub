@@ -5,7 +5,12 @@ import BlackjackGame from '@components/apps/mistajack/BlackjackGame.svelte';
 ---
 
 <Layout>
-  <AppPage title="mistajack" tagline="Beat the dealer at Blackjack.">
+  <AppPage
+    title="mistajack"
+    tagline="Beat the dealer at Blackjack."
+    sourceUrl="https://deckofcardsapi.com/"
+    sourceLabel="Deck of Cards API"
+  >
     <BlackjackGame client:load />
   </AppPage>
 </Layout>

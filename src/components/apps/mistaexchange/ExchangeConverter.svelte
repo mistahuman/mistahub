@@ -391,7 +391,7 @@
 
     <p class="text-center text-xs text-surface-500">
       {#if currencyCount > 0}
-        {currencyCount} currencies · live rates by Frankfurter
+        {currencyCount} currencies
       {:else}
         Loading currencies...
       {/if}

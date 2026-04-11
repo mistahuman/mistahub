@@ -5,7 +5,12 @@ import FlagGame from '@components/apps/mistageo/FlagGame.svelte';
 ---
 
 <Layout>
-  <AppPage title="mistageo" tagline="Identify the country from its flag or borders">
+  <AppPage
+    title="mistageo"
+    tagline="Identify the country from its flag or borders"
+    sourceUrl="https://restcountries.com/"
+    sourceLabel="REST Countries API"
+  >
     <FlagGame client:load />
   </AppPage>
 </Layout>

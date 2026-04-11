@@ -5,7 +5,12 @@ import PokemonGame from '@components/apps/mistadex/PokemonGame.svelte';
 ---
 
 <Layout>
-  <AppPage title="mistadex" tagline="Guess the creature from its silhouette">
+  <AppPage
+    title="mistadex"
+    tagline="Guess the creature from its silhouette"
+    sourceUrl="https://pokeapi.co/"
+    sourceLabel="PokéAPI"
+  >
     <PokemonGame client:load />
   </AppPage>
 </Layout>

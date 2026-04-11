@@ -154,8 +154,7 @@
   <article
     class="card preset-filled-surface-100-900 border-surface-200-800 overflow-hidden border-[1px]"
   >
-    <header class="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
-      <span class="badge preset-tonal-primary">daily artwork</span>
+    <header class="flex flex-wrap items-center justify-end gap-3 px-5 py-4">
       {#if todayLabel}
         <span class="text-xs text-surface-500">{todayLabel}</span>
       {:else}

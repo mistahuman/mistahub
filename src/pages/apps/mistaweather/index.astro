@@ -5,7 +5,12 @@ import WeatherPanel from '@components/apps/mistaweather/WeatherPanel.svelte';
 ---
 
 <Layout>
-  <AppPage title="mistaweather" tagline="Simple weather from Open-Meteo.">
+  <AppPage
+    title="mistaweather"
+    tagline="Simple weather from Open-Meteo."
+    sourceUrl="https://open-meteo.com/en/docs"
+    sourceLabel="Open-Meteo API"
+  >
     <WeatherPanel client:load />
   </AppPage>
 </Layout>

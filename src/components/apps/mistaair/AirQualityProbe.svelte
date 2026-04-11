@@ -310,13 +310,9 @@
   >
     <div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
       <div class="space-y-2">
-        <div class="flex flex-wrap gap-2">
-          <span class="badge preset-tonal-primary">ARPAE Emilia-Romagna</span>
-          <span class="badge preset-tonal-surface">JSON API</span>
-          {#if latest}
-            <span class="badge preset-tonal-success">bollettino {latest._id}</span>
-          {/if}
-        </div>
+        {#if latest}
+          <span class="badge preset-tonal-success">bulletin {latest._id}</span>
+        {/if}
         <p class="max-w-3xl text-sm text-surface-600-400">
           Select a city and read the latest official station measurements for PM10, PM2.5, NO2,
           ozone, and SO2.
