@@ -121,9 +121,11 @@ const icons = {
                           {entry.description}
                         </p>
                       </div>
-                      <div class="mt-auto flex items-center gap-1 text-sm text-surface-500">
-                        <Star size={14} />
-                        <span>{entry.stars}</span>
+                      <div class="mt-auto flex items-baseline gap-1 text-sm text-surface-500">
+                        <span class="flex shrink-0 translate-y-[1px]">
+                          <Star size={12} />
+                        </span>
+                        <span class="tabular-nums leading-none">{entry.stars}</span>
                       </div>
                     </div>
                   </a>

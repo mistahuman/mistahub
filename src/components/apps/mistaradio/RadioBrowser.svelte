@@ -492,18 +492,81 @@
   </article>
 
   {#if loadState === 'loading'}
-    <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-      {#each [0, 1, 2, 3, 4, 5] as item (item)}
-        <div
-          class="card preset-filled-surface-100-900 border-surface-200-800 animate-pulse space-y-3 border p-4"
-        >
-          <div class="bg-surface-300-700 h-10 w-10 rounded-base"></div>
-          <div class="bg-surface-300-700 h-5 w-3/4 rounded"></div>
-          <div class="bg-surface-200-800 h-3 w-full rounded"></div>
-          <div class="bg-surface-200-800 h-3 w-2/3 rounded"></div>
+    <section
+      class="card preset-filled-surface-100-900 border-surface-200-800 space-y-4 border p-4"
+      aria-busy="true"
+    >
+      <div class="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(12rem,16rem)_auto] lg:items-end">
+        <div class="space-y-1">
+          <label
+            class="text-xs font-semibold uppercase tracking-widest text-surface-400"
+            for="radio-search-loading"
+          >
+            Search stations
+          </label>
+          <div class="relative">
+            <Search
+              class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-surface-500"
+              size={17}
+            />
+            <input
+              id="radio-search-loading"
+              class="input input-sm w-full min-w-0 pl-9"
+              value=""
+              placeholder="Loading stations..."
+              disabled
+            />
+          </div>
         </div>
-      {/each}
-    </div>
+
+        <label class="min-w-0 space-y-1">
+          <span class="text-xs font-semibold uppercase tracking-widest text-surface-400"
+            >Country</span
+          >
+          <select class="select select-sm w-full min-w-0" disabled>
+            <option>Loading countries...</option>
+          </select>
+        </label>
+
+        <div class="flex flex-wrap gap-2">
+          <button class="btn btn-sm preset-tonal" disabled>
+            <Shuffle size={16} />
+            Random
+          </button>
+          <button class="btn btn-sm preset-tonal" disabled>Clear</button>
+          <button class="btn btn-sm preset-tonal" disabled>Reload</button>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap gap-2 text-xs">
+        <span class="badge preset-outlined">Scanning stations...</span>
+      </div>
+
+      <div class="space-y-2">
+        {#each [0, 1, 2, 3, 4, 5] as item (item)}
+          <div
+            class="border-surface-200-800 bg-surface-50-950 rounded-base border p-3 animate-pulse"
+          >
+            <div class="flex items-center gap-3">
+              <div
+                class="preset-tonal-surface flex size-11 shrink-0 items-center justify-center rounded-base"
+              >
+                <div class="bg-surface-300-700 size-6 rounded"></div>
+              </div>
+              <div class="min-w-0 flex-1 space-y-2">
+                <div class="bg-surface-300-700 h-4 w-2/3 rounded"></div>
+                <div class="bg-surface-200-800 h-3 w-1/2 rounded"></div>
+                <div class="flex gap-2">
+                  <div class="bg-surface-200-800 h-5 w-20 rounded-full"></div>
+                  <div class="bg-surface-200-800 h-5 w-16 rounded-full"></div>
+                </div>
+              </div>
+              <div class="bg-surface-300-700 h-9 w-14 shrink-0 rounded-base"></div>
+            </div>
+          </div>
+        {/each}
+      </div>
+    </section>
   {:else if loadState === 'error'}
     <aside class="card preset-tonal-error p-5">
       <p class="font-semibold">Radio directory unavailable</p>

@@ -94,7 +94,7 @@ export const appEntries: AppEntry[] = [
       'A live currency converter powered by the Frankfurter public API — pick any pair, type an amount, get the rate instantly.',
     category: 'tool',
     status: 'ready',
-    stars: 0,
+    stars: 1,
   },
   {
     slug: 'mistaair',
