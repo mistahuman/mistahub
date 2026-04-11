@@ -239,6 +239,28 @@ Use `animate-pulse` cards with two surface shades for shapes:
 </div>
 ```
 
+### Skeleton Combobox and SSR hydration
+
+The `Combobox` from `@skeletonlabs/skeleton-svelte` (backed by `@zag-js/combobox`) generates dynamic aria IDs during initialization. These IDs differ between the SSR run (server, Astro dev mode) and the client run, causing a Svelte 5 hydration mismatch:
+
+```
+TypeError: Cannot read properties of undefined (reading 'call')
+```
+
+**Rule:** any page whose Svelte component renders a `Combobox` **at the top level** (always visible, not inside a conditional) must use `client:only="svelte"` instead of `client:load` in its `index.astro`.
+
+```astro
+<!-- ✅ correct for components with a top-level Combobox -->
+<WeatherPanel client:only="svelte" />
+
+<!-- ❌ causes hydration crash in dev mode -->
+<WeatherPanel client:load />
+```
+
+A `Combobox` that only appears after an initial conditional (e.g. `{#if status !== 'loading'}`) is safe with `client:load` because it is a fresh mount, not a hydration.
+
+**Affected pages (already fixed):** `mistaweather`, `mistaexchange`, `mistaair`.
+
 ## mistagov — data layer notes
 
 **Endpoint:** `https://dati.camera.it/sparql` (GET, `format=json`).

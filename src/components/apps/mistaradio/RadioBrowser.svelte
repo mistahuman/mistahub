@@ -37,7 +37,7 @@
 
   let loadState = $state<LoadState>('loading');
   let metaState = $state<LoadState>('loading');
-  let errorMessage = $state('');
+
   let playError = $state('');
   let query = $state('');
   let country = $state('all');
@@ -211,7 +211,7 @@
 
   async function loadStations(): Promise<void> {
     loadState = 'loading';
-    errorMessage = '';
+
     playError = '';
 
     try {
@@ -232,7 +232,6 @@
 
       console.log('mistaradio stations', { filters: { query, country }, stations });
     } catch (error) {
-      errorMessage = error instanceof Error ? error.message : String(error);
       loadState = 'error';
       console.error('mistaradio stations error', error);
     }
@@ -414,19 +413,31 @@
       </div>
 
       <div class="mx-auto w-full max-w-3xl space-y-3">
-        <div class="grid gap-3 md:grid-cols-[auto_minmax(10rem,1fr)_auto] md:items-center">
-          <button
-            class="btn preset-filled-primary min-h-14 justify-center px-8 text-base"
-            onclick={togglePlayback}
-          >
-            {#if isPlaying}
-              <Pause size={24} />
-              Pause
-            {:else}
-              <Play size={24} />
-              Play
-            {/if}
-          </button>
+        <div
+          class="flex flex-col gap-3 md:grid md:grid-cols-[auto_minmax(10rem,1fr)_auto] md:items-center"
+        >
+          <div class="flex gap-2 md:contents">
+            <button
+              class="btn preset-filled-primary min-h-12 flex-1 justify-center px-6 text-base md:min-h-14 md:flex-none md:px-8"
+              onclick={togglePlayback}
+            >
+              {#if isPlaying}
+                <Pause size={22} />
+                Pause
+              {:else}
+                <Play size={22} />
+                Play
+              {/if}
+            </button>
+            <button
+              class="btn preset-tonal min-h-12 justify-center px-5 md:hidden"
+              onclick={surpriseMe}
+              disabled={visibleStations.length === 0}
+              aria-label="Surprise me"
+            >
+              <Shuffle size={20} />
+            </button>
+          </div>
           <label class="flex items-center gap-3">
             <span class="text-xs font-semibold uppercase tracking-widest text-surface-500"
               >Volume</span
@@ -461,13 +472,13 @@
             onerror={() => {
               isPlaying = false;
               window.cancelAnimationFrame(animationFrame);
-              playError = 'This stream could not be played by the browser.';
+              playError = 'Stream unavailable in this browser.';
             }}
           >
             <track kind="captions" />
           </audio>
           <button
-            class="btn preset-tonal min-h-14 justify-center px-6"
+            class="btn preset-tonal hidden min-h-14 justify-center px-6 md:flex"
             onclick={surpriseMe}
             disabled={visibleStations.length === 0}
           >
@@ -497,9 +508,11 @@
     </div>
   {:else if loadState === 'error'}
     <aside class="card preset-tonal-error p-5">
-      <p class="font-semibold">Could not load radio stations</p>
-      <p class="mt-2 text-sm">{errorMessage}</p>
-      <button class="btn preset-outlined mt-4" onclick={loadStations}>Retry</button>
+      <p class="font-semibold">Radio directory unavailable</p>
+      <p class="mt-1 text-sm opacity-80">
+        Could not reach the station list. Check your connection or try again shortly.
+      </p>
+      <button class="btn preset-outlined btn-sm mt-4" onclick={loadStations}>Retry</button>
     </aside>
   {:else if visibleStations.length === 0}
     <div class="card preset-tonal-surface p-5">
@@ -568,7 +581,7 @@
       </div>
 
       <div class="flex flex-wrap gap-2 text-xs">
-        <span class="badge preset-tonal-surface">{visibleStations.length} stations</span>
+        <span class="badge preset-outlined">{visibleStations.length} stations</span>
       </div>
 
       <div class="space-y-2">
@@ -611,14 +624,12 @@
                   </div>
                   <p class="truncate text-sm text-surface-500">{stationSubtitle(station)}</p>
                   <div class="flex flex-wrap gap-2 text-xs">
-                    <span class="badge preset-outlined-primary">{streamLabel(station)}</span>
+                    <span class="badge preset-outlined">{streamLabel(station)}</span>
                     {#if station.votes > 0}
-                      <span class="badge preset-outlined-primary"
-                        >{formatCount(station.votes)} votes</span
-                      >
+                      <span class="badge preset-outlined">{formatCount(station.votes)} votes</span>
                     {/if}
                     {#if stationTags(station)[0]}
-                      <span class="badge preset-outlined-primary">{stationTags(station)[0]}</span>
+                      <span class="badge preset-outlined">{stationTags(station)[0]}</span>
                     {/if}
                   </div>
                 </div>
@@ -627,7 +638,7 @@
               <div class="flex shrink-0 items-center gap-2">
                 {#if station.homepage}
                   <a
-                    class="btn btn-sm preset-tonal"
+                    class="btn btn-sm preset-tonal hidden sm:flex"
                     href={station.homepage}
                     target="_blank"
                     rel="noopener noreferrer"

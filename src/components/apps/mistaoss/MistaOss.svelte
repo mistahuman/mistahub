@@ -157,6 +157,11 @@
     return new Intl.DateTimeFormat('en-US', { dateStyle: 'long' }).format(new Date(iso));
   }
 
+  function shortDescription(text: string | null): string {
+    if (!text) return '';
+    return text.length > 140 ? `${text.slice(0, 137)}…` : text;
+  }
+
   async function load(): Promise<void> {
     loadState = 'loading';
     errorMessage = '';
@@ -271,7 +276,9 @@
           </div>
 
           <!-- description -->
-          <p class="text-sm leading-relaxed text-surface-600-400">{pick.repo.description}</p>
+          <p class="text-sm leading-relaxed text-surface-600-400">
+            {shortDescription(pick.repo.description)}
+          </p>
 
           <!-- stats -->
           <div class="flex flex-wrap gap-2 text-xs">
