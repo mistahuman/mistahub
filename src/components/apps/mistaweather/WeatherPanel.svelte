@@ -252,8 +252,7 @@
     <div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
       <div class="space-y-2">
         <p class="max-w-2xl text-sm text-surface-600-400">
-          Search a place, keep it saved, and read the current weather with a short forecast from
-          Open-Meteo.
+          Search a place, keep it saved, and read the current weather with a short forecast.
         </p>
       </div>
       <button

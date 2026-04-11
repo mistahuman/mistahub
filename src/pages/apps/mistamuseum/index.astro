@@ -5,7 +5,12 @@ import DailyArtwork from '@components/apps/mistamuseum/DailyArtwork.svelte';
 ---
 
 <Layout>
-  <AppPage title="mistamuseum" tagline="One curated artwork, every day.">
+  <AppPage
+    title="mistamuseum"
+    tagline="One curated artwork, every day."
+    sourceUrl="https://api.artic.edu/docs/"
+    sourceLabel="Art Institute of Chicago API"
+  >
     <DailyArtwork client:load />
   </AppPage>
 </Layout>

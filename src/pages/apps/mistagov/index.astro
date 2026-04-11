@@ -5,7 +5,12 @@ import MistaGov from '@components/apps/mistagov/MistaGov.svelte';
 ---
 
 <Layout>
-  <AppPage title="mistagov" tagline="Italian deputies, live from Camera dei Deputati.">
+  <AppPage
+    title="mistagov"
+    tagline="Italian deputies, live from Camera dei Deputati."
+    sourceUrl="https://dati.camera.it/sparql"
+    sourceLabel="Camera dei Deputati SPARQL"
+  >
     <MistaGov client:load />
   </AppPage>
 </Layout>

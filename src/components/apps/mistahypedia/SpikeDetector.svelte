@@ -81,7 +81,6 @@
   >
     <div class="space-y-1">
       <div class="flex flex-wrap gap-2">
-        <span class="badge preset-tonal-primary">en.wikipedia.org</span>
         {#if fetchedAt}
           <span class="badge preset-tonal-surface">{fetchedAt}</span>
         {/if}

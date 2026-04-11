@@ -26,7 +26,8 @@ src/
 │   │   ├── mistagov/MistaGov.svelte
 │   │   ├── mistaexchange/ExchangeConverter.svelte
 │   │   ├── mistaair/AirQualityProbe.svelte
-│   │   └── mistaweather/WeatherPanel.svelte
+│   │   ├── mistaweather/WeatherPanel.svelte
+│   │   └── mistabolo/BolognaEvents.svelte
 │   └── generic/                  # Header, Footer, Drawer, Logo, Lightswitch
 ├── data/
 │   └── apps.ts                   # pure data — no UI imports
@@ -44,7 +45,8 @@ src/
 │       ├── mistagov/index.astro
 │       ├── mistaexchange/index.astro
 │       ├── mistaair/index.astro
-│       └── mistaweather/index.astro
+│       ├── mistaweather/index.astro
+│       └── mistabolo/index.astro
 └── styles/
 ```
 
@@ -63,6 +65,7 @@ src/
 | `mistaexchange` | ready  | none (uses Frankfurter public API — `api.frankfurter.dev/v1/`)            |
 | `mistaair`      | ready  | none (uses ARPAE Emilia-Romagna `REST/bollettini_qa` JSON endpoint)       |
 | `mistaweather`  | ready  | none (uses Open-Meteo forecast + geocoding APIs)                          |
+| `mistabolo`     | ready  | none (uses Comune di Bologna Agenda Cultura OpenDataSoft API)             |
 
 ## Key conventions
 

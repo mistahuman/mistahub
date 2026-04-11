@@ -5,7 +5,12 @@ import WordleGame from '@components/apps/mistaword/WordleGame.svelte';
 ---
 
 <Layout>
-  <AppPage title="mistaword" tagline="Guess the 5-letter word in 6 tries.">
+  <AppPage
+    title="mistaword"
+    tagline="Guess the 5-letter word in 6 tries."
+    sourceUrl="https://words.dev-apis.com/"
+    sourceLabel="words.dev-apis.com API"
+  >
     <WordleGame client:load />
   </AppPage>
 </Layout>

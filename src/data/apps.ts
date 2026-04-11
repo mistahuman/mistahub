@@ -104,6 +104,15 @@ export const appEntries: AppEntry[] = [
     category: 'tool',
     status: 'ready',
   },
+  {
+    slug: 'mistabolo',
+    title: 'mistabolo',
+    tagline: 'Bologna culture events from public open data.',
+    description:
+      'A Bologna events board using the official Comune di Bologna Agenda Cultura open dataset.',
+    category: 'data',
+    status: 'ready',
+  },
 ];
 
 export function getAppBySlug(slug: string) {
