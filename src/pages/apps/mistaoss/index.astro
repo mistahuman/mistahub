@@ -1,0 +1,16 @@
+---
+import Layout from '@layouts/Layout.astro';
+import AppPage from '@components/AppPage.astro';
+import MistaOss from '@components/apps/mistaoss/MistaOss.svelte';
+---
+
+<Layout>
+  <AppPage
+    title="mistaoss"
+    tagline="Daily open source picks from active GitHub repositories."
+    sourceUrl="https://docs.github.com/rest/search/search#search-repositories"
+    sourceLabel="GitHub Search API"
+  >
+    <MistaOss client:load />
+  </AppPage>
+</Layout>

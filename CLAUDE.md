@@ -28,7 +28,8 @@ src/
 │   │   ├── mistaair/AirQualityProbe.svelte
 │   │   ├── mistaweather/WeatherPanel.svelte
 │   │   ├── mistabolo/BolognaEvents.svelte
-│   │   └── mistaradio/RadioBrowser.svelte
+│   │   ├── mistaradio/RadioBrowser.svelte
+│   │   └── mistaoss/MistaOss.svelte
 │   └── generic/                  # Header, Footer, Drawer, Logo, Lightswitch
 ├── data/
 │   └── apps.ts                   # pure data — no UI imports
@@ -48,7 +49,8 @@ src/
 │       ├── mistaair/index.astro
 │       ├── mistaweather/index.astro
 │       ├── mistabolo/index.astro
-│       └── mistaradio/index.astro
+│       ├── mistaradio/index.astro
+│       └── mistaoss/index.astro
 └── styles/
 ```
 
@@ -69,6 +71,7 @@ src/
 | `mistaweather`  | ready  | none (uses Open-Meteo forecast + geocoding APIs)                          |
 | `mistabolo`     | ready  | none (uses Comune di Bologna Agenda Cultura OpenDataSoft API)             |
 | `mistaradio`    | ready  | none (uses Radio Browser API on `de1.api.radio-browser.info`)             |
+| `mistaoss`      | ready  | none (uses GitHub Search API on `api.github.com`)                         |
 
 ## Key conventions
 
@@ -158,6 +161,16 @@ import MyGame from '@components/apps/<slug>/MyGame.svelte';
 - 300 ms debounce on amount input; pair changes trigger the same `scheduleConversion()`
 - Swap increments `swapKey` → `{#key swapKey}` remounts both `Combobox` components with updated `defaultValue`
 - `localStorage` key `mistaexchange` stores `{ from, to }`; defaults to EUR → USD on first visit
+
+## mistaoss — data layer notes
+
+**Endpoint:** `https://api.github.com/search/repositories`
+
+- Uses one public GitHub search request per category change or manual refresh.
+- Query shape: public, non-fork, non-archived repositories with moderate star counts and recent pushes.
+- Categories are implemented as query fragments (`web`, `ai`, `devtools`, `data`, `infra`, `all`).
+- Selection is deterministic per day: fetch a pool, score it locally for freshness + stars + forks + metadata quality, then choose 3 picks using a date-seeded ranking.
+- `localStorage` key `mistaoss-category` stores the last selected category.
 
 ## After each session
 
