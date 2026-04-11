@@ -11,6 +11,6 @@ import WeatherPanel from '@components/apps/mistaweather/WeatherPanel.svelte';
     sourceUrl="https://open-meteo.com/en/docs"
     sourceLabel="Open-Meteo API"
   >
-    <WeatherPanel client:load />
+    <WeatherPanel client:only="svelte" />
   </AppPage>
 </Layout>

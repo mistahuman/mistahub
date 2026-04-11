@@ -118,6 +118,149 @@ import MyGame from '@components/apps/<slug>/MyGame.svelte';
 
 6. Set `status: 'ready'` in `apps.ts` and update the README apps table.
 
+## Skeleton UI preset strategy
+
+### Available preset variants
+
+```
+preset-filled[-<color>-<shade>]   # solid background + contrasting text
+preset-tonal[-<color>]            # muted tint of the color (most used)
+preset-outlined[-<color>-<shade>] # transparent + colored border
+```
+
+**Named color tokens** (for tonal/outlined): `primary` `secondary` `tertiary` `success` `warning` `error` `surface`
+**Shade tokens** (for filled/outlined): `-500` (single), `-950-50` / `-900-100` / … / `-50-950` (light-dark pairs)
+
+Cards, buttons, badges and chip all accept the same `preset-*` classes.
+
+### Cards
+
+| Use case                          | Class                                                              |
+| --------------------------------- | ------------------------------------------------------------------ |
+| Standard surface container        | `card preset-filled-surface-100-900 border border-surface-200-800` |
+| Nested sub-panel                  | `card preset-tonal-surface`                                        |
+| Forecast / data row               | `card preset-tonal-surface border border-surface-200-800`          |
+| Error state                       | `card preset-tonal-error`                                          |
+| Warning state (partial data)      | `card preset-tonal-warning`                                        |
+| Empty state                       | `card preset-tonal-surface`                                        |
+| Loading placeholder (no skeleton) | `card preset-tonal`                                                |
+
+> **Rule:** always write `border` (not `border-[1px]`). Both give 1 px, but the bracket form is unnecessary.
+
+### Buttons
+
+| Use case                                   | Class                                                     |
+| ------------------------------------------ | --------------------------------------------------------- |
+| Primary CTA (Submit, Next Round, New game) | `btn preset-filled-primary-500`                           |
+| Secondary CTA / external link              | `btn preset-tonal-primary`                                |
+| Utility / neutral (Refresh, Reset)         | `btn preset-tonal`                                        |
+| Icon-only utility                          | `btn-icon preset-tonal`                                   |
+| Nav link hover                             | `btn hover:preset-tonal` or `btn-icon hover:preset-tonal` |
+| Retry inside error card                    | `btn preset-outlined btn-sm`                              |
+| Destructive confirm step                   | `btn preset-filled-warning-500`                           |
+
+### Badges
+
+| Use case                                  | Class                                          |
+| ----------------------------------------- | ---------------------------------------------- |
+| Feature / app label ("Daily picks")       | `badge preset-tonal-primary`                   |
+| Neutral info (counts, dates, coordinates) | `badge preset-outlined`                        |
+| Category label (text, non-numeric)        | `badge preset-tonal-surface`                   |
+| Tech / language / tag                     | `badge preset-tonal-secondary`                 |
+| Status: success / warning / error         | `badge preset-tonal-{success\|warning\|error}` |
+
+### Filter / tab button groups
+
+```svelte
+<button class="btn btn-sm {active ? 'preset-tonal-primary' : 'hover:preset-tonal'}">
+```
+
+### Loading skeletons
+
+Use `animate-pulse` cards with two surface shades for shapes:
+
+```svelte
+<div
+  class="card preset-filled-surface-100-900 border border-surface-200-800 animate-pulse space-y-4 p-5"
+>
+  <div class="bg-surface-300-700 size-11 rounded-full"></div>
+  <!-- avatar -->
+  <div class="bg-surface-300-700 h-4 w-2/3 rounded"></div>
+  <!-- title -->
+  <div class="bg-surface-200-800 h-3 w-1/2 rounded"></div>
+  <!-- subtitle -->
+  <div class="bg-surface-200-800 h-16 rounded"></div>
+  <!-- body -->
+</div>
+```
+
+### Combobox dropdown lists
+
+```svelte
+<div
+  class="card preset-filled-surface-100-900 border border-surface-200-800 z-50 max-h-60 w-full overflow-y-auto"
+>
+  <div
+    class="cursor-pointer px-3 py-2 text-sm hover:preset-tonal data-highlighted:preset-tonal
+              {selected ? 'preset-tonal-primary' : ''}"
+  ></div>
+</div>
+```
+
+### Dynamic components (Svelte 5)
+
+`<svelte:component this={fn()}>` is **deprecated and broken** in Svelte 5 — SSR and client hydrate differently and it throws a `TypeError` at runtime.
+
+**Correct pattern:** use `{@const}` to assign the component, but only inside a block directive (`{#if}`, `{#each}`, `{:else}`, `{#snippet}`, etc.) — **never inside a plain HTML element**.
+
+```svelte
+<!-- ✅ inside {#each} — {@const} is a direct child of the each block -->
+{#each dailyRows as day (day.date)}
+  {@const Icon = weatherIcon(day.code)}
+  <article>
+    <div class="card {weatherPreset(day.code)} p-2">
+      <Icon size={24} />
+    </div>
+  </article>
+{/each}
+
+<!-- ✅ wrap in {#if true} when you need it inside markup -->
+{#if true}
+  {@const Icon = weatherIcon(weather.current.weather_code)}
+  <div class="card {weatherPreset(weather.current.weather_code)} p-3">
+    <Icon size={42} />
+  </div>
+{/if}
+
+<!-- ❌ invalid — {@const} inside a <div> -->
+<div class="card p-3">
+  {@const Icon = weatherIcon(code)}
+  <Icon size={42} />
+</div>
+```
+
+### Skeleton Combobox and SSR hydration
+
+The `Combobox` from `@skeletonlabs/skeleton-svelte` (backed by `@zag-js/combobox`) generates dynamic aria IDs during initialization. These IDs differ between the SSR run (server, Astro dev mode) and the client run, causing a Svelte 5 hydration mismatch:
+
+```
+TypeError: Cannot read properties of undefined (reading 'call')
+```
+
+**Rule:** any page whose Svelte component renders a `Combobox` **at the top level** (always visible, not inside a conditional) must use `client:only="svelte"` instead of `client:load` in its `index.astro`.
+
+```astro
+<!-- ✅ correct for components with a top-level Combobox -->
+<WeatherPanel client:only="svelte" />
+
+<!-- ❌ causes hydration crash in dev mode -->
+<WeatherPanel client:load />
+```
+
+A `Combobox` that only appears after an initial conditional (e.g. `{#if status !== 'loading'}`) is safe with `client:load` because it is a fresh mount, not a hydration.
+
+**Affected pages (already fixed):** `mistaweather`, `mistaexchange`, `mistaair`.
+
 ## mistagov — data layer notes
 
 **Endpoint:** `https://dati.camera.it/sparql` (GET, `format=json`).
@@ -166,11 +309,11 @@ import MyGame from '@components/apps/<slug>/MyGame.svelte';
 
 **Endpoint:** `https://api.github.com/search/repositories`
 
-- Uses one public GitHub search request per category change or manual refresh.
+- Uses one public GitHub search request per manual refresh.
 - Query shape: public, non-fork, non-archived repositories with moderate star counts and recent pushes.
-- Categories are implemented as query fragments (`web`, `ai`, `devtools`, `data`, `infra`, `all`).
-- Selection is deterministic per day: fetch a pool, score it locally for freshness + stars + forks + metadata quality, then choose 3 picks using a date-seeded ranking.
-- `localStorage` key `mistaoss-category` stores the last selected category.
+- No category filter — shows 3 picks per day across all domains.
+- Selection is deterministic per day: fetch a pool of 80, score locally for freshness + stars + forks + metadata quality, then choose 3 using a date-seeded ranking.
+- Contributors fetched per-pick (`contributors_url?per_page=3`) after the main load.
 
 ## After each session
 

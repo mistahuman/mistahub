@@ -11,6 +11,6 @@ import AirQualityProbe from '@components/apps/mistaair/AirQualityProbe.svelte';
     sourceUrl="https://apps.arpae.it/REST/bollettini_qa/?t=json&max_results=1&sort=-_id"
     sourceLabel="ARPAE JSON endpoint"
   >
-    <AirQualityProbe client:load />
+    <AirQualityProbe client:only="svelte" />
   </AppPage>
 </Layout>

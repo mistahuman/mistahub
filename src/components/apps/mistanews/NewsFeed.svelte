@@ -89,7 +89,7 @@
 <div class="mx-auto w-full max-w-2xl">
   <!-- ── Feed toggle ─────────────────────────────────────────────────────────── -->
   <div
-    class="card preset-filled-surface-100-900 border-surface-200-800 mb-4 flex flex-wrap gap-1 border-[1px] p-1"
+    class="card preset-filled-surface-100-900 border-surface-200-800 mb-4 flex flex-wrap gap-1 border p-1"
   >
     {#each FEEDS as feed (feed.id)}
       <button
@@ -109,9 +109,7 @@
     {#if appState === 'loading'}
       <ol class="flex flex-col gap-2">
         {#each [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] as i (i)}
-          <li
-            class="card preset-filled-surface-100-900 border-surface-200-800 border-[1px] px-4 py-3"
-          >
+          <li class="card preset-filled-surface-100-900 border-surface-200-800 border px-4 py-3">
             <div class="placeholder mb-2" style="width: {85 - i * 3}%; height: 1rem;"></div>
             <div class="placeholder mb-3" style="width: {35 - i * 1}%; height: 0.75rem;"></div>
             <div class="flex gap-2">
@@ -128,7 +126,7 @@
         {/each}
       </ol>
     {:else if appState === 'error'}
-      <aside class="card preset-tonal-warning mn-error-aside">
+      <aside class="card preset-tonal-error mn-error-aside">
         <p class="mn-error-title">Could not load stories</p>
         <p class="mn-error-msg">{errorMessage}</p>
         <button class="btn preset-outlined mt-3 text-sm" onclick={reload}>Retry</button>
@@ -137,7 +135,7 @@
       <ol class="flex flex-col gap-2">
         {#each stories as story (story.id)}
           <li
-            class="card preset-filled-surface-100-900 border-surface-200-800 hover:preset-tonal border-[1px] px-4 py-3 transition-colors"
+            class="card preset-filled-surface-100-900 border-surface-200-800 hover:preset-tonal border px-4 py-3 transition-colors"
           >
             <a
               href={story.url}
@@ -149,8 +147,8 @@
               <p class="mt-1 text-xs opacity-60">{extractDomain(story.url)}</p>
             </a>
             <div class="flex flex-wrap items-center gap-2 opacity-60">
-              <span class="badge preset-tonal-surface">▲ {story.score}</span>
-              <span class="badge preset-tonal-surface">💬 {story.descendants}</span>
+              <span class="badge preset-outlined">▲ {story.score}</span>
+              <span class="badge preset-outlined">💬 {story.descendants}</span>
               <span class="text-xs">by {story.by}</span>
             </div>
           </li>
