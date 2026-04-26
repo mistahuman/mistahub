@@ -1,0 +1,11 @@
+---
+import Layout from '@layouts/Layout.astro';
+import AppPage from '@components/AppPage.astro';
+import CurlClient from '@components/apps/mistacurl/CurlClient.svelte';
+---
+
+<Layout>
+  <AppPage title="mistacurl" tagline="Fire GET requests and inspect JSON responses.">
+    <CurlClient client:load />
+  </AppPage>
+</Layout>
