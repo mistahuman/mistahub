@@ -156,6 +156,16 @@ export const appEntries: AppEntry[] = [
     status: 'ready',
     stars: 0,
   },
+  {
+    slug: 'mistadiff',
+    title: 'mistadiff',
+    tagline: 'Paste two texts, see what changed.',
+    description:
+      'A client-side text diff viewer — paste original and modified text, get a line-by-line diff in split or unified view.',
+    category: 'tool',
+    status: 'ready',
+    stars: 0,
+  },
 ];
 
 export function getAppBySlug(slug: string) {
