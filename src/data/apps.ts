@@ -146,6 +146,16 @@ export const appEntries: AppEntry[] = [
     status: 'ready',
     stars: 0,
   },
+  {
+    slug: 'mistacurl',
+    title: 'mistacurl',
+    tagline: 'Fire GET requests and inspect JSON responses.',
+    description:
+      'A lightweight HTTP client — enter a URL, add query params and headers, send a GET request, and read the formatted JSON response.',
+    category: 'tool',
+    status: 'ready',
+    stars: 0,
+  },
 ];
 
 export function getAppBySlug(slug: string) {
