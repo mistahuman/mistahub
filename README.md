@@ -28,6 +28,7 @@ https://mistahuman.github.io/mistahub/
 | `mistabolo`     | data | Bologna culture events from Comune open data           |
 | `mistaradio`    | tool | World radio stream browser (Radio Browser API)         |
 | `mistaoss`      | news | Daily open source picks from GitHub                    |
+| `mistacurl`     | tool | In-browser GET request client with examples            |
 
 ## Stack
 

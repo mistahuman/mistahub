@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { fade, slide } from 'svelte/transition';
+
   type KVPair = { key: string; value: string };
   type AppState = 'idle' | 'loading' | 'success' | 'error';
   type Example = {
@@ -97,6 +99,7 @@
   let responseJson = $state<unknown>(null);
   let errorMessage = $state<string>('');
   let activeTab = $state<'pretty' | 'raw'>('pretty');
+  let copied = $state(false);
 
   let filledParamCount = $derived(params.filter((p) => p.key.trim()).length);
   let filledHeaderCount = $derived(headers.filter((h) => h.key.trim()).length);
@@ -168,7 +171,10 @@
   }
 
   async function copyToClipboard() {
-    if (responseText) await navigator.clipboard.writeText(responseText);
+    if (!responseText) return;
+    await navigator.clipboard.writeText(responseText);
+    copied = true;
+    setTimeout(() => (copied = false), 1500);
   }
 
   function statusBadgeClass(code: number): string {
@@ -272,7 +278,7 @@
     <button
       onclick={sendRequest}
       disabled={!url.trim() || status === 'loading'}
-      class="btn preset-filled-primary-500 shrink-0"
+      class="btn preset-filled-primary-500 shrink-0 transition-opacity disabled:opacity-50"
     >
       {status === 'loading' ? 'Sending…' : 'Send'}
     </button>
@@ -302,7 +308,7 @@
     <div class="space-y-2 p-3">
       {#if activeSection === 'params'}
         {#each params as pair, i (i)}
-          <div class="flex gap-2">
+          <div in:slide={{ duration: 180 }} out:fade={{ duration: 150 }} class="flex gap-2">
             <input
               type="text"
               placeholder="key"
@@ -325,7 +331,7 @@
         <button onclick={addParam} class="btn preset-tonal btn-sm">+ Add param</button>
       {:else}
         {#each headers as pair, i (i)}
-          <div class="flex gap-2">
+          <div in:slide={{ duration: 180 }} out:fade={{ duration: 150 }} class="flex gap-2">
             <input
               type="text"
               placeholder="key"
@@ -352,66 +358,73 @@
 
   <!-- Response panel -->
   <div class="card preset-filled-surface-100-900 border border-surface-200-800 min-h-48 p-5">
-    {#if status === 'idle'}
-      <p class="text-sm text-surface-500">Response will appear here.</p>
-    {:else if status === 'loading'}
-      <div class="animate-pulse space-y-3">
-        <div class="bg-surface-300-700 h-3 w-3/4 rounded"></div>
-        <div class="bg-surface-200-800 h-3 w-1/2 rounded"></div>
-        <div class="bg-surface-200-800 h-3 w-2/3 rounded"></div>
-      </div>
-    {:else if status === 'error'}
-      <div class="space-y-2">
-        <div class="flex items-center gap-2">
-          {#if responseStatus}
-            <span class={statusBadgeClass(responseStatus)}>{responseStatus}</span>
-          {/if}
-          <span class="text-sm font-medium">{errorMessage}</span>
-        </div>
-        {#if responseText}
-          <pre
-            class="mt-2 overflow-x-auto whitespace-pre-wrap break-all text-xs">{responseText}</pre>
-        {/if}
-      </div>
-    {:else if status === 'success'}
-      <div class="space-y-3">
-        <div class="flex items-center justify-between gap-2">
-          <div class="flex items-center gap-2">
-            {#if responseStatus}
-              <span class={statusBadgeClass(responseStatus)}>{responseStatus}</span>
+    {#key status}
+      <div transition:fade={{ duration: 150 }}>
+        {#if status === 'idle'}
+          <p class="text-sm text-surface-500">Response will appear here.</p>
+        {:else if status === 'loading'}
+          <div class="animate-pulse space-y-3">
+            <div class="bg-surface-300-700 h-3 w-3/4 rounded"></div>
+            <div class="bg-surface-200-800 h-3 w-1/2 rounded"></div>
+            <div class="bg-surface-200-800 h-3 w-2/3 rounded"></div>
+          </div>
+        {:else if status === 'error'}
+          <div class="space-y-2">
+            <div class="flex items-center gap-2">
+              {#if responseStatus}
+                <span class={statusBadgeClass(responseStatus)}>{responseStatus}</span>
+              {/if}
+              <span class="text-sm font-medium">{errorMessage}</span>
+            </div>
+            {#if responseText}
+              <pre
+                class="mt-2 overflow-x-auto whitespace-pre-wrap break-all text-xs">{responseText}</pre>
             {/if}
-            <div class="flex gap-1">
-              <button
-                onclick={() => (activeTab = 'pretty')}
-                class="btn btn-sm {activeTab === 'pretty'
-                  ? 'preset-tonal-primary'
-                  : 'hover:preset-tonal'}"
-              >
-                Pretty
-              </button>
-              <button
-                onclick={() => (activeTab = 'raw')}
-                class="btn btn-sm {activeTab === 'raw'
-                  ? 'preset-tonal-primary'
-                  : 'hover:preset-tonal'}"
-              >
-                Raw
+          </div>
+        {:else if status === 'success'}
+          <div class="space-y-3">
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2">
+                {#if responseStatus}
+                  <span class={statusBadgeClass(responseStatus)}>{responseStatus}</span>
+                {/if}
+                <div class="flex gap-1">
+                  <button
+                    onclick={() => (activeTab = 'pretty')}
+                    class="btn btn-sm {activeTab === 'pretty'
+                      ? 'preset-tonal-primary'
+                      : 'hover:preset-tonal'}"
+                  >
+                    Pretty
+                  </button>
+                  <button
+                    onclick={() => (activeTab = 'raw')}
+                    class="btn btn-sm {activeTab === 'raw'
+                      ? 'preset-tonal-primary'
+                      : 'hover:preset-tonal'}"
+                  >
+                    Raw
+                  </button>
+                </div>
+              </div>
+              <button onclick={copyToClipboard} class="btn preset-tonal btn-sm shrink-0">
+                {copied ? 'Copied!' : 'Copy'}
               </button>
             </div>
-          </div>
-          <button onclick={copyToClipboard} class="btn preset-tonal btn-sm shrink-0">Copy</button>
-        </div>
 
-        {#if activeTab === 'pretty'}
-          <pre class="overflow-x-auto whitespace-pre-wrap break-all text-xs">{JSON.stringify(
-              responseJson,
-              null,
-              2,
-            )}</pre>
-        {:else}
-          <pre class="overflow-x-auto whitespace-pre-wrap break-all text-xs">{responseText}</pre>
+            {#if activeTab === 'pretty'}
+              <pre class="overflow-x-auto whitespace-pre-wrap break-all text-xs">{JSON.stringify(
+                  responseJson,
+                  null,
+                  2,
+                )}</pre>
+            {:else}
+              <pre
+                class="overflow-x-auto whitespace-pre-wrap break-all text-xs">{responseText}</pre>
+            {/if}
+          </div>
         {/if}
       </div>
-    {/if}
+    {/key}
   </div>
 </div>

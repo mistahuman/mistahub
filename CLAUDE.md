@@ -29,7 +29,8 @@ src/
 │   │   ├── mistaweather/WeatherPanel.svelte
 │   │   ├── mistabolo/BolognaEvents.svelte
 │   │   ├── mistaradio/RadioBrowser.svelte
-│   │   └── mistaoss/MistaOss.svelte
+│   │   ├── mistaoss/MistaOss.svelte
+│   │   └── mistacurl/CurlClient.svelte
 │   └── generic/                  # Header, Footer, Drawer, Logo, Lightswitch
 ├── data/
 │   └── apps.ts                   # pure data — no UI imports
@@ -50,7 +51,8 @@ src/
 │       ├── mistaweather/index.astro
 │       ├── mistabolo/index.astro
 │       ├── mistaradio/index.astro
-│       └── mistaoss/index.astro
+│       ├── mistaoss/index.astro
+│       └── mistacurl/index.astro
 └── styles/
 ```
 
@@ -72,6 +74,7 @@ src/
 | `mistabolo`     | ready  | none (uses Comune di Bologna Agenda Cultura OpenDataSoft API)             |
 | `mistaradio`    | ready  | none (uses Radio Browser API on `de1.api.radio-browser.info`)             |
 | `mistaoss`      | ready  | none (uses GitHub Search API on `api.github.com`)                         |
+| `mistacurl`     | ready  | none (in-browser GET client — no external API dependency)                 |
 
 ## Key conventions
 
