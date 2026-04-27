@@ -99,13 +99,28 @@
 
   <!-- Section 3 — Output -->
   <div class="space-y-2">
-    <div class="flex items-center gap-2">
-      <span class="text-sm font-medium">Output</span>
-      {#if tokens.length > 0}
-        <span class="badge preset-outlined text-xs">
-          {tokens.length} token{tokens.length !== 1 ? 's' : ''}
-        </span>
-      {/if}
+    <div class="flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2">
+        <span class="text-sm font-medium">Output</span>
+        {#if tokens.length > 0}
+          <span class="badge preset-outlined text-xs">
+            {tokens.length} token{tokens.length !== 1 ? 's' : ''}
+          </span>
+        {/if}
+      </div>
+      <button
+        onclick={copyOutput}
+        disabled={!output}
+        class="btn btn-sm preset-filled-primary-500 gap-1.5 transition-opacity disabled:opacity-40"
+      >
+        {#if copied}
+          <Check size={14} />
+          Copied!
+        {:else}
+          <Copy size={14} />
+          Copy
+        {/if}
+      </button>
     </div>
 
     <textarea
@@ -117,21 +132,5 @@
       class="w-full resize-none rounded border border-surface-200-800 bg-surface-100-900 p-3 font-mono text-sm
              text-surface-900-50 placeholder:text-surface-400-600 focus-visible:outline-none"
     ></textarea>
-
-    <div class="flex justify-end">
-      <button
-        onclick={copyOutput}
-        disabled={!output}
-        class="btn preset-filled-primary-500 gap-2 transition-opacity disabled:opacity-40"
-      >
-        {#if copied}
-          <Check size={16} />
-          Copied!
-        {:else}
-          <Copy size={16} />
-          Copy
-        {/if}
-      </button>
-    </div>
   </div>
 </div>
