@@ -29,6 +29,7 @@ https://mistahuman.github.io/mistahub/
 | `mistaradio`    | tool | World radio stream browser (Radio Browser API)         |
 | `mistaoss`      | news | Daily open source picks from GitHub                    |
 | `mistacurl`     | tool | In-browser GET request client with examples            |
+| `mistastrings`  | tool | Token-list to query-string converter                   |
 
 ## Stack
 
