@@ -1,23 +1,23 @@
 <script lang="ts">
-  type AppState = 'idle' | 'ready' | 'copied';
+  import { SegmentedControl } from '@skeletonlabs/skeleton-svelte';
+  import { Copy, Check } from 'lucide-svelte';
 
-  const OPERATOR_PRESETS = [
-    { label: 'OR', value: ' OR ' },
-    { label: 'AND', value: ' AND ' },
-    { label: ',', value: ', ' },
-    { label: '|', value: ' | ' },
-    { label: 'Custom', value: '' },
-  ] as const;
+  const PRESETS = ['OR', 'AND', ',', '|', 'Custom'] as const;
+  type Preset = (typeof PRESETS)[number];
+
+  const OP_MAP: Record<Preset, string> = {
+    OR: ' OR ',
+    AND: ' AND ',
+    ',': ', ',
+    '|': ' | ',
+    Custom: '',
+  };
 
   let input = $state('');
-  let selectedPreset = $state<string>('OR');
+  let preset = $state<Preset>('OR');
   let customOp = $state('');
 
-  let operator = $derived(
-    selectedPreset === 'Custom'
-      ? customOp
-      : (OPERATOR_PRESETS.find((p) => p.label === selectedPreset)?.value ?? ' OR '),
-  );
+  let operator = $derived(preset === 'Custom' ? customOp : OP_MAP[preset]);
 
   let tokens = $derived(
     input
@@ -28,81 +28,110 @@
 
   let output = $derived(tokens.length > 0 ? tokens.join(operator) : '');
 
-  let appState = $derived<AppState>(tokens.length === 0 ? 'idle' : 'ready');
-
-  let copyState = $state<'idle' | 'copied'>('idle');
+  let copied = $state(false);
 
   async function copyOutput() {
     if (!output) return;
     await navigator.clipboard.writeText(output);
-    copyState = 'copied';
-    setTimeout(() => (copyState = 'idle'), 2000);
+    copied = true;
+    setTimeout(() => (copied = false), 2000);
   }
 </script>
 
-<div class="space-y-5">
-  <!-- Input -->
+<div class="space-y-6">
+  <!-- Section 1 — Input -->
   <div class="space-y-2">
     <label for="strings-input" class="text-sm font-medium">Input</label>
     <textarea
       id="strings-input"
       bind:value={input}
-      placeholder="Paste or type tokens separated by spaces, commas, semicolons, or newlines…"
-      rows="5"
-      class="textarea w-full font-mono text-sm"
+      placeholder="Paste or type tokens — spaces, commas, semicolons, and newlines all work as separators…"
+      rows="6"
+      spellcheck="false"
+      class="w-full resize-y rounded border border-surface-200-800 bg-surface-50-950 p-3 font-mono text-sm
+             focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary-500"
     ></textarea>
   </div>
 
-  <!-- Operator selector -->
-  <div class="space-y-2">
+  <!-- Section 2 — Operator selector -->
+  <div class="space-y-3">
     <p class="text-sm font-medium">Join with</p>
-    <div class="flex flex-wrap gap-2">
-      {#each OPERATOR_PRESETS as preset (preset.label)}
-        <button
-          onclick={() => (selectedPreset = preset.label)}
-          class="btn btn-sm {selectedPreset === preset.label
-            ? 'preset-tonal-primary'
-            : 'hover:preset-tonal'} font-mono"
-        >
-          {preset.label}
-        </button>
-      {/each}
-    </div>
 
-    {#if selectedPreset === 'Custom'}
-      <input
-        type="text"
-        bind:value={customOp}
-        placeholder="e.g.  &&  or  UNION "
-        class="input font-mono text-sm"
-      />
-    {/if}
+    <SegmentedControl
+      value={preset}
+      onValueChange={(e) => {
+        if (e.value) preset = e.value as Preset;
+      }}
+    >
+      <SegmentedControl.Control
+        class="relative flex w-full items-center gap-0.5 rounded-xl bg-surface-200-800 p-1"
+      >
+        <SegmentedControl.Indicator
+          class="rounded-lg bg-surface-50-950 shadow-sm"
+          style="width: var(--width); height: var(--height);"
+        />
+        {#each PRESETS as p (p)}
+          <SegmentedControl.Item
+            value={p}
+            class="relative z-10 flex-1 cursor-pointer select-none rounded-lg px-3 py-1.5 text-center text-sm font-medium
+                   text-surface-500-400 data-[state=checked]:text-surface-900-50"
+          >
+            <SegmentedControl.ItemText class="font-mono">{p}</SegmentedControl.ItemText>
+            <SegmentedControl.ItemHiddenInput />
+          </SegmentedControl.Item>
+        {/each}
+      </SegmentedControl.Control>
+    </SegmentedControl>
+
+    <!-- Custom operator input — always rendered to avoid layout jump -->
+    <div class="h-10">
+      {#if preset === 'Custom'}
+        <input
+          type="text"
+          bind:value={customOp}
+          placeholder="Type a custom separator, e.g.  &&  or  UNION"
+          class="h-full w-full rounded border border-surface-200-800 bg-surface-50-950 px-3 font-mono text-sm
+                 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary-500"
+        />
+      {/if}
+    </div>
   </div>
 
-  <!-- Output -->
+  <!-- Section 3 — Output -->
   <div class="space-y-2">
-    <div class="flex items-center justify-between gap-2">
-      <div class="flex items-center gap-2">
-        <span class="text-sm font-medium">Output</span>
-        {#if appState === 'ready'}
-          <span class="badge preset-outlined text-xs"
-            >{tokens.length} token{tokens.length !== 1 ? 's' : ''}</span
-          >
-        {/if}
-      </div>
-      {#if appState === 'ready'}
-        <button onclick={copyOutput} class="btn btn-sm preset-filled-primary-500">
-          {copyState === 'copied' ? 'Copied!' : 'Copy'}
-        </button>
+    <div class="flex items-center gap-2">
+      <span class="text-sm font-medium">Output</span>
+      {#if tokens.length > 0}
+        <span class="badge preset-outlined text-xs">
+          {tokens.length} token{tokens.length !== 1 ? 's' : ''}
+        </span>
       {/if}
     </div>
 
-    <div class="card preset-filled-surface-100-900 border border-surface-200-800 min-h-24 p-4">
-      {#if appState === 'idle'}
-        <p class="text-sm text-surface-500">Output will appear here.</p>
-      {:else}
-        <p class="break-all font-mono text-sm leading-relaxed">{output}</p>
-      {/if}
+    <textarea
+      readonly
+      rows="4"
+      value={output}
+      placeholder="Output will appear here as you type…"
+      spellcheck="false"
+      class="w-full resize-none rounded border border-surface-200-800 bg-surface-100-900 p-3 font-mono text-sm
+             text-surface-900-50 placeholder:text-surface-400-600 focus-visible:outline-none"
+    ></textarea>
+
+    <div class="flex justify-end">
+      <button
+        onclick={copyOutput}
+        disabled={!output}
+        class="btn preset-filled-primary-500 gap-2 transition-opacity disabled:opacity-40"
+      >
+        {#if copied}
+          <Check size={16} />
+          Copied!
+        {:else}
+          <Copy size={16} />
+          Copy
+        {/if}
+      </button>
     </div>
   </div>
 </div>
