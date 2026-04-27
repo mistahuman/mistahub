@@ -30,7 +30,8 @@ src/
 │   │   ├── mistabolo/BolognaEvents.svelte
 │   │   ├── mistaradio/RadioBrowser.svelte
 │   │   ├── mistaoss/MistaOss.svelte
-│   │   └── mistacurl/CurlClient.svelte
+│   │   ├── mistacurl/CurlClient.svelte
+│   │   └── mistastrings/StringsConverter.svelte
 │   └── generic/                  # Header, Footer, Drawer, Logo, Lightswitch
 ├── data/
 │   └── apps.ts                   # pure data — no UI imports
@@ -52,7 +53,8 @@ src/
 │       ├── mistabolo/index.astro
 │       ├── mistaradio/index.astro
 │       ├── mistaoss/index.astro
-│       └── mistacurl/index.astro
+│       ├── mistacurl/index.astro
+│       └── mistastrings/index.astro
 └── styles/
 ```
 
@@ -75,6 +77,7 @@ src/
 | `mistaradio`    | ready  | none (uses Radio Browser API on `de1.api.radio-browser.info`)             |
 | `mistaoss`      | ready  | none (uses GitHub Search API on `api.github.com`)                         |
 | `mistacurl`     | ready  | none (in-browser GET client — no external API dependency)                 |
+| `mistastrings`  | ready  | none (pure client-side token → query string converter)                    |
 
 ## Key conventions
 

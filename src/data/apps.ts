@@ -166,6 +166,16 @@ export const appEntries: AppEntry[] = [
     status: 'ready',
     stars: 0,
   },
+  {
+    slug: 'mistastrings',
+    title: 'mistastrings',
+    tagline: 'Turn a messy token list into a clean query string.',
+    description:
+      'Paste any mix of tokens separated by spaces, commas, semicolons, or newlines — pick a join operator and copy the result.',
+    category: 'tool',
+    status: 'ready',
+    stars: 0,
+  },
 ];
 
 export function getAppBySlug(slug: string) {

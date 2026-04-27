@@ -1,0 +1,14 @@
+---
+import Layout from '@layouts/Layout.astro';
+import AppPage from '@components/AppPage.astro';
+import StringsConverter from '@components/apps/mistastrings/StringsConverter.svelte';
+---
+
+<Layout>
+  <AppPage
+    title="mistastrings"
+    tagline="Turn a messy token list into a clean query string (for cami <3)."
+  >
+    <StringsConverter client:load />
+  </AppPage>
+</Layout>
