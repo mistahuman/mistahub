@@ -5,7 +5,7 @@ import DiffViewer from '@components/apps/mistadiff/DiffViewer.svelte';
 ---
 
 <Layout>
-  <AppPage title="mistadiff" tagline="Paste two texts, see what changed.">
-    <DiffViewer client:load />
+  <AppPage title="mistadiff" tagline="Format JSON and XML. Compare two texts.">
+    <DiffViewer client:only="svelte" />
   </AppPage>
 </Layout>

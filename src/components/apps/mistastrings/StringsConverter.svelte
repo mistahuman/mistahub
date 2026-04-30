@@ -1,6 +1,7 @@
 <script lang="ts">
-  import { SegmentedControl } from '@skeletonlabs/skeleton-svelte';
-  import { Copy, Check } from 'lucide-svelte';
+  import { onMount } from 'svelte';
+  import { Collapsible, SegmentedControl } from '@skeletonlabs/skeleton-svelte';
+  import { Copy, Check, ChevronDown } from 'lucide-svelte';
 
   const PRESETS = ['OR', 'AND', ',', '|', 'Custom'] as const;
   type Preset = (typeof PRESETS)[number];
@@ -13,9 +14,23 @@
     Custom: '',
   };
 
+  const LS_KEY = 'mistastrings-history';
+  const MAX_HISTORY = 5;
+
+  type HistoryEntry = {
+    id: number;
+    output: string;
+    operatorLabel: string;
+    tokenCount: number;
+  };
+
   let input = $state('');
   let preset = $state<Preset>('OR');
   let customOp = $state('');
+  let history = $state<HistoryEntry[]>([]);
+  let historyOpen = $state(false);
+  let copiedMain = $state(false);
+  let copiedId = $state<number | null>(null);
 
   let operator = $derived(preset === 'Custom' ? customOp : OP_MAP[preset]);
 
@@ -28,13 +43,39 @@
 
   let output = $derived(tokens.length > 0 ? tokens.join(operator) : '');
 
-  let copied = $state(false);
+  onMount(() => {
+    try {
+      const stored = localStorage.getItem(LS_KEY);
+      if (stored) history = JSON.parse(stored);
+    } catch {
+      history = [];
+    }
+  });
+
+  function saveHistory(entry: HistoryEntry) {
+    const deduped = history.filter((h) => h.output !== entry.output);
+    history = [entry, ...deduped].slice(0, MAX_HISTORY);
+    localStorage.setItem(LS_KEY, JSON.stringify(history));
+    historyOpen = true;
+  }
 
   async function copyOutput() {
     if (!output) return;
     await navigator.clipboard.writeText(output);
-    copied = true;
-    setTimeout(() => (copied = false), 2000);
+    saveHistory({ id: Date.now(), output, operatorLabel: preset, tokenCount: tokens.length });
+    copiedMain = true;
+    setTimeout(() => (copiedMain = false), 2000);
+  }
+
+  async function copyHistoryEntry(entry: HistoryEntry) {
+    await navigator.clipboard.writeText(entry.output);
+    copiedId = entry.id;
+    setTimeout(() => (copiedId = null), 2000);
+  }
+
+  function clearHistory() {
+    history = [];
+    localStorage.removeItem(LS_KEY);
   }
 </script>
 
@@ -113,7 +154,7 @@
         disabled={!output}
         class="btn btn-sm preset-filled-primary-500 gap-1.5 transition-opacity disabled:opacity-40"
       >
-        {#if copied}
+        {#if copiedMain}
           <Check size={14} />
           Copied!
         {:else}
@@ -133,4 +174,57 @@
              text-surface-900-50 placeholder:text-surface-400-600 focus-visible:outline-none"
     ></textarea>
   </div>
+
+  <!-- Section 4 — History -->
+  {#if history.length > 0}
+    <Collapsible open={historyOpen} onOpenChange={(e) => (historyOpen = e.open)}>
+      <div class="card preset-filled-surface-100-900 border border-surface-200-800 overflow-hidden">
+        <!-- Trigger row -->
+        <div class="flex items-center gap-2 px-3 py-2.5">
+          <Collapsible.Trigger class="flex flex-1 cursor-pointer items-center gap-2 text-left">
+            <span class="text-sm font-medium">History</span>
+            <span class="badge preset-tonal-surface text-xs">{history.length}</span>
+            <Collapsible.Indicator
+              class="ml-auto text-surface-500-400 transition-transform data-[state=open]:rotate-180"
+            >
+              <ChevronDown size={15} />
+            </Collapsible.Indicator>
+          </Collapsible.Trigger>
+          <button onclick={clearHistory} class="btn btn-sm preset-tonal shrink-0 text-xs">
+            Clear
+          </button>
+        </div>
+
+        <!-- Entries -->
+        <Collapsible.Content>
+          <div class="divide-y divide-surface-200-800 border-t border-surface-200-800">
+            {#each history as entry (entry.id)}
+              <div class="flex items-center gap-3 px-3 py-2.5">
+                <div class="min-w-0 flex-1 space-y-1">
+                  <p class="truncate font-mono text-sm">{entry.output}</p>
+                  <div class="flex items-center gap-1.5">
+                    <span class="badge preset-tonal-surface text-xs">{entry.operatorLabel}</span>
+                    <span class="badge preset-outlined text-xs"
+                      >{entry.tokenCount} token{entry.tokenCount !== 1 ? 's' : ''}</span
+                    >
+                  </div>
+                </div>
+                <button
+                  onclick={() => copyHistoryEntry(entry)}
+                  class="btn-icon btn-sm preset-tonal shrink-0"
+                  aria-label="Copy"
+                >
+                  {#if copiedId === entry.id}
+                    <Check size={14} />
+                  {:else}
+                    <Copy size={14} />
+                  {/if}
+                </button>
+              </div>
+            {/each}
+          </div>
+        </Collapsible.Content>
+      </div>
+    </Collapsible>
+  {/if}
 </div>

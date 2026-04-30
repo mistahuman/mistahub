@@ -159,9 +159,9 @@ export const appEntries: AppEntry[] = [
   {
     slug: 'mistadiff',
     title: 'mistadiff',
-    tagline: 'Paste two texts, see what changed.',
+    tagline: 'Format JSON and XML. Compare two texts.',
     description:
-      'A client-side text diff viewer — paste original and modified text, get a line-by-line diff in split or unified view.',
+      'A client-side formatter and diff tool — pretty-print or minify JSON/XML, or switch to diff mode for a line-by-line comparison.',
     category: 'tool',
     status: 'ready',
     stars: 0,
