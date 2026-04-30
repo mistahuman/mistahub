@@ -3,7 +3,7 @@ export type AppEntry = {
   title: string;
   tagline: string;
   description: string;
-  category: 'game' | 'news' | 'tool' | 'data' | 'art';
+  category: 'game' | 'news' | 'tool' | 'data' | 'art' | 'dev';
   status: 'ready' | 'planned';
   stars: number;
 };
@@ -152,7 +152,7 @@ export const appEntries: AppEntry[] = [
     tagline: 'Fire GET requests and inspect JSON responses.',
     description:
       'A lightweight HTTP client — enter a URL, add query params and headers, send a GET request, and read the formatted JSON response.',
-    category: 'tool',
+    category: 'dev',
     status: 'ready',
     stars: 0,
   },
@@ -162,7 +162,7 @@ export const appEntries: AppEntry[] = [
     tagline: 'Format JSON and XML. Compare two texts.',
     description:
       'A client-side formatter and diff tool — pretty-print or minify JSON/XML, or switch to diff mode for a line-by-line comparison.',
-    category: 'tool',
+    category: 'dev',
     status: 'ready',
     stars: 0,
   },
@@ -172,7 +172,7 @@ export const appEntries: AppEntry[] = [
     tagline: 'Turn a messy token list into a clean query string.',
     description:
       'Paste any mix of tokens separated by spaces, commas, semicolons, or newlines — pick a join operator and copy the result.',
-    category: 'tool',
+    category: 'dev',
     status: 'ready',
     stars: 0,
   },

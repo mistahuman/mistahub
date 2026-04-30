@@ -23,8 +23,12 @@ import {
 import { appEntries } from '../data/apps';
 
 const base = import.meta.env.BASE_URL;
-const categoryOrder = ['news', 'tool', 'data', 'art', 'game'] as const;
+const categoryOrder = ['news', 'dev', 'tool', 'data', 'art', 'game'] as const;
 const categoryMeta = {
+  dev: {
+    label: 'dev',
+    description: 'Developer utilities and in-browser tooling.',
+  },
   game: {
     label: 'games',
     description: 'Fast rounds, streaks, and small challenges.',
@@ -83,9 +87,13 @@ const icons = {
           const count = appEntries.filter((e) => e.category === cat && e.status === 'ready').length;
           if (count === 0) return null;
           return (
-            <span class="badge preset-outlined-primary-500">
+            <button
+              data-filter-btn
+              data-filter-cat={cat}
+              class="badge preset-outlined-primary-500 cursor-pointer transition hover:preset-tonal-primary"
+            >
               {count} {categoryMeta[cat].label}
-            </span>
+            </button>
           );
         })
       }
@@ -99,7 +107,12 @@ const icons = {
         if (entries.length === 0) return null;
 
         return (
-          <section class="space-y-4" aria-labelledby={`hub-${category}`}>
+          <section
+            data-filter-section
+            data-filter-cat={category}
+            class="space-y-4"
+            aria-labelledby={`hub-${category}`}
+          >
             <div>
               <h2 id={`hub-${category}`} class="text-xl font-semibold">
                 {categoryMeta[category].label}
@@ -144,6 +157,7 @@ const icons = {
     }
 
     <div
+      id="hub-coming-soon"
       class="card flex min-h-56 flex-col items-center justify-center gap-3 border border-dashed border-surface-300-700 bg-surface-50-950 p-5 text-center text-surface-500"
     >
       <Plus size={26} />
@@ -154,3 +168,38 @@ const icons = {
     </div>
   </div>
 </section>
+
+<script>
+  const selected = new Set<string>();
+  const btns = document.querySelectorAll<HTMLButtonElement>('[data-filter-btn]');
+  const sections = document.querySelectorAll<HTMLElement>('[data-filter-section]');
+  const comingSoon = document.getElementById('hub-coming-soon');
+
+  function applyFilter() {
+    btns.forEach((btn) => {
+      const active = selected.has(btn.dataset.filterCat!);
+      btn.classList.toggle('preset-filled-primary-500', active);
+      btn.classList.toggle('preset-outlined-primary-500', !active);
+    });
+
+    const showAll = selected.size === 0;
+    sections.forEach((section) => {
+      const visible = showAll || selected.has(section.dataset.filterCat!);
+      section.style.display = visible ? '' : 'none';
+    });
+
+    if (comingSoon) comingSoon.style.display = showAll ? '' : 'none';
+  }
+
+  btns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const cat = btn.dataset.filterCat!;
+      if (selected.has(cat)) {
+        selected.delete(cat);
+      } else {
+        selected.add(cat);
+      }
+      applyFilter();
+    });
+  });
+</script>

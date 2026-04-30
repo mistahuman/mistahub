@@ -89,7 +89,7 @@ type AppEntry = {
   title: string;
   tagline: string;
   description: string;
-  category: 'game' | 'news' | 'tool' | 'data' | 'art';
+  category: 'game' | 'news' | 'tool' | 'data' | 'art' | 'dev';
   status: 'ready' | 'planned';
 };
 ```
