@@ -265,7 +265,7 @@ TypeError: Cannot read properties of undefined (reading 'call')
 
 A `Combobox` that only appears after an initial conditional (e.g. `{#if status !== 'loading'}`) is safe with `client:load` because it is a fresh mount, not a hydration.
 
-**Affected pages (already fixed):** `mistaweather`, `mistaexchange`, `mistaair`.
+**Affected pages (already fixed):** `mistaweather`, `mistaexchange`, `mistaair`, `mistadiff`.
 
 ## mistagov — data layer notes
 
