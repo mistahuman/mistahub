@@ -6,6 +6,7 @@ export type AppEntry = {
   category: 'game' | 'news' | 'tool' | 'data' | 'art' | 'dev';
   status: 'ready' | 'planned';
   stars: number;
+  externalUrl?: string;
 };
 
 export const appEntries: AppEntry[] = [
@@ -147,24 +148,15 @@ export const appEntries: AppEntry[] = [
     stars: 0,
   },
   {
-    slug: 'mistacurl',
-    title: 'mistacurl',
-    tagline: 'Fire GET requests and inspect JSON responses.',
+    slug: 'mistatools',
+    title: 'mistatools',
+    tagline: 'API client, formatter, and differ — all wired together.',
     description:
-      'A lightweight HTTP client — enter a URL, add query params and headers, send a GET request, and read the formatted JSON response.',
+      'A suite of developer utilities: send HTTP requests, format JSON/XML with a smart previewer, and compare texts line by line. Responses pipe automatically between tools.',
     category: 'dev',
     status: 'ready',
     stars: 0,
-  },
-  {
-    slug: 'mistadiff',
-    title: 'mistadiff',
-    tagline: 'Format JSON and XML. Compare two texts.',
-    description:
-      'A client-side formatter and diff tool — pretty-print or minify JSON/XML, or switch to diff mode for a line-by-line comparison.',
-    category: 'dev',
-    status: 'ready',
-    stars: 0,
+    externalUrl: 'https://mistahuman.github.io/mistatools',
   },
   {
     slug: 'mistastrings',
