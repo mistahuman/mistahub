@@ -10,20 +10,14 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
+    "check": "astro check",
     "format": "prettier --write .",
-    "format:check": "prettier --check .",
-    "prepare": "husky",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
-  },
-  "lint-staged": {
-    "*.{js,mjs,ts,svelte,astro}": "eslint --fix",
-    "*.{js,mjs,ts,svelte,astro,css,html,json,md}": "prettier --write"
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "@astrojs/svelte": "^8.0.4",
-    "@skeletonlabs/skeleton": "^4.14.0",
-    "@skeletonlabs/skeleton-svelte": "^4.14.0",
+    "@skeletonlabs/skeleton": "^5.0.0",
+    "@skeletonlabs/skeleton-svelte": "^5.0.0",
     "@tailwindcss/vite": "^4.2.2",
     "@types/diff": "^8.0.0",
     "@types/topojson-client": "^3.1.5",
@@ -36,16 +30,8 @@
     "typescript": "^5.9.3"
   },
   "devDependencies": {
-    "@eslint/js": "^10.0.1",
+    "@astrojs/check": "^0.9.9",
     "@types/node": "^25.5.0",
-    "@typescript-eslint/eslint-plugin": "^8.58.0",
-    "@typescript-eslint/parser": "^8.58.0",
-    "eslint": "^10.1.0",
-    "eslint-plugin-astro": "^1.6.0",
-    "eslint-plugin-svelte": "^3.16.0",
-    "globals": "^17.4.0",
-    "husky": "^9.1.7",
-    "lint-staged": "^16.4.0",
     "prettier": "^3.8.1",
     "prettier-plugin-astro": "^0.14.1",
     "prettier-plugin-svelte": "^3.5.1"

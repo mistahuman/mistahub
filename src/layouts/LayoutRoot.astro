@@ -1,9 +1,10 @@
 ---
 import '@styles/global.css';
+import { THEME_PICKER, DEFAULT_THEME } from '@config';
 ---
 
 <!doctype html>
-<html lang="en" data-theme="mistahuman-theme">
+<html lang="en" data-theme={DEFAULT_THEME}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
@@ -11,13 +12,14 @@ import '@styles/global.css';
     <meta name="generator" content={Astro.generator} />
     <title>mistahub</title>
     <!-- Theme and Mode -->
-    <script is:inline>
-      // function applyTheme(document) {
-      // 	const storedTheme = localStorage.getItem('theme');
-      // 	const defaultTheme = 'cerberus';
-      // 	const theme = storedTheme ?? defaultTheme;
-      // 	document.documentElement.setAttribute('data-theme', theme);
-      // }
+    <script is:inline define:vars={{ themePicker: THEME_PICKER, defaultTheme: DEFAULT_THEME }}>
+      function applyTheme(document) {
+        // Picker disabled: the server-rendered data-theme already holds the default.
+        if (!themePicker) return;
+        const storedTheme = localStorage.getItem('theme');
+        const theme = storedTheme ?? defaultTheme;
+        document.documentElement.setAttribute('data-theme', theme);
+      }
 
       function applyMode(document) {
         const storedMode = localStorage.getItem('mode');
@@ -29,11 +31,11 @@ import '@styles/global.css';
         document.documentElement.setAttribute('data-mode', mode);
       }
 
-      // applyTheme(document);
+      applyTheme(document);
       applyMode(document);
 
       document.addEventListener('astro:before-swap', (event) => {
-        // applyTheme(event.newDocument);
+        applyTheme(event.newDocument);
         applyMode(event.newDocument);
       });
     </script>
