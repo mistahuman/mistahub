@@ -345,16 +345,16 @@
     >
       <div class="flex flex-wrap items-start justify-between gap-3">
         <div class="flex flex-wrap gap-2">
-          <span class="badge {isPlaying ? 'preset-filled-primary' : 'preset-tonal-primary'}">
+          <span class="chip {isPlaying ? 'preset-filled-primary' : 'preset-tonal-primary'}">
             {isPlaying ? 'On air' : 'Ready'}
           </span>
-          <span class="badge {isPlaying ? 'preset-filled-success' : 'preset-tonal-surface'}">
+          <span class="chip {isPlaying ? 'preset-filled-success' : 'preset-tonal-surface'}">
             {visualizerStatus}
           </span>
         </div>
         <div class="flex flex-wrap justify-end gap-2">
-          <span class="badge preset-outlined font-mono">{frequencyLabel(selectedStation)}</span>
-          <span class="badge preset-outlined">{stationCountLabel}</span>
+          <span class="chip preset-outlined font-mono">{frequencyLabel(selectedStation)}</span>
+          <span class="chip preset-outlined">{stationCountLabel}</span>
         </div>
       </div>
 
@@ -385,15 +385,15 @@
           </p>
           <div class="flex flex-wrap justify-center gap-2 text-xs">
             {#if selectedStation}
-              <span class="badge preset-tonal-surface">{signalLevel(selectedStation)}</span>
-              <span class="badge preset-outlined">{streamLabel(selectedStation)}</span>
+              <span class="chip preset-tonal-surface">{signalLevel(selectedStation)}</span>
+              <span class="chip preset-outlined">{streamLabel(selectedStation)}</span>
               {#if selectedStation.votes > 0}
-                <span class="badge preset-outlined">{formatCount(selectedStation.votes)} votes</span
+                <span class="chip preset-outlined">{formatCount(selectedStation.votes)} votes</span
                 >
               {/if}
               {#if selectedStation.homepage}
                 <a
-                  class="badge preset-tonal-surface hover:preset-tonal"
+                  class="chip preset-tonal-surface hover:preset-tonal"
                   href={selectedStation.homepage}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -403,8 +403,8 @@
                 </a>
               {/if}
             {:else}
-              <span class="badge preset-tonal-surface">Radio Browser</span>
-              <span class="badge preset-tonal-surface">animated signal</span>
+              <span class="chip preset-tonal-surface">Radio Browser</span>
+              <span class="chip preset-tonal-surface">animated signal</span>
             {/if}
           </div>
         </div>
@@ -539,7 +539,7 @@
       </div>
 
       <div class="flex flex-wrap gap-2 text-xs">
-        <span class="badge preset-outlined">Scanning stations...</span>
+        <span class="chip preset-outlined">Scanning stations...</span>
       </div>
 
       <div class="space-y-2">
@@ -642,7 +642,7 @@
       </div>
 
       <div class="flex flex-wrap gap-2 text-xs">
-        <span class="badge preset-outlined">{visibleStations.length} stations</span>
+        <span class="chip preset-outlined">{visibleStations.length} stations</span>
       </div>
 
       <div class="space-y-2">
@@ -680,17 +680,17 @@
                       {station.name.trim()}
                     </h2>
                     {#if selectedStation?.stationuuid === station.stationuuid && isPlaying}
-                      <span class="badge preset-filled-primary shrink-0 text-[0.65rem]">Live</span>
+                      <span class="chip preset-filled-primary shrink-0 text-[0.65rem]">Live</span>
                     {/if}
                   </div>
                   <p class="truncate text-sm text-surface-500">{stationSubtitle(station)}</p>
                   <div class="flex flex-wrap gap-2 text-xs">
-                    <span class="badge preset-outlined">{streamLabel(station)}</span>
+                    <span class="chip preset-outlined">{streamLabel(station)}</span>
                     {#if station.votes > 0}
-                      <span class="badge preset-outlined">{formatCount(station.votes)} votes</span>
+                      <span class="chip preset-outlined">{formatCount(station.votes)} votes</span>
                     {/if}
                     {#if stationTags(station)[0]}
-                      <span class="badge preset-outlined">{stationTags(station)[0]}</span>
+                      <span class="chip preset-outlined">{stationTags(station)[0]}</span>
                     {/if}
                   </div>
                 </div>

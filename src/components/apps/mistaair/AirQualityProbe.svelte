@@ -309,7 +309,7 @@
     <div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
       <div class="space-y-2">
         {#if latest}
-          <span class="badge preset-tonal-success">bulletin {latest._id}</span>
+          <span class="chip preset-tonal-success">bulletin {latest._id}</span>
         {/if}
         <p class="max-w-3xl text-sm text-surface-600-400">
           Select a city and read the latest official station measurements for PM10, PM2.5, NO2,
@@ -374,8 +374,8 @@
 
       {#if loadState === 'ready'}
         <div class="flex flex-wrap gap-2 text-xs">
-          <span class="badge preset-outlined">{rows.length} readings</span>
-          <span class="badge preset-outlined">{cities.length} cities</span>
+          <span class="chip preset-outlined">{rows.length} readings</span>
+          <span class="chip preset-outlined">{cities.length} cities</span>
         </div>
       {/if}
     </div>
@@ -399,7 +399,7 @@
             <h2 class="text-4xl font-bold">{quality()?.label}</h2>
             <p class="max-w-xl text-sm">{quality()?.description}</p>
           </div>
-          <span class="badge preset-filled-surface-50-950 w-fit">{selectedCity}</span>
+          <span class="chip preset-filled-surface-50-950 w-fit">{selectedCity}</span>
         </div>
 
         <div class="mt-5 grid gap-3 sm:grid-cols-2">
@@ -451,7 +451,7 @@
     <section class="card preset-filled-surface-100-900 border-surface-200-800 border p-4">
       <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
         <h2 class="font-semibold">Stations in {selectedCity}</h2>
-        <span class="badge preset-outlined">updated {selectedRows()[0]?.provinceTimestamp}</span>
+        <span class="chip preset-outlined">updated {selectedRows()[0]?.provinceTimestamp}</span>
       </div>
 
       <div class="overflow-x-auto">

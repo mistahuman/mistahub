@@ -24,7 +24,7 @@
 >
   <div class="flex items-center gap-3">
     <!-- Rank -->
-    <span class="badge preset-outlined w-9 shrink-0 justify-center font-mono text-xs">#{rank}</span>
+    <span class="chip preset-outlined w-9 shrink-0 justify-center font-mono text-xs">#{rank}</span>
 
     <!-- Title -->
     <a
@@ -38,7 +38,7 @@
     </a>
 
     <!-- Views -->
-    <span class="badge preset-outlined shrink-0 font-mono text-xs">{formatViews(views)}</span>
+    <span class="chip preset-outlined shrink-0 font-mono text-xs">{formatViews(views)}</span>
   </div>
 
   <!-- Relative bar -->

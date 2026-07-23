@@ -177,10 +177,10 @@
     setTimeout(() => (copied = false), 1500);
   }
 
-  function statusBadgeClass(code: number): string {
-    if (code >= 200 && code < 300) return 'badge preset-tonal-success';
-    if (code >= 400) return 'badge preset-tonal-error';
-    return 'badge preset-outlined';
+  function statuschipClass(code: number): string {
+    if (code >= 200 && code < 300) return 'chip preset-tonal-success';
+    if (code >= 400) return 'chip preset-tonal-error';
+    return 'chip preset-outlined';
   }
 </script>
 
@@ -230,7 +230,7 @@
                 </p>
                 {#each ex.paramDocs as pd (pd.key)}
                   <div class="flex items-baseline gap-3 text-xs">
-                    <span class="badge preset-tonal-surface shrink-0 font-mono">{pd.key}</span>
+                    <span class="chip preset-tonal-surface shrink-0 font-mono">{pd.key}</span>
                     <span class="text-surface-500">{pd.hint}</span>
                   </div>
                 {/each}
@@ -372,7 +372,7 @@
           <div class="space-y-2">
             <div class="flex items-center gap-2">
               {#if responseStatus}
-                <span class={statusBadgeClass(responseStatus)}>{responseStatus}</span>
+                <span class={statuschipClass(responseStatus)}>{responseStatus}</span>
               {/if}
               <span class="text-sm font-medium">{errorMessage}</span>
             </div>
@@ -386,7 +386,7 @@
             <div class="flex items-center justify-between gap-2">
               <div class="flex items-center gap-2">
                 {#if responseStatus}
-                  <span class={statusBadgeClass(responseStatus)}>{responseStatus}</span>
+                  <span class={statuschipClass(responseStatus)}>{responseStatus}</span>
                 {/if}
                 <div class="flex gap-1">
                   <button

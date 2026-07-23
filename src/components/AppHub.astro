@@ -74,7 +74,7 @@ const icons = {
 
 <section class="container mx-auto max-w-screen-xl px-4 py-12 md:px-8 md:py-16 xl:px-10">
   <div class="space-y-6">
-    <span class="badge preset-tonal-secondary w-fit">personal lab</span>
+    <span class="chip preset-tonal-secondary w-fit">personal lab</span>
     <div class="space-y-3">
       <h1 class="text-4xl font-bold leading-tight md:text-6xl">mistahub</h1>
       <p class="max-w-xl text-base leading-relaxed text-surface-600-400 md:text-lg">
@@ -90,7 +90,7 @@ const icons = {
             <button
               data-filter-btn
               data-filter-cat={cat}
-              class="badge preset-outlined-primary-500 cursor-pointer transition hover:preset-tonal-primary"
+              class="chip preset-outlined-primary-500 cursor-pointer transition hover:preset-tonal-primary"
             >
               {count} {categoryMeta[cat].label}
             </button>
@@ -132,7 +132,7 @@ const icons = {
                         <span class="rounded-base bg-primary-500/10 p-2 text-primary-600-400 w-fit">
                           <Icon size={24} />
                         </span>
-                        <span class="badge preset-tonal-primary text-xs">{entry.category}</span>
+                        <span class="chip preset-tonal-primary text-xs">{entry.category}</span>
                       </div>
                       <div class="space-y-2">
                         <h3 class="text-xl font-semibold">{entry.title}</h3>

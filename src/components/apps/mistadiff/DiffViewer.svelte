@@ -224,7 +224,7 @@
         <div class="flex items-center gap-2">
           <span class="text-xs font-medium text-surface-500-400">Output</span>
           {#if formatResult.lang}
-            <span class="badge preset-tonal-secondary text-xs uppercase">{formatResult.lang}</span>
+            <span class="chip preset-tonal-secondary text-xs uppercase">{formatResult.lang}</span>
           {/if}
         </div>
         <div class="flex items-center gap-1.5">

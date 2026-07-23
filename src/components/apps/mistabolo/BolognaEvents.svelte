@@ -334,9 +334,9 @@
 
     {#if loadState === 'ready'}
       <div class="flex flex-wrap gap-2 text-xs">
-        <span class="badge preset-outlined">{filteredEvents.length} shown</span>
-        <span class="badge preset-outlined">{events.length} loaded</span>
-        <span class="badge preset-outlined">{totalCount} available</span>
+        <span class="chip preset-outlined">{filteredEvents.length} shown</span>
+        <span class="chip preset-outlined">{events.length} loaded</span>
+        <span class="chip preset-outlined">{totalCount} available</span>
       </div>
     {/if}
   </section>
@@ -382,22 +382,22 @@
                 <h2 class="mt-1 text-lg font-semibold leading-snug">{event.title}</h2>
               </div>
             </div>
-            <span class="badge preset-tonal-surface shrink-0">{categoryLabel(event)}</span>
+            <span class="chip preset-tonal-surface shrink-0">{categoryLabel(event)}</span>
           </div>
 
           <p class="text-sm leading-relaxed text-surface-600-400">{shortDescription(event)}</p>
 
           <div class="mt-auto space-y-3">
             <div class="flex flex-wrap gap-2 text-xs">
-              <span class="badge preset-outlined">
+              <span class="chip preset-outlined">
                 <Ticket size={14} />
                 {eventSpan(event)}
               </span>
               {#if event.quartiere}
-                <span class="badge preset-outlined">{event.quartiere}</span>
+                <span class="chip preset-outlined">{event.quartiere}</span>
               {/if}
               {#if event.online === 'SI'}
-                <span class="badge preset-tonal-secondary">online</span>
+                <span class="chip preset-tonal-secondary">online</span>
               {/if}
             </div>
 

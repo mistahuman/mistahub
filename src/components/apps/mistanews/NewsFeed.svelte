@@ -147,8 +147,8 @@
               <p class="mt-1 text-xs opacity-60">{extractDomain(story.url)}</p>
             </a>
             <div class="flex flex-wrap items-center gap-2 opacity-60">
-              <span class="badge preset-outlined">▲ {story.score}</span>
-              <span class="badge preset-outlined">💬 {story.descendants}</span>
+              <span class="chip preset-outlined">▲ {story.score}</span>
+              <span class="chip preset-outlined">💬 {story.descendants}</span>
               <span class="text-xs">by {story.by}</span>
             </div>
           </li>

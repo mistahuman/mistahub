@@ -302,10 +302,10 @@
   <div
     class="card preset-filled-surface-100-900 border-surface-200-800 flex items-center gap-2 border px-4 py-3"
   >
-    <span class="badge preset-tonal-primary">
+    <span class="chip preset-tonal-primary">
       credits <strong>{credits}</strong>
     </span>
-    <span class="badge preset-tonal-surface">
+    <span class="chip preset-tonal-surface">
       bet <strong>{BET}</strong>
     </span>
   </div>

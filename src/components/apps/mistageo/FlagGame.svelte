@@ -357,15 +357,15 @@
           <span class="text-surface-500">No hints revealed yet.</span>
         {/if}
         {#if phase >= 1 || status === 'revealed'}
-          <span class="badge preset-tonal-surface"
+          <span class="chip preset-tonal-surface"
             >Population {formatPopulation(current.population)}</span
           >
         {/if}
         {#if phase >= 2 || status === 'revealed'}
-          <span class="badge preset-tonal-surface">Continent {current.continents[0]}</span>
+          <span class="chip preset-tonal-surface">Continent {current.continents[0]}</span>
         {/if}
         {#if phase >= 3 || status === 'revealed'}
-          <span class="badge preset-tonal-surface">Capital {current.capital[0]}</span>
+          <span class="chip preset-tonal-surface">Capital {current.capital[0]}</span>
         {/if}
       </div>
       {#if status === 'revealed' && lastResult !== null}

@@ -82,7 +82,7 @@
     <div class="space-y-1">
       <div class="flex flex-wrap gap-2">
         {#if fetchedAt}
-          <span class="badge preset-outlined">{fetchedAt}</span>
+          <span class="chip preset-outlined">{fetchedAt}</span>
         {/if}
       </div>
       <p class="text-sm text-surface-600-400">

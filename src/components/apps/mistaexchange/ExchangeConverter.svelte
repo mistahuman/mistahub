@@ -197,9 +197,9 @@
       class="me-result card preset-filled-primary-500 border border-primary-400/40 p-5 shadow-xl"
     >
       <div class="mb-3 flex flex-wrap items-center gap-2 text-xs">
-        <span class="badge bg-white/15 font-mono text-white">{fromCurrency}</span>
+        <span class="chip bg-white/15 font-mono text-white">{fromCurrency}</span>
         <ArrowLeftRight size={14} class="text-white/70" />
-        <span class="badge bg-white/15 font-mono text-white">{toCurrency}</span>
+        <span class="chip bg-white/15 font-mono text-white">{toCurrency}</span>
       </div>
       <div class="space-y-1">
         <p class="text-xs font-semibold uppercase tracking-widest text-white/70">Result</p>

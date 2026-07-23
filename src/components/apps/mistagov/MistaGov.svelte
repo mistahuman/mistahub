@@ -332,31 +332,31 @@ GROUP BY ?persona`;
 
     <div class="flex flex-wrap gap-2 text-xs">
       {#if appState === 'ready'}
-        <span class="badge preset-outlined">
+        <span class="chip preset-outlined">
           {displayed().length} / {deputies.length} deputies
         </span>
-        <span class="badge preset-outlined">
+        <span class="chip preset-outlined">
           {parties.length} groups
         </span>
         {#if totalVotazioni > 0}
-          <span class="badge preset-outlined">
+          <span class="chip preset-outlined">
             {totalVotazioni.toLocaleString('en')} votes
           </span>
         {/if}
         {#if absencesState === 'loading'}
-          <span class="badge preset-tonal-warning">loading absences</span>
+          <span class="chip preset-tonal-warning">loading absences</span>
         {:else if absencesState === 'ready'}
-          <span class="badge preset-tonal-success">absences ready</span>
+          <span class="chip preset-tonal-success">absences ready</span>
         {:else if absencesState === 'error'}
-          <span class="badge preset-tonal-error">absences partial</span>
+          <span class="chip preset-tonal-error">absences partial</span>
         {/if}
         {#if sort !== 'name' && absencesState === 'ready'}
-          <span class="badge preset-outlined">
+          <span class="chip preset-outlined">
             {totalAbsencesShown.toLocaleString('en')} absences shown
           </span>
         {/if}
       {:else}
-        <span class="badge preset-outlined">loading deputies</span>
+        <span class="chip preset-outlined">loading deputies</span>
       {/if}
     </div>
   </div>
@@ -477,7 +477,7 @@ GROUP BY ?persona`;
               >
                 <td class="px-3 py-2 whitespace-normal">
                   <p class="font-medium">{dep.name}</p>
-                  <span class="badge preset-tonal-surface mt-1 text-[0.62rem]">{dep.party}</span>
+                  <span class="chip preset-tonal-surface mt-1 text-[0.62rem]">{dep.party}</span>
                 </td>
                 <td class="px-3 py-2 text-xs tabular-nums opacity-50">{dep.groupSince ?? '—'}</td>
                 <td class="px-3 py-2 text-xs tabular-nums opacity-50"

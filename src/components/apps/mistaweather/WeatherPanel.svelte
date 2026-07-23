@@ -317,8 +317,8 @@
       </div>
 
       <div class="flex flex-wrap gap-2 text-xs">
-        <span class="badge preset-outlined">{selectedPlace.latitude.toFixed(2)} lat</span>
-        <span class="badge preset-outlined">{selectedPlace.longitude.toFixed(2)} lon</span>
+        <span class="chip preset-outlined">{selectedPlace.latitude.toFixed(2)} lat</span>
+        <span class="chip preset-outlined">{selectedPlace.longitude.toFixed(2)} lon</span>
       </div>
     </div>
   </section>
@@ -349,10 +349,10 @@
                 </h2>
                 {#if todayForecast}
                   <div class="mb-1 flex flex-wrap gap-2">
-                    <span class="badge preset-outlined">
+                    <span class="chip preset-outlined">
                       min {Math.round(todayForecast.min)}°
                     </span>
-                    <span class="badge preset-outlined">
+                    <span class="chip preset-outlined">
                       max {Math.round(todayForecast.max)}°
                     </span>
                   </div>
@@ -361,7 +361,7 @@
               <p class="mt-2 text-lg font-semibold">{weatherLabel(weather.current.weather_code)}</p>
             </div>
           </div>
-          <span class="badge preset-outlined w-fit">
+          <span class="chip preset-outlined w-fit">
             feels {Math.round(weather.current.apparent_temperature)}°C
           </span>
         </div>
@@ -385,7 +385,7 @@
       <section class="card preset-filled-surface-100-900 border-surface-200-800 border p-4">
         <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
           <h2 class="font-semibold">Forecast</h2>
-          <span class="badge preset-outlined">{dailyRows.length} days</span>
+          <span class="chip preset-outlined">{dailyRows.length} days</span>
         </div>
 
         {#if dailyRows.length === 0}
